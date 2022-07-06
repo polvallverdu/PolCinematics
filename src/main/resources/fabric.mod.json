@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "polcinematics",
+  "version": "${version}",
+  "name": "PolCinematics",
+  "description": "",
+  "authors": [
+    "Pol"
+  ],
+  "contact": {
+    "website": "pol.engineer"
+  },
+  "license": "MIT",
+  "icon": "assets/PolCinematics/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "engineer.pol.client.PolCinematicsClient"
+    ],
+    "main": [
+      "engineer.pol.PolCinematics"
+    ]
+  },
+  "mixins": [
+    "PolCinematics.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.8",
+    "fabric": "*",
+    "minecraft": "1.18.2"
+  }
+}
