@@ -27,9 +27,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // Config stuff
-    modImplementation("com.electronwill.night-config:core:3.6.5")
-    modImplementation("com.electronwill.night-config:json:3.6.5")
-    //implementation 'com.google.code.gson:gson:2.9.0'
+    //modImplementation("com.electronwill.night-config:core:3.6.5")
+    //modImplementation("com.electronwill.night-config:json:3.6.5")
+    implementation 'com.google.code.gson:gson:2.9.0'
 
     // velvet-video for video stuff
     modImplementation(files("lib/FancyVideo-API.jar"))
@@ -90,3 +90,5 @@ publishing {
         // retrieving dependencies.
     }
 }
+
+// TODO: Shadow FancyVideo-API (and maybe upload to repo)

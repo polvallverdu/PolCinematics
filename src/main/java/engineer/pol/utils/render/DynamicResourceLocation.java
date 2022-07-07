@@ -1,4 +1,4 @@
-package engineer.pol.utils;
+package engineer.pol.utils.render;
 
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceImpl;

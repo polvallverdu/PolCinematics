@@ -2,7 +2,7 @@ package engineer.pol.client.overlays;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import engineer.pol.PolCinematics;
-import engineer.pol.utils.RenderUtils;
+import engineer.pol.utils.render.RenderUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-public class VideoOverlay implements Overlay {
+public class VideoOverlay extends Overlay {
 
     private String mediaPath;
     private SimpleMediaPlayer player;
@@ -27,7 +27,7 @@ public class VideoOverlay implements Overlay {
 
     public VideoOverlay(String mediaPath) {
         this.mediaPath = mediaPath;
-        this.playerResourceLocation = new DynamicResourceLocation(PolCinematics.MODID, this.mediaPath.hashCode() + "");
+        this.playerResourceLocation = new DynamicResourceLocation(PolCinematics.MODID, "video/" + this.mediaPath.hashCode());
 
         MediaPlayerHandler.getInstance().registerPlayerOnFreeResLoc(this.playerResourceLocation, SimpleMediaPlayer.class);
         this.player = (SimpleMediaPlayer) MediaPlayerHandler.getInstance().getMediaPlayer(this.playerResourceLocation);
@@ -108,17 +108,7 @@ public class VideoOverlay implements Overlay {
     }
 
     @Override
-    public void appear() {
-        this.play();
-    }
-
-    @Override
-    public void disappear() {
-        this.stop();
-    }
-
-    @Override
-    public void render(MatrixStack matrix) {
+    public void render(MatrixStack matrix, int x, int y, int width, int height, double alpha, long time) {
         if (!this.isPlaying() || this.player == null) return;
 
         this.lastFrame = this.player.renderToResourceLocation();
@@ -126,18 +116,18 @@ public class VideoOverlay implements Overlay {
         // Get the video dimension
         Dimension d = this.getVideoDimension();
         if (d == null) return;
-        int width = d.width;
-        int height = d.height;
+        int videoWidth = d.width;
+        int videoHeight = d.height;
 
         // Get minecraft window dimension
         int windowWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         int windowHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
 
-        RenderUtils.renderBlackScreen(matrix, 1);
+        //RenderUtils.renderBlackScreen(matrix, 1);
         RenderUtils.bindTexture(this.lastFrame);
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        DrawableHelper.drawTexture(matrix, 0, 0, 0, 0, 0, windowWidth, windowHeight, windowWidth, windowHeight);
+        DrawableHelper.drawTexture(matrix, x, y, 0, 0, 0, width, height, width, height);
         RenderSystem.disableBlend();
     }
 }

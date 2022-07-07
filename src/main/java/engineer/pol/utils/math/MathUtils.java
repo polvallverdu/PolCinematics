@@ -1,4 +1,4 @@
-package engineer.pol.utils;
+package engineer.pol.utils.math;
 
 import java.awt.*;
 import java.awt.geom.Point2D;

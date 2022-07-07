@@ -2,8 +2,8 @@ package engineer.pol.async;
 
 import engineer.pol.PolCinematics;
 import engineer.pol.utils.ColorUtils;
-import engineer.pol.utils.DynamicResourceLocation;
-import engineer.pol.utils.SelfCleaningDynamicTexture;
+import engineer.pol.utils.render.DynamicResourceLocation;
+import engineer.pol.utils.render.SelfCleaningDynamicTexture;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.Identifier;
@@ -24,7 +24,7 @@ public class DownloadedImage {
     public DownloadedImage(BufferedImage image) {
         this.image = image;
         this.rescaledImage = image;
-        this.resourceLocation = new DynamicResourceLocation(PolCinematics.MODID, image.hashCode() + "cin");
+        this.resourceLocation = new DynamicResourceLocation(PolCinematics.MODID, image.hashCode() + "cin"); // TODO: Make it work
         this.nativeImage = new NativeImage(1, 1, true);
         this.texture = new SelfCleaningDynamicTexture(nativeImage);
     }

@@ -19,7 +19,14 @@ public class ColorUtils {
     }
 
     // Color format: 0xAARRGGBB
-    public static int getColorFromBufferedImage(int color) {
-        return (color & 0xFF000000) >> 24;
+    // alpha goes from 0 to 255
+    public static int applyAlphaToColor(int color, int alpha) {
+        return (alpha << 24) | (color & 0x00FFFFFF);
+    }
+
+    // Color format: 0xAARRGGBB
+    // alpha is 0.0-1.0
+    public static int applyAlphaToColor(int color, double alpha) {
+        return (int) (alpha * 255) << 24 | (color & 0x00FFFFFF);
     }
 }

@@ -1,8 +1,6 @@
 package engineer.pol.client;
 
-import com.mojang.brigadier.CommandDispatcher;
-import engineer.pol.client.overlays.BlackBarsOverlay;
-import engineer.pol.commands.CinematicCommand;
+import engineer.pol.cinematic.ClientCinematicManager;
 import engineer.pol.commands.ModCommands;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -29,5 +27,9 @@ public class PolCinematicsClient implements ClientModInitializer {
 
     public ClientCinematicManager getClientCinematicManager() {
         return clientCinematicManager;
+    }
+
+    public static ClientCinematicManager getCCM() {
+        return getInstance().getClientCinematicManager();
     }
 }

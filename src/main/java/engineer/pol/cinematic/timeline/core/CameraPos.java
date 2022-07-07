@@ -1,7 +1,6 @@
-package engineer.pol.timeline;
+package engineer.pol.cinematic.timeline.core;
 
-import com.electronwill.nightconfig.core.Config;
-import net.minecraft.util.math.Vec3d;
+import com.google.gson.JsonObject;
 
 public class CameraPos {
 
@@ -45,25 +44,28 @@ public class CameraPos {
         return roll;
     }
 
-    public static CameraPos fromConfig(Config config) {
-        double x = config.get("x");
-        double y = config.get("y");
-        double z = config.get("z");
-        double pitch = config.get("pitch");
-        double yaw = config.get("yaw");
-        double roll = config.get("roll");
+    public static CameraPos fromConfig(JsonObject json) {
+        double x = json.get("x").getAsDouble();
+        double y = json.get("y").getAsDouble();
+        double z = json.get("z").getAsDouble();
+        double pitch = json.get("pitch").getAsDouble();
+        double yaw = json.get("yaw").getAsDouble();
+        double roll = json.get("roll").getAsDouble();
+
         return new CameraPos(x, y, z, pitch, yaw, roll);
     }
 
-    public Config toConfig() {
-        Config config = Config.inMemory();
-        config.set("x", x);
-        config.set("y", y);
-        config.set("z", z);
-        config.set("pitch", pitch);
-        config.set("yaw", yaw);
-        config.set("roll", roll);
-        return config;
+    public JsonObject toConfig() {
+        JsonObject json = new JsonObject();
+
+        json.addProperty("x", x);
+        json.addProperty("y", y);
+        json.addProperty("z", z);
+        json.addProperty("pitch", pitch);
+        json.addProperty("yaw", yaw);
+        json.addProperty("roll", roll);
+
+        return json;
     }
 
 }

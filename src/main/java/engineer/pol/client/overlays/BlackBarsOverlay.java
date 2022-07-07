@@ -1,45 +1,34 @@
 package engineer.pol.client.overlays;
 
-import engineer.pol.utils.BezierCurve;
-import engineer.pol.utils.InterpolatedTimedTask;
-import engineer.pol.utils.LegacySplineInterpolator;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import engineer.pol.cinematic.timeline.core.CompositionProperty;
+import engineer.pol.utils.ColorUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 
-import java.time.Duration;
-
-public class BlackBarsOverlay implements Overlay {
+public class BlackBarsOverlay extends SolidColorOverlay {
 
     private final MinecraftClient minecraft;
-    private InterpolatedTimedTask interpolatedTimedTask;
+
+    public class BlackBarsProperty {
+        public static CompositionProperty length = new CompositionProperty("length", 0d, 1d);
+    }
 
     public BlackBarsOverlay() {
+        super();
         this.minecraft = MinecraftClient.getInstance();
-        this.interpolatedTimedTask = new InterpolatedTimedTask(Duration.ofSeconds(1), false);
+        this.addTimelineProperty(BlackBarsProperty.length);
     }
 
     @Override
-    public void appear() {
-        this.interpolatedTimedTask.startReverse();
-    }
-
-    @Override
-    public void disappear() {
-        this.interpolatedTimedTask.startNormal();
-    }
-
-    @Override
-    public void render(MatrixStack matrix) {
-        double t = this.interpolatedTimedTask.getCurveRelative();
+    public void render(MatrixStack matrix, int x, int y, int width, int heightt, double alpha, long time) {
         int maxHeight = minecraft.getWindow().getScaledHeight();
         int barHeight = (int) (maxHeight*0.1);
-        int height = (int) (t * barHeight);
+        int height = (int) (this.timelines.get(BlackBarsProperty.length).getValue(time) * barHeight);
 
-        DrawableHelper.fill(matrix, 0, 0, minecraft.getWindow().getScaledWidth(), height, 0xFF000000);
-        DrawableHelper.fill(matrix, 0, minecraft.getWindow().getScaledHeight(), minecraft.getWindow().getScaledWidth(), minecraft.getWindow().getScaledHeight()-height, 0xFF000000);
+        int color = ColorUtils.applyAlphaToColor(this.getColor(time), alpha);
+
+        DrawableHelper.fill(matrix, 0, 0, minecraft.getWindow().getScaledWidth(), height, color);
+        DrawableHelper.fill(matrix, 0, minecraft.getWindow().getScaledHeight(), minecraft.getWindow().getScaledWidth(), minecraft.getWindow().getScaledHeight()-height, color);
     }
-
-
 }

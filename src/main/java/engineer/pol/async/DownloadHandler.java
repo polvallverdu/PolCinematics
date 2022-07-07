@@ -1,16 +1,9 @@
 package engineer.pol.async;
 
-import engineer.pol.PolCinematics;
-import engineer.pol.utils.ColorUtils;
-import engineer.pol.utils.DynamicResourceLocation;
-import engineer.pol.utils.SelfCleaningDynamicTexture;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.util.Identifier;
-
-import java.awt.*;
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -26,8 +19,15 @@ public class DownloadHandler {
     }
 
     public Future<DownloadedImage> download(String url) {
-        Downloader downloader = new Downloader(url);
-        return executorService.submit(downloader);
+        return executorService.submit(() -> {
+            try {
+                BufferedImage image = ImageIO.read(new URL(url));
+                return new DownloadedImage(image);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
     }
 
 }

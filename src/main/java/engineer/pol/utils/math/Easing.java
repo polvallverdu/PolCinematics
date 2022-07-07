@@ -1,4 +1,4 @@
-package engineer.pol.timeline;
+package engineer.pol.utils.math;
 
 import java.util.function.Function;
 
