@@ -18,3 +18,5 @@ I have 2 reasons why this project doesn't have a license at the moment:
 - [ ] Client-only commands and tools (useful for videos, etc.)
 - [ ] Independent camera rendering (no need of a window, save directly to file with specific camera)
 - [ ] Support for transitions
+- [ ] Lerping through multiple keyframes
+- [ ] Custom curves for lerping
