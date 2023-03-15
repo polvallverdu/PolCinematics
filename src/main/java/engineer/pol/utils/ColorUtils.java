@@ -6,12 +6,24 @@ public class ColorUtils {
 
     // Color format: 0xAARRGGBB
 
+    /**
+     * Returns the int color for Minecraft
+     * @param red 0-255
+     * @param green 0-255
+     * @param blue 0-255
+     * @return int color
+     */
     public static int getColor(int red, int green, int blue) {
-        return 0xFF000000 | (red << 16) | (green << 8) | blue;
+        return getColor(red, green, blue, 255);
     }
 
     public static int getColor(int red, int green, int blue, int alpha) {
-        return (alpha << 24) | (red << 16) | (green << 8) | blue;
+        int[] colors = {alpha, red, green, blue};
+        for (int i = 0; i < colors.length; i++) {
+            if (colors[i] > 255) colors[i] = 255;
+            if (colors[i] < 0) colors[i] = 0;
+        }
+        return (colors[0] << 24) | (colors[1] << 16) | (colors[2] << 8) | colors[3];
     }
 
     public static int getColor(Color color) {
