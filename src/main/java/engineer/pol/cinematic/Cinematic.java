@@ -115,7 +115,7 @@ public class Cinematic {
         return json;
     }
     
-    protected static Cinematic fromJson(JsonObject json) {
+    public static Cinematic fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
 
         Timeline cameraTimeline = Timeline.fromJson(json.get("cameraTimeline").getAsJsonObject());
@@ -128,7 +128,7 @@ public class Cinematic {
         return new Cinematic(data.uuid(), data.name(), data.duration(), cameraTimeline, overlayTimeline);
     }
 
-    protected static Cinematic create(String name, long duration) {
+    public static Cinematic create(String name, long duration) {
         return new Cinematic(UUID.randomUUID(), name, duration, new Timeline(), new ArrayList<>());
     }
 
