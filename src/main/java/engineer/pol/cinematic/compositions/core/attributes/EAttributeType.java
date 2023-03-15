@@ -1,25 +1,38 @@
 package engineer.pol.cinematic.compositions.core.attributes;
 
 public enum EAttributeType {
-    BOOLEAN("boolean", Boolean.class),
-    INTEGER("integer", Integer.class),
-    DOUBLE("double", Double.class),
-    STRING("string", String.class),;
+
+    BOOLEAN("boolean", false, Boolean.class, false),
+    INTEGER("integer", 0, Integer.class, true),
+    DOUBLE("double", 0D, Double.class, true),
+    STRING("string", "", String.class, false),;
 
     private final String name;
+    private final Object defaultValue;
     private final Class<?> type;
+    private final boolean easing;
 
-    EAttributeType(String id, Class<?> type) {
+    EAttributeType(String id, Object defaultValue, Class<?> type, boolean easing) {
         this.name = id;
+        this.defaultValue = defaultValue;
         this.type = type;
+        this.easing = easing;
     }
 
     public String getName() {
         return name;
     }
 
+    public Object getDefaultValue() {
+        return defaultValue;
+    }
+
     public Class<?> getType() {
         return type;
+    }
+
+    public boolean isEasing() {
+        return easing;
     }
 
     public static EAttributeType fromName(String name) {
