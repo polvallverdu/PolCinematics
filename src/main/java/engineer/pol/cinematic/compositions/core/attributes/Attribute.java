@@ -1,7 +1,9 @@
-package engineer.pol.cinematic.timeline.core;
+package engineer.pol.cinematic.compositions.core.attributes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import engineer.pol.cinematic.compositions.core.Composition;
+import engineer.pol.utils.BasicCompositionData;
 import engineer.pol.utils.math.Easing;
 import net.minecraft.util.Pair;
 
@@ -10,22 +12,30 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class BasicComposition extends Composition {
+public class Attribute {
 
+    private final UUID uuid;
+    private final String name;
+    private final Composition parent;
+    private final EAttributeType type;
     private final List<Keyframe> keyframes;
 
-    protected BasicComposition(List<Keyframe> keyframes) {
-        super(UUID.randomUUID(), "", 0, CompositionType.BASIC);
+    protected Attribute(UUID uuid, String name, Composition parent, EAttributeType type, List<Keyframe> keyframes) {
+        this.uuid = uuid;
+        this.name = name;
+        this.parent = parent;
+        this.type = type;
+
         this.keyframes = keyframes;
+        if (this.keyframes.isEmpty()) {
+            this.addKeyframe(0, 0);
+        }
 
         sort();
     }
 
-    public BasicComposition() {
-        this(new ArrayList<>());
-    }
-
     public void addKeyframe(Keyframe keyframe) {
+        this.removeExactKeyframe(keyframe.getTime());
         keyframes.add(keyframe);
         sort();
     }
@@ -38,8 +48,17 @@ public class BasicComposition extends Composition {
         addKeyframe(new Keyframe(time, value, easing));
     }
 
+    /**
+     * Removes a keyframe at the given time.
+     * @param time
+     * @return true if a keyframe was removed, false otherwise.
+     */
+    public boolean removeExactKeyframe(long time) {
+        return keyframes.removeIf(keyframe -> keyframe.getTime() == time);
+    }
+
     public void removeKeyframe(long time) {
-        if (keyframes.removeIf(keyframe -> keyframe.getTime() == time)) return;
+        if (removeExactKeyframe(time)) return;
 
         Keyframe keyframe = this.getCurrentKeyframe(time, false);
         if (keyframe != null) {
@@ -115,6 +134,9 @@ public class BasicComposition extends Composition {
 
         if (eased) {
             double fraction = (double) (time - keyframes.getLeft().getTime()) / (keyframes.getRight().getTime() - keyframes.getLeft().getTime());
+            if (!Double.isFinite(fraction)) {
+                fraction = 0;
+            }
             double easingMultiplier = keyframes.getLeft().getEasing().getValue(fraction);
 
             return currentValue + (nextValue - currentValue) * easingMultiplier;
@@ -122,8 +144,28 @@ public class BasicComposition extends Composition {
         return currentValue;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Composition getParent() {
+        return parent;
+    }
+
+    public EAttributeType getType() {
+        return type;
+    }
+
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
+
+        json.addProperty("uuid", this.getUuid().toString());
+        json.addProperty("name", this.getName());
+        json.addProperty("type", this.getType().getName());
 
         JsonArray keyframesArray = new JsonArray();
         for (Keyframe keyframe : keyframes) {
@@ -135,17 +177,32 @@ public class BasicComposition extends Composition {
         return json;
     }
 
-    public static BasicComposition fromJson(JsonObject json) {
+    public static Attribute fromJson(JsonObject json, Composition parent) {
         JsonArray keyframesArray = json.getAsJsonArray("keyframes");
+
+        BasicCompositionData data = BasicCompositionData.fromJson(json);
+        EAttributeType type = EAttributeType.fromName(json.get("type").getAsString());
+
         List<Keyframe> keyframes = new ArrayList<>();
         for (int i = 0; i < keyframesArray.size(); i++) {
             keyframes.add(Keyframe.fromJson(keyframesArray.get(i).getAsJsonObject()));
         }
-        return new BasicComposition(keyframes);
+
+        return new Attribute(data.uuid(), data.name(), parent, type, keyframes);
     }
 
-    @Override
-    public long getDuration() {
-        return this.keyframes.isEmpty() ? 0 : this.keyframes.get(this.keyframes.size() - 1).getTime();
+    public void orderEasings(Easing startEasing, Easing middleEasing, Easing endEasing) {
+        if (keyframes.isEmpty()) {
+            return;
+        }
+
+        keyframes.forEach(keyframe -> {
+            keyframe.setEasing(middleEasing);
+        });
+
+        Keyframe startKeyframe = keyframes.get(0);
+        Keyframe endKeyframe = keyframes.get(keyframes.size() - 1);
+        startKeyframe.setEasing(startEasing);
+        endKeyframe.setEasing(endEasing);
     }
 }

@@ -1,12 +1,12 @@
-package engineer.pol.client.overlays;
+package engineer.pol.cinematic.compositions.overlay;
 
-import engineer.pol.cinematic.timeline.core.CompositionProperty;
+import engineer.pol.cinematic.compositions.core.CompositionProperty;
 import engineer.pol.utils.ColorUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class BlackBarsOverlay extends SolidColorOverlay {
+public class DEPRECATEDBLACKBARS extends DEPRECATEDCOLOROVERLAY {
 
     private final MinecraftClient minecraft;
 
@@ -14,7 +14,7 @@ public class BlackBarsOverlay extends SolidColorOverlay {
         public static CompositionProperty length = new CompositionProperty("length", 0d, 1d);
     }
 
-    public BlackBarsOverlay() {
+    public DEPRECATEDBLACKBARS() {
         super();
         this.minecraft = MinecraftClient.getInstance();
         this.addTimelineProperty(BlackBarsProperty.length);

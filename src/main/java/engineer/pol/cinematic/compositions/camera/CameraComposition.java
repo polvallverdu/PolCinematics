@@ -1,76 +1,23 @@
-package engineer.pol.cinematic.timeline;
+package engineer.pol.cinematic.compositions.camera;
 
 import com.google.gson.JsonObject;
-import engineer.pol.cinematic.timeline.core.*;
-import engineer.pol.utils.math.Easing;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.Vec3d;
+import engineer.pol.cinematic.compositions.core.*;
 
-import java.util.HashMap;
 import java.util.UUID;
 
-public class CameraComposition extends Composition {
+public abstract class CameraComposition extends Composition {
 
-    public static class CameraProperty {
-        public static CompositionProperty X = new CompositionProperty("x");
-        public static CompositionProperty Y = new CompositionProperty("y");
-        public static CompositionProperty Z = new CompositionProperty("z");
-        public static CompositionProperty XYZ_PLAYER_LOCKED = new CompositionProperty("xyz_player_locked", 0.0, 1.0);
+    private final ECameraType cameraType;
 
-
-        public static CompositionProperty PITCH = new CompositionProperty("pitch");
-        public static CompositionProperty YAW = new CompositionProperty("yaw");
-        public static CompositionProperty ROLL = new CompositionProperty("roll");
-
-
-        public static CompositionProperty LOCKX = new CompositionProperty("lockx");
-        public static CompositionProperty LOCKY = new CompositionProperty("locky");
-        public static CompositionProperty LOCKZ = new CompositionProperty("lockz");
-        public static CompositionProperty LOCK_ROTATION = new CompositionProperty("lock_rotation", 0.0, 1.0);
-        public static CompositionProperty PLAYER_ROTATION = new CompositionProperty("player_rotation", 0.0, 1.0);
-
-        public static CompositionProperty[] values() {
-            return new CompositionProperty[]{
-                    X, Y, Z, XYZ_PLAYER_LOCKED,
-                    PITCH, YAW, ROLL,
-                    LOCKX, LOCKY, LOCKZ, LOCK_ROTATION, PLAYER_ROTATION
-            };
-        }
-
-        public static CompositionProperty valueOf(String name) {
-            for (CompositionProperty property : values()) {
-                if (property.getName().equals(name)) {
-                    return property;
-                }
-            }
-            return null;
-        }
+    public CameraComposition(String name, ECameraType cameraType, long duration) {
+        this(UUID.randomUUID(), name, cameraType, duration);
     }
 
-    private final HashMap<CompositionProperty, BasicComposition> timelines;
-
-    public CameraComposition(String name, long duration) {
-        this(UUID.randomUUID(), name, new HashMap<>(), duration);
-    }
-
-    public CameraComposition(UUID uuid, String name, HashMap<CompositionProperty, BasicComposition> timelines, long duration) {
+    public CameraComposition(UUID uuid, String name, ECameraType cameraType, long duration) {
         super(uuid, name, duration, CompositionType.CAMERA_COMPOSITION);
-        this.timelines = timelines;
-
-        // Find for missing properties in the timeline.
-        for (CompositionProperty property : CameraProperty.values()) {
-            if (!timelines.containsKey(property)) {
-                timelines.put(property, new BasicComposition());
-            }
-        }
-
-        this.timelines.forEach((property, composition) -> {
-            composition.sort();
-        });
+        this.cameraType = cameraType;
     }
-
+/*
     public void addKeyframe(CompositionProperty property, long time, double value) {
         timelines.get(property).addKeyframe(time, value);
     }
@@ -83,7 +30,7 @@ public class CameraComposition extends Composition {
         timelines.get(property).removeKeyframe(time);
     }
 
-    public BasicComposition getTimeline(CompositionProperty property) {
+    public Attribute getTimeline(CompositionProperty property) {
         return timelines.get(property);
     }
 
@@ -93,6 +40,12 @@ public class CameraComposition extends Composition {
 
     public double getValueWithEasing(CompositionProperty property, long time) {
         return timelines.get(property).getValue(time);
+    }
+
+    public void smooth() {
+        timelines.forEach((property, composition) -> {
+            composition.orderEasings(Easing.EASE_IN_CUBIC, Easing.LINEAR, Easing.EASE_OUT_CUBIC);
+        });
     }
 
     @Environment(EnvType.CLIENT)
@@ -155,36 +108,36 @@ public class CameraComposition extends Composition {
         }
 
         return new CameraPos(x, y, z, pitch, yaw, roll);
-    }
+    }*/
+
+    public abstract CameraPos getCameraPos(long time);
 
     public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        json.addProperty("uuid", this.getUuid().toString());
-        json.addProperty("name", this.getName());
-        json.addProperty("duration", this.getDuration());
-        json.addProperty("type", this.getType().getId());
+        JsonObject json = super.toJson();
 
-        this.timelines.forEach((property, timeline) -> {
-            json.add(property.getName(), timeline.toJson());
-        });
+        json.addProperty("cameraType", cameraType.getName());
 
         return json;
     }
 
     public static CameraComposition fromJson(JsonObject json) {
-        UUID uuid = UUID.fromString(json.get("uuid").getAsString());
+        /*UUID uuid = UUID.fromString(json.get("uuid").getAsString());
         String name = json.get("name").getAsString();
+        ECameraType cameraType = ECameraType.fromName(json.get("cameraType").getAsString());
         long duration = json.get("duration").getAsLong();
 
-        HashMap<CompositionProperty, BasicComposition> timelines = new HashMap<>();
-        json.entrySet().forEach((entry) -> {
-            if (entry.getKey().equals("uuid") || entry.getKey().equals("name")) {
-                return;
+        switch (cameraType) {
+            case FIXED -> {
+                return null;
             }
-            timelines.put(CameraProperty.valueOf(entry.getKey()), BasicComposition.fromJson(entry.getValue().getAsJsonObject()));
-        });
-
-        return new CameraComposition(uuid, name, timelines, duration);
+            default -> {
+                return null;
+            }
+        }*/
+        ECameraType cameraType = ECameraType.fromName(json.get("cameraType").getAsString());
+        var compositionClass = cameraType.getClazz();
+        CameraComposition composition = compositionClass.cast(Composition.fromJson(json));
+        return composition;
     }
 
 }

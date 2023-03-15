@@ -1,7 +1,9 @@
-package engineer.pol.client.overlays;
+package engineer.pol.client.players;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import engineer.pol.PolCinematics;
+import engineer.pol.cinematic.compositions.overlay.DEPRECATEDOBERLAY;
+import engineer.pol.cinematic.compositions.overlay.EOverlayType;
 import engineer.pol.utils.render.RenderUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -14,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
-public class VideoOverlay extends Overlay {
+public class DEPRECATEDVIDEOPLAYER extends DEPRECATEDOBERLAY {
 
     private String mediaPath;
     private SimpleMediaPlayer player;
@@ -25,7 +27,8 @@ public class VideoOverlay extends Overlay {
     private boolean playing = false;
     private float volume = 1f;
 
-    public VideoOverlay(String mediaPath) {
+    public DEPRECATEDVIDEOPLAYER(String mediaPath) {
+        super(EOverlayType.VIDEO_OVERLAY);
         this.mediaPath = mediaPath;
         this.playerResourceLocation = new DynamicResourceLocation(PolCinematics.MODID, "video/" + this.mediaPath.hashCode());
 

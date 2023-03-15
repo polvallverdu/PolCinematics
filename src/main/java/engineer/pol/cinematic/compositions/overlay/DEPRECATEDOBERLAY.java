@@ -1,14 +1,15 @@
-package engineer.pol.client.overlays;
+package engineer.pol.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
-import engineer.pol.cinematic.timeline.core.BasicComposition;
-import engineer.pol.cinematic.timeline.core.CompositionProperty;
+import engineer.pol.cinematic.compositions.core.attributes.Attribute;
+import engineer.pol.cinematic.compositions.core.CompositionProperty;
+import engineer.pol.client.players.DEPRECATEDVIDEOPLAYER;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.HashMap;
 
-public abstract class Overlay {
+public abstract class DEPRECATEDOBERLAY {
 
     public class OverlayProperties {
         public static CompositionProperty X = new CompositionProperty("x");
@@ -34,20 +35,23 @@ public abstract class Overlay {
         }
     }
 
-    protected final HashMap<CompositionProperty, BasicComposition> timelines;
+    protected final HashMap<CompositionProperty, Attribute> timelines;
+    private final EOverlayType type;
 
-    public Overlay() {
+    public DEPRECATEDOBERLAY(EOverlayType type) {
         this.timelines = new HashMap<>();
+
+        this.type = type;
 
         // Find for missing properties in the timeline.
         for (CompositionProperty property : OverlayProperties.values()) {
             if (!timelines.containsKey(property)) {
-                timelines.put(property, new BasicComposition());
+                timelines.put(property, new Attribute());
             }
         }
     }
 
-    protected void tick(MatrixStack matrixStack, long time) {
+    public void tick(MatrixStack matrixStack, long time) {
         double alpha = timelines.get(OverlayProperties.ALPHA).getValue(time);
         if (alpha <= 0)
             return;
@@ -91,26 +95,48 @@ public abstract class Overlay {
                 return;
             }
         }
-        timelines.put(property, new BasicComposition());
+        timelines.put(property, new Attribute());
+    }
+
+    public EOverlayType getType() {
+        return type;
     }
 
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
+        json.addProperty("type", type.getName());
         for (CompositionProperty property : OverlayProperties.values()) {
             json.add(property.getName(), timelines.get(property).toJson());
         }
         return json;
     }
 
-    public void fromJson(JsonObject json) {
+    public static DEPRECATEDOBERLAY fromJson(JsonObject json) {
         // Get timeline properties from json if not in OverlayProperties.
+        EOverlayType type = EOverlayType.fromName(json.get("type").getAsInt());
+        DEPRECATEDOBERLAY overlay;
+        switch (type) {
+            case SOLID_COLOR_OVERLAY:
+                overlay = new DEPRECATEDCOLOROVERLAY();
+                break;
+            case BLACK_BARS_OVERLAY:
+                overlay = new DEPRECATEDBLACKBARS();
+                break;
+            case VIDEO_OVERLAY:
+                overlay = new DEPRECATEDVIDEOPLAYER(json.get("media").getAsString());
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown overlay type: " + type);
+        }
         for (String key : json.keySet()) {
             CompositionProperty property = OverlayProperties.valueOf(key);
             if (property == null) {
                 property = new CompositionProperty(key);
             }
-            timelines.put(property, BasicComposition.fromJson(json.get(key).getAsJsonObject()));
+            overlay.timelines.put(property, Attribute.fromJson(json.get(key).getAsJsonObject()));
         }
+
+        return overlay;
     }
 
 }

@@ -1,18 +1,18 @@
-package engineer.pol.client.overlays;
+package engineer.pol.cinematic.compositions.overlay;
 
-import engineer.pol.cinematic.timeline.core.CompositionProperty;
+import engineer.pol.cinematic.compositions.core.CompositionProperty;
 import engineer.pol.utils.ColorUtils;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 
-public class SolidColorOverlay extends Overlay {
+public class DEPRECATEDCOLOROVERLAY extends DEPRECATEDOBERLAY {
 
     public class SolidColorProperties {
         public static CompositionProperty COLOR = new CompositionProperty("color");
     }
 
-    public SolidColorOverlay() {
-        super();
+    public DEPRECATEDCOLOROVERLAY() {
+        super(EOverlayType.SOLID_COLOR_OVERLAY);
         this.addTimelineProperty(SolidColorProperties.COLOR);
     }
 

@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
 public class RenderUtils {
 
     public static void bindTexture(Identifier texture) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.enableBlend();
     }

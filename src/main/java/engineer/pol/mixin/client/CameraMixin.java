@@ -1,12 +1,12 @@
 package engineer.pol.mixin.client;
 
+import engineer.pol.cinematic.compositions.camera.CameraPos;
 import engineer.pol.client.PolCinematicsClient;
 import net.minecraft.client.render.Camera;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(Camera.class)
 public class CameraMixin {
@@ -27,5 +27,36 @@ public class CameraMixin {
             //ci.setReturnValue(PolCinematicsClient.getCCM().getMixinPos());
         }
     }*/
+
+    @ModifyVariable(method="update", at = @At("HEAD"), ordinal = 0, argsOnly = true)
+    private Entity nullableFocusedEntity(Entity focusedEntity) {
+        //return PolCinematicsClient.getCCM().isCinematicRunning() ? null : focusedEntity;
+        return focusedEntity;
+    }
+
+    @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
+    private void injectedArgsSetRotationOnUpdate(Args args) {
+        if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
+        CameraPos cameraPos = PolCinematicsClient.getCCM().getCameraPos();
+
+        if (cameraPos == null) return;
+
+        args.set(0, (float) cameraPos.getYaw());
+        args.set(1, (float) cameraPos.getPitch());
+    }
+
+    @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setPos(DDD)V"))
+    private void injectedArgsSetPosOnUpdate(Args args) {
+        if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
+        CameraPos cameraPos = PolCinematicsClient.getCCM().getCameraPos();
+
+        if (cameraPos == null) return;
+
+        args.set(0, cameraPos.getX());
+        args.set(1, cameraPos.getY());
+        args.set(2, cameraPos.getZ());
+
+        System.out.println(cameraPos.getX() + " " + cameraPos.getY() + " " + cameraPos.getZ() + " " + cameraPos.getYaw() + " " + cameraPos.getPitch());
+    }
 
 }

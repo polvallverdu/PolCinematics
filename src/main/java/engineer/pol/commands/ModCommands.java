@@ -1,6 +1,6 @@
 package engineer.pol.commands;
 
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class ModCommands {
 

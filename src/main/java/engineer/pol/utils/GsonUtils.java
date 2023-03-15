@@ -2,28 +2,39 @@ package engineer.pol.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import java.io.File;
+import java.io.*;
 
 public class GsonUtils {
 
     public static Gson gson = new Gson();
 
-    // create an empty JsonObject
-    public static JsonObject createJsonObject() {
-        return new JsonObject();
+    public static JsonObject jsonFromString(String json) {
+        return JsonParser.parseString(json).getAsJsonObject();
     }
 
-    // load json from string
-    public static JsonObject loadJsonObject(String json) {
-        return gson.fromJson(json, JsonObject.class);
+    public static JsonObject jsonFromFile(File file) throws IOException {
+        String content = readFromFile(file);
+        return jsonFromString(content);
     }
 
-    public static String toJson(JsonObject json) {
-        return gson.toJson(json);
+    public static String jsonToString(JsonObject json) {
+        return json.toString();
     }
 
-    public static byte[] encodeJsonObject(JsonObject json) {
-        return gson.toJson(json).getBytes();
+    private static String readFromFile(File file) throws IOException {
+        InputStream inputStream = new FileInputStream(file);
+        StringBuilder resultStringBuilder = new StringBuilder();
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                resultStringBuilder.append(line).append("\n");
+            }
+        } finally {
+            inputStream.close();
+        }
+        return resultStringBuilder.toString();
     }
 }

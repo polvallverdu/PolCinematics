@@ -1,4 +1,4 @@
-package engineer.pol.cinematic.timeline.core;
+package engineer.pol.cinematic.compositions.core.attributes;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;

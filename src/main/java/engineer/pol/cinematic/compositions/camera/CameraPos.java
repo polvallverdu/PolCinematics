@@ -1,4 +1,4 @@
-package engineer.pol.cinematic.timeline.core;
+package engineer.pol.cinematic.compositions.camera;
 
 import com.google.gson.JsonObject;
 

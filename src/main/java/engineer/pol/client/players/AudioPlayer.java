@@ -1,4 +1,4 @@
-package engineer.pol.client.audio;
+package engineer.pol.client.players;
 
 import engineer.pol.PolCinematics;
 import nick1st.fancyvideo.api.DynamicResourceLocation;

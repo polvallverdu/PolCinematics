@@ -1,63 +1,151 @@
 package engineer.pol.cinematic;
 
-import engineer.pol.cinematic.timeline.CameraComposition;
-import engineer.pol.cinematic.timeline.OverlayComposition;
-import engineer.pol.cinematic.timeline.core.Composition;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import engineer.pol.cinematic.compositions.camera.CameraComposition;
+import engineer.pol.cinematic.compositions.camera.CameraPos;
+import engineer.pol.cinematic.compositions.core.Composition;
+import engineer.pol.cinematic.compositions.core.Timeline;
+import engineer.pol.cinematic.compositions.overlay.OverlayComposition;
+import engineer.pol.utils.BasicCompositionData;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Cinematic {
 
-    private class WrappedComposition {
+    private final UUID uuid;
+    private String name;
+    private long duration;
 
-            private final Composition timeline;
-            private long startTime;
+    private final Timeline cameraTimeline;
+    private final List<Timeline> timelines;
 
-            public WrappedComposition(Composition timeline) {
-                this.timeline = timeline;
-            }
-
-            public long getDuration() {
-                return timeline.getDuration();
-            }
-
-            public void setStartTime(long startTime) {
-                this.startTime = startTime;
-            }
-
-            public long getStartTime() {
-                return startTime;
-            }
-
-            public long getFinishTime() {
-                return startTime + getDuration();
-            }
-
-            public boolean isCamera() {
-                return timeline instanceof CameraComposition;
-            }
-
-            public CameraComposition getAsCameraTimeline() {
-                return (CameraComposition) timeline;
-            }
-
-            public boolean isOverlay() {
-                return timeline instanceof OverlayComposition;
-            }
-
-            public OverlayComposition getAsOverlayTimeline() {
-                return (OverlayComposition) timeline;
-            }
-    }
-
-    private final List<WrappedComposition> cameraTimeline;
-    private final List<WrappedComposition>[] overlayTimeline;
-
-    public Cinematic(List<WrappedComposition> cameraTimeline, List<WrappedComposition>[] overlayTimeline) {
+    protected Cinematic(UUID uuid, String name, long duration, Timeline cameraTimeline, List<Timeline> timelines) {
+        this.uuid = uuid;
+        this.name = name;
+        this.duration = duration;
         this.cameraTimeline = cameraTimeline;
-        this.overlayTimeline = overlayTimeline;
+        this.cameraTimeline.setOverlapStrategy(EOverlapStrategy.MOVE);
+        this.timelines = timelines;
     }
 
+    public long getDuration() {
+        return duration;
+    }
 
+    public CameraComposition getCameraComposition(long time) {
+        return (CameraComposition) this.cameraTimeline.getComposition(time);
+    }
+
+    public Pair<Timeline, Composition> getTimelineAndComposition(UUID compositionUUID) {
+        Timeline.WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionUUID);
+        if (c != null) {
+            return new Pair<>(this.cameraTimeline, c.getComposition());
+        }
+
+        for (Timeline timeline : this.timelines) {
+            c = timeline.findWrappedComposition(compositionUUID);
+            if (c != null) {
+                return new Pair<>(timeline, c.getComposition());
+            }
+        }
+        return null;
+    }
+
+    /*public CameraComposition createCameraComposition(String name, ECameraType cameraType, long duration) {
+        CameraComposition cameraComposition = new CameraComposition(name, cameraType, duration);
+        cameraTimeline.add(cameraComposition, cameraTimeline.getMaxDuration());
+        return cameraComposition;
+    }*/
+
+    public CameraComposition checkCameraComposition(long time) {  // TODO: THERE WILL ALWAYS BE A CAMERA COMPOSITION
+        CameraComposition compo = this.getCameraComposition(time);
+        /*if (compo == null) {
+            if (this.cameraTimeline.compositions.isEmpty()) {
+                CameraComposition cameraComposition = new CameraComposition("temp", time);
+                this.cameraTimeline.add(cameraComposition, 0);
+                return cameraComposition;
+            }
+
+            CameraComposition cameraComposition = (CameraComposition) this.cameraTimeline.getComposition(0);
+            this.cameraTimeline.changeDuration(cameraComposition.getUuid(), time);
+            return cameraComposition;
+        }*/
+        return compo;
+    }
+
+    public CameraPos getCameraPos(long time) {
+        CameraComposition cameraComposition = getCameraComposition(time);
+        if (cameraComposition == null) {
+            return null;
+        }
+        return cameraComposition.getCameraPos(time);
+    }
+
+    public void tickOverlay(MatrixStack matrixStack, long time) {
+        for (int i = this.timelines.size() - 1; i >= 0; i--) {  // loop reverse
+            Timeline timeline = this.timelines.get(i);
+
+            Composition compo = timeline.getComposition(time);
+            if (!(compo instanceof OverlayComposition)) continue;
+
+            ((OverlayComposition) compo).tick(matrixStack, time);
+        }
+    }
+    
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+
+        json.addProperty("uuid", this.uuid.toString());
+        json.addProperty("name", this.name);
+        json.addProperty("duration", this.duration);
+
+        json.add("cameraTimeline", this.cameraTimeline.toJson());
+
+        JsonArray overlayTimelineJson = new JsonArray();
+        for (Timeline timeline : this.timelines) {
+            overlayTimelineJson.add(timeline.toJson());
+        }
+        json.add("overlayTimeline", overlayTimelineJson);
+
+        return json;
+    }
+    
+    protected static Cinematic fromJson(JsonObject json) {
+        BasicCompositionData data = BasicCompositionData.fromJson(json);
+
+        Timeline cameraTimeline = Timeline.fromJson(json.get("cameraTimeline").getAsJsonObject());
+        List<Timeline> overlayTimeline = new ArrayList<>();
+        JsonArray overlayTimelineJson = json.get("overlayTimeline").getAsJsonArray();
+        for (int i = 0; i < overlayTimelineJson.size(); i++) {
+            overlayTimeline.add(Timeline.fromJson(overlayTimelineJson.get(i).getAsJsonObject()));
+        }
+
+        return new Cinematic(data.uuid(), data.name(), data.duration(), cameraTimeline, overlayTimeline);
+    }
+
+    protected static Cinematic create(String name, long duration) {
+        return new Cinematic(UUID.randomUUID(), name, duration, new Timeline(), new ArrayList<>());
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    protected void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
 
 }

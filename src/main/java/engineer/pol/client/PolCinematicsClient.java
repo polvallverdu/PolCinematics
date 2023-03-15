@@ -1,6 +1,6 @@
 package engineer.pol.client;
 
-import engineer.pol.cinematic.ClientCinematicManager;
+import engineer.pol.cinematic.manager.ClientCinematicManager;
 import engineer.pol.commands.ModCommands;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;

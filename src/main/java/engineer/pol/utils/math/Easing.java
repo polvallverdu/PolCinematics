@@ -1,5 +1,6 @@
 package engineer.pol.utils.math;
 
+import java.util.HashMap;
 import java.util.function.Function;
 
 public class Easing {
@@ -39,6 +40,43 @@ public class Easing {
 
     public static Easing LINEAR = new Easing(t -> t, 21);
     public static Easing INSTANT = new Easing(t -> t == 1.0d ? 1d : 0d, 21);
+
+    public static HashMap<String, Easing> getValues() {
+        HashMap<String, Easing> values = new HashMap<>();
+
+        values.put("EASE_IN_SINE", EASE_IN_SINE);
+        values.put("EASE_OUT_SINE", EASE_OUT_SINE);
+        values.put("EASE_INOUT_SINE", EASE_INOUT_SINE);
+
+        values.put("EASE_IN_QUAD", EASE_IN_QUAD);
+        values.put("EASE_OUT_QUAD", EASE_OUT_QUAD);
+        values.put("EASE_INOUT_QUAD", EASE_INOUT_QUAD);
+
+        values.put("EASE_IN_CUBIC", EASE_IN_CUBIC);
+        values.put("EASE_OUT_CUBIC", EASE_OUT_CUBIC);
+        values.put("EASE_INOUT_CUBIC", EASE_INOUT_CUBIC);
+
+        values.put("EASE_IN_QUART", EASE_IN_QUART);
+        values.put("EASE_OUT_QUART", EASE_OUT_QUART);
+        values.put("EASE_INOUT_QUART", EASE_INOUT_QUART);
+
+        values.put("EASE_IN_QUINT", EASE_IN_QUINT);
+        values.put("EASE_OUT_QUINT", EASE_OUT_QUINT);
+        values.put("EASE_INOUT_QUINT", EASE_INOUT_QUINT);
+
+        values.put("EASE_IN_EXPO", EASE_IN_EXPO);
+        values.put("EASE_OUT_EXPO", EASE_OUT_EXPO);
+        values.put("EASE_INOUT_EXPO", EASE_INOUT_EXPO);
+
+        values.put("EASE_IN_CIRC", EASE_IN_CIRC);
+        values.put("EASE_OUT_CIRC", EASE_OUT_CIRC);
+        values.put("EASE_INOUT_CIRC", EASE_INOUT_CIRC);
+
+        values.put("LINEAR", LINEAR);
+        values.put("INSTANT", INSTANT);
+
+        return values;
+    }
 
     public Easing(Function<Double, Double> callable, int id) {
         this.id = id;

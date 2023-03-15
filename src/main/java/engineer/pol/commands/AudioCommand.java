@@ -1,14 +1,12 @@
 package engineer.pol.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import engineer.pol.client.PolCinematicsClient;
-import engineer.pol.client.audio.AudioPlayer;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import engineer.pol.client.players.AudioPlayer;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
@@ -16,7 +14,7 @@ final public class AudioCommand {
 
     private static AudioPlayer audioPlayer = null;
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(CommandManager.literal("audio")
                 .then(CommandManager.literal("resume").executes(AudioCommand::resume))
                 .then(CommandManager.literal("stop").executes(AudioCommand::stop))

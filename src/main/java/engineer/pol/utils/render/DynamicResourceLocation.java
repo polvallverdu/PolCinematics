@@ -1,7 +1,5 @@
 package engineer.pol.utils.render;
 
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceImpl;
 import net.minecraft.util.Identifier;
 
 public class DynamicResourceLocation extends Identifier {

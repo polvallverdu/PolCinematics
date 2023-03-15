@@ -13,7 +13,19 @@ repositories {
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
     maven { url 'https://jitpack.io' }
-    maven { url 'https://raw.github.com/mercadolibre/java-restclient/mvn-repo/' }
+
+    // modrinth
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 
 }
 
@@ -23,6 +35,10 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
+    // Websocket dependencies
+    implementation 'org.eclipse.jetty.websocket:websocket-jetty-api:10.0.14'
+    implementation 'org.eclipse.jetty.websocket:websocket-jetty-server:10.0.14'
+
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
@@ -31,8 +47,14 @@ dependencies {
     //modImplementation("com.electronwill.night-config:json:3.6.5")
     implementation 'com.google.code.gson:gson:2.9.0'
 
-    // velvet-video for video stuff
-    modImplementation(files("lib/FancyVideo-API.jar"))
+    // FancyVideo-API for video stuff
+    //    modImplementation("com.github.Nick1st:FancyVideo-API:989e11d")
+    modImplementation(files("lib/FancyVideo-API-1.19.jar"))
+
+    //////////// TESTING MODS ////////////
+    modLocalRuntime "maven.modrinth:sodium:mc1.19.3-0.4.9"
+    modLocalRuntime "maven.modrinth:lithium:mc1.19.3-0.11.0"
+    modLocalRuntime "maven.modrinth:iris:1.5.2+1.19.3"
 }
 
 processResources {
