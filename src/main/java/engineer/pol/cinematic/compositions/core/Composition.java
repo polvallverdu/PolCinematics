@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import engineer.pol.cinematic.compositions.camera.CameraComposition;
 import engineer.pol.cinematic.compositions.core.attributes.Attribute;
 import engineer.pol.cinematic.compositions.core.attributes.AttributeList;
+import engineer.pol.cinematic.compositions.core.attributes.EAttributeType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,10 +17,10 @@ public abstract class Composition {
     private long duration;
     private final CompositionType type;
 
-    private final AttributeList attributes;
+    private AttributeList attributes;
 
     public Composition(UUID uuid, String name, long duration, CompositionType type) {
-        this(uuid, name, duration, type, null);
+        this(uuid, name, duration, type, new AttributeList());
     }
 
     public Composition(UUID uuid, String name, long duration, CompositionType type, AttributeList attributes) {
@@ -27,7 +28,7 @@ public abstract class Composition {
         this.name = name;
         this.duration = duration;
         this.type = type;
-        this.attributes = attributes == null ? new AttributeList(this) : attributes;
+        this.attributes = attributes;
     }
 
     public UUID getUuid() {
@@ -62,8 +63,23 @@ public abstract class Composition {
         return new ArrayList<>(attributes.getAttributes());
     }
 
+    public Attribute getAttribute(String attributeName) {
+        return attributes.getAttribute(attributeName);
+    }
+
     public AttributeList getAttributesList() {
         return attributes;
+    }
+
+    public Attribute declareAttribute(String name, String description, EAttributeType type) {
+        if (this.getAttribute(name) != null) {
+            Attribute atr = this.getAttribute(name);
+            atr.setDescription(description);
+            return atr;
+        }
+        else {
+            return attributes.createAttribute(name, description, type);
+        }
     }
 
     public JsonObject toJson() {

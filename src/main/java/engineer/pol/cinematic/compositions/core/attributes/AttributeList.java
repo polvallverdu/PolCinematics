@@ -12,16 +12,14 @@ import java.util.UUID;
 
 public class AttributeList {
 
-    private final Composition parent;
     private final HashMap<String, Attribute> attributesHashMap;
 
-    private AttributeList(Composition parent, HashMap<String, Attribute> attributesHashMap) {
-        this.parent = parent;
+    private AttributeList(HashMap<String, Attribute> attributesHashMap) {
         this.attributesHashMap = attributesHashMap;
     }
 
-    public AttributeList(Composition parent) {
-        this(parent, new HashMap<>());
+    public AttributeList() {
+        this(new HashMap<>());
     }
 
     public List<Attribute> getAttributes() {
@@ -36,8 +34,8 @@ public class AttributeList {
         attributesHashMap.put(attribute.getName(), attribute);
     }
 
-    public Attribute createAttribute(String name, EAttributeType type) {
-        Attribute attribute = new Attribute(UUID.randomUUID(), name, parent, type, new ArrayList<>());
+    public Attribute createAttribute(String name, String description, EAttributeType type) {
+        Attribute attribute = new Attribute(UUID.randomUUID(), name, description, type, new ArrayList<>());
         attributesHashMap.put(name, attribute);
         return attribute;
     }
@@ -62,16 +60,16 @@ public class AttributeList {
         return jsonObject;
     }
 
-    public static AttributeList fromJson(JsonObject json, Composition parent) {
-        JsonArray jsonArray = json.getAsJsonArray("attributes");
+    public static AttributeList fromJson(JsonObject json) {
+        JsonArray jsonArray = json.getAsJsonArray();
 
         HashMap<String, Attribute> attributesHashMap = new HashMap<>();
 
         for (int i = 0; i < jsonArray.size(); i++) {
-            Attribute attribute = Attribute.fromJson(jsonArray.get(i).getAsJsonObject(), parent);
+            Attribute attribute = Attribute.fromJson(jsonArray.get(i).getAsJsonObject());
             attributesHashMap.put(attribute.getName(), attribute);
         }
 
-        return new AttributeList(parent, attributesHashMap);
+        return new AttributeList(attributesHashMap);
     }
 }

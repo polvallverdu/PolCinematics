@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import engineer.pol.utils.math.Easing;
 
+import java.awt.*;
+
 public class Keyframe {
 
     private long time;
@@ -60,6 +62,10 @@ public class Keyframe {
 
     public String getValueAsString() {
         return (String) value;
+    }
+
+    public Color getValueAsColor() {
+        return new Color(this.getValueAsInteger());
     }
 
     public EAttributeType getType() {

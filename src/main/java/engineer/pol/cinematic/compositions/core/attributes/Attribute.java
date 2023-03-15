@@ -5,9 +5,11 @@ import com.google.gson.JsonObject;
 import engineer.pol.cinematic.compositions.core.Composition;
 import engineer.pol.exception.DeleteKeyframeException;
 import engineer.pol.utils.BasicCompositionData;
+import engineer.pol.utils.ColorUtils;
 import engineer.pol.utils.math.Easing;
 import net.minecraft.util.Pair;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,14 +19,14 @@ public class Attribute {
 
     private final UUID uuid;
     private final String name;
-    private final Composition parent;
+    private String description;
     private final EAttributeType type;
     private final List<Keyframe> keyframes;
 
-    protected Attribute(UUID uuid, String name, Composition parent, EAttributeType type, List<Keyframe> keyframes) {
+    protected Attribute(UUID uuid, String name, String description, EAttributeType type, List<Keyframe> keyframes) {
         this.uuid = uuid;
         this.name = name;
-        this.parent = parent;
+        this.description = description;
         this.type = type;
 
         this.keyframes = keyframes;
@@ -239,6 +241,23 @@ public class Attribute {
             double easingMultiplier = keyframes.getLeft().getEasing().getValue(fraction);
 
             return currentValue + (nextValue - currentValue) * easingMultiplier;
+        } else if (type == EAttributeType.COLOR) {
+            Color currentColor = keyframes.getLeft().getValueAsColor();
+            int[] currentColorArray = new int[] {currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentColor.getAlpha()};
+            Color nextColor = keyframes.getRight().getValueAsColor();
+            int[] nextColorArray = new int[] {nextColor.getRed(), nextColor.getGreen(), nextColor.getBlue(), nextColor.getAlpha()};
+
+            double fraction = (double) (time - keyframes.getLeft().getTime()) / (keyframes.getRight().getTime() - keyframes.getLeft().getTime());
+            if (!Double.isFinite(fraction)) {
+                fraction = 0;
+            }
+            double easingMultiplier = keyframes.getLeft().getEasing().getValue(fraction);
+
+            for (int i = 0; i < currentColorArray.length; i++) {
+                currentColorArray[i] += (nextColorArray[i] - currentColorArray[i]) * easingMultiplier;
+            }
+
+            return new Color(currentColorArray[0], currentColorArray[1], currentColorArray[2], currentColorArray[3]);
         }
 
         // Easing true but not supported?
@@ -253,8 +272,13 @@ public class Attribute {
         return name;
     }
 
-    public Composition getParent() {
-        return parent;
+    public String getDescription() {
+        return description;
+    }
+
+    public Attribute setDescription(String description) {
+        this.description = description;
+        return this;
     }
 
     public EAttributeType getType() {
@@ -266,6 +290,7 @@ public class Attribute {
 
         json.addProperty("uuid", this.getUuid().toString());
         json.addProperty("name", this.getName());
+        json.addProperty("description", this.getDescription());
         json.addProperty("type", this.getType().getName());
 
         JsonArray keyframesArray = new JsonArray();
@@ -278,10 +303,11 @@ public class Attribute {
         return json;
     }
 
-    public static Attribute fromJson(JsonObject json, Composition parent) {
+    public static Attribute fromJson(JsonObject json) {
         JsonArray keyframesArray = json.getAsJsonArray("keyframes");
 
         BasicCompositionData data = BasicCompositionData.fromJson(json);
+        String description = json.get("description").getAsString();
         EAttributeType type = EAttributeType.fromName(json.get("type").getAsString());
 
         List<Keyframe> keyframes = new ArrayList<>();
@@ -289,7 +315,7 @@ public class Attribute {
             keyframes.add(Keyframe.fromJson(keyframesArray.get(i).getAsJsonObject(), type));
         }
 
-        return new Attribute(data.uuid(), data.name(), parent, type, keyframes);
+        return new Attribute(data.uuid(), data.name(), description, type, keyframes);
     }
 
     public void orderEasings(Easing startEasing, Easing middleEasing, Easing endEasing) {
