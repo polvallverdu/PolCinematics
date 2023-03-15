@@ -3,6 +3,7 @@ package engineer.pol.cinematic.compositions.core.attributes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import engineer.pol.cinematic.compositions.core.Composition;
+import engineer.pol.exception.DeleteKeyframeException;
 import engineer.pol.utils.BasicCompositionData;
 import engineer.pol.utils.math.Easing;
 import net.minecraft.util.Pair;
@@ -28,24 +29,46 @@ public class Attribute {
 
         this.keyframes = keyframes;
         if (this.keyframes.isEmpty()) {
-            this.addKeyframe(0, 0);
+            this.addKeyframe(0, type.getDefaultValue());
         }
 
         sort();
     }
 
-    public void addKeyframe(Keyframe keyframe) {
-        this.removeExactKeyframe(keyframe.getTime());
+    /*public void addKeyframe(Keyframe keyframe) {
+        this.getKeyframes(keyframe.time)
         keyframes.add(keyframe);
         sort();
     }
 
-    public void addKeyframe(long time, double value) {
-        addKeyframe(new Keyframe(time, value));
+    public void addKeyframe(long time, Object value) {
+        addKeyframe(new Keyframe(time, value, type));
     }
 
-    public void addKeyframe(long time, double value, Easing easing) {
-        addKeyframe(new Keyframe(time, value, easing));
+    public void addKeyframe(long time, Object value, Easing easing) {
+        addKeyframe(new Keyframe(time, value, type, easing));
+    }*/
+
+    public void setKeyframe(long time, Object value) {
+        Keyframe keyframe = this.getExactKeyframe(time);
+        if (keyframe != null) {
+            keyframe.setValue(value);
+        } else {
+            addKeyframe(time, value);
+        }
+    }
+
+    private void addKeyframe(long time, Object value) {
+        keyframes.add(new Keyframe(time, value, type));
+        sort();
+    }
+
+    public void moveKeyframe(Keyframe keyframe, long newTime) {
+        if (!keyframes.contains(keyframe)) {
+            throw new IllegalArgumentException("The keyframe is not part of this attribute.");
+        }
+        keyframe.setTime(newTime);
+        sort();
     }
 
     /**
@@ -53,14 +76,20 @@ public class Attribute {
      * @param time
      * @return true if a keyframe was removed, false otherwise.
      */
-    public boolean removeExactKeyframe(long time) {
+    public boolean removeExactKeyframe(long time) throws DeleteKeyframeException {
+        if (keyframes.size() <= 1) {
+            throw new DeleteKeyframeException("Cannot delete the last keyframe of an attribute.");
+        }
         return keyframes.removeIf(keyframe -> keyframe.getTime() == time);
     }
 
-    public void removeKeyframe(long time) {
+    public void removeKeyframe(long time) throws DeleteKeyframeException {
+        if (keyframes.size() <= 1) {
+            throw new DeleteKeyframeException("Cannot delete the last keyframe of an attribute.");
+        }
         if (removeExactKeyframe(time)) return;
 
-        Keyframe keyframe = this.getCurrentKeyframe(time, false);
+        Keyframe keyframe = this.getLeftKeyframe(time, false);
         if (keyframe != null) {
             keyframes.remove(keyframe);
         }
@@ -70,8 +99,15 @@ public class Attribute {
         keyframes.sort(Comparator.comparingLong(Keyframe::getTime));
     }
 
-    public Keyframe getCurrentKeyframe(long time, boolean redundancy) {
-        if (keyframes.isEmpty()) {
+    /**
+     * Returns the closest keyframe to the left based on the given time.
+     *
+     * @param time
+     * @param redundancy
+     * @return The closest keyframe to the left or null if there is none and redundancy is false.
+     */
+    public Keyframe getLeftKeyframe(long time, boolean redundancy) {
+        if (keyframes.isEmpty()) { // Should not happen
             return null;
         }
 
@@ -93,7 +129,14 @@ public class Attribute {
         return null;
     }
 
-    public Keyframe getNextKeyframe(long time) {
+    /**
+     * Returns the next keyframe based on the given time.
+     *
+     * @param time
+     * @param redundancy
+     * @return The next keyframe to the right or null if there is none and redundancy is false.
+     */
+    public Keyframe getNextKeyframe(long time, boolean redundancy) {
         if (keyframes.isEmpty()) {
             return null;
         }
@@ -109,30 +152,86 @@ public class Attribute {
             return keyframes.get(keyframes.size() - 1);
         }
 
-        return keyframes.get(0);
+        if (redundancy) {
+            if (time < keyframes.get(0).getTime()) {
+                return keyframes.get(0);
+            }
+
+            return keyframes.get(keyframes.size() - 1);
+        }
+        return null;
     }
 
+    /**
+     * @param time
+     * @return A {@code Keyframe} object, or null if there is no keyframe at the given time.
+     */
+    public Keyframe getExactKeyframe(long time) {
+        for (Keyframe keyframe : keyframes) {
+            if (keyframe.getTime() == time) {
+                return keyframe;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the closest keyframe to the given time.
+     * @param time
+     * @return The closest keyframe to the given time or null if there are no keyframes.
+     */
+    public Keyframe getClosestKeyframe(long time) {
+        Keyframe left = getLeftKeyframe(time, false);
+        Keyframe right = getNextKeyframe(time, false);
+
+        if (left == null) {
+            return right;
+        }
+
+        if (right == null) {
+            return left;
+        }
+
+        if (time - left.getTime() < right.getTime() - time) {
+            return left;
+        }
+
+        return right;
+    }
+
+    /**
+     * Returns the current and next keyframe.
+     *
+     * @param time The time to get the keyframes for.
+     * @return A pair of the current and next keyframe.
+     */
     public Pair<Keyframe, Keyframe> getKeyframes(long time) {
-        Keyframe current = getCurrentKeyframe(time, true);
-        Keyframe next = getNextKeyframe(time);
+        Keyframe current = getLeftKeyframe(time, true);
+        Keyframe next = getNextKeyframe(time, true);
         return new Pair<>(current, next);
     }
 
-    public double getValue(long time) {
-        return this.getValue(time, true);
+    public Object getValue(long time) {
+        return this.getValue(time, true); // Easing is enabled by default. It is later checked if the attribute type supports easing.
     }
 
-    public double getValue(long time, boolean eased) {
+    public Object getValue(long time, boolean eased) {
+        eased = eased && this.type.isEasing(); // Make sure the attribute type supports easing.
+
         if (keyframes.isEmpty()) {
             return 0;
         }
 
         Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
 
-        double currentValue = keyframes.getLeft().getValue();
-        double nextValue = keyframes.getRight().getValue();
+        if (!eased) {
+            return keyframes.getLeft().getValue();
+        }
 
-        if (eased) {
+        if (type == EAttributeType.DOUBLE || type == EAttributeType.INTEGER) {
+            double currentValue = keyframes.getLeft().getValueAsDouble();
+            double nextValue = keyframes.getRight().getValueAsDouble();
+
             double fraction = (double) (time - keyframes.getLeft().getTime()) / (keyframes.getRight().getTime() - keyframes.getLeft().getTime());
             if (!Double.isFinite(fraction)) {
                 fraction = 0;
@@ -141,7 +240,9 @@ public class Attribute {
 
             return currentValue + (nextValue - currentValue) * easingMultiplier;
         }
-        return currentValue;
+
+        // Easing true but not supported?
+        return keyframes.getLeft().getValue();
     }
 
     public UUID getUuid() {
@@ -185,7 +286,7 @@ public class Attribute {
 
         List<Keyframe> keyframes = new ArrayList<>();
         for (int i = 0; i < keyframesArray.size(); i++) {
-            keyframes.add(Keyframe.fromJson(keyframesArray.get(i).getAsJsonObject()));
+            keyframes.add(Keyframe.fromJson(keyframesArray.get(i).getAsJsonObject(), type));
         }
 
         return new Attribute(data.uuid(), data.name(), parent, type, keyframes);
