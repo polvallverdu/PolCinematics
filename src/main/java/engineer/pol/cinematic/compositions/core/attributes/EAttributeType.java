@@ -1,11 +1,14 @@
 package engineer.pol.cinematic.compositions.core.attributes;
 
+import engineer.pol.utils.ColorUtils;
+
 public enum EAttributeType {
 
     BOOLEAN("boolean", false, Boolean.class, false),
     INTEGER("integer", 0, Integer.class, true),
     DOUBLE("double", 0D, Double.class, true),
-    STRING("string", "", String.class, false),;
+    STRING("string", "", String.class, false),
+    COLOR("color", ColorUtils.getColor(0, 0, 0), Integer.class, true),;
 
     private final String name;
     private final Object defaultValue;
