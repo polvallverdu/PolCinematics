@@ -2,15 +2,14 @@ package engineer.pol.cinematic.compositions.core;
 
 import engineer.pol.cinematic.compositions.audio.AudioComposition;
 import engineer.pol.cinematic.compositions.camera.CameraComposition;
-import engineer.pol.cinematic.compositions.OverlayComposition;
 import engineer.pol.cinematic.compositions.core.attributes.Attribute;
+import engineer.pol.cinematic.compositions.overlay.OverlayComposition;
 
 public enum CompositionType {
 
-    BASIC(0, Attribute.class),
-    CAMERA_COMPOSITION(1, CameraComposition.class),
-    OVERLAY_COMPOSITION(2, OverlayComposition.class),
-    AUDIO_COMPOSITION(3, AudioComposition.class);
+    CAMERA_COMPOSITION(0, CameraComposition.class),
+    OVERLAY_COMPOSITION(1, OverlayComposition.class),
+    AUDIO_COMPOSITION(2, AudioComposition.class);
 
     private final int id;
     private final Class<? extends Composition> clazz;

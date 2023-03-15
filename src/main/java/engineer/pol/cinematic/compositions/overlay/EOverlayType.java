@@ -5,9 +5,9 @@ import engineer.pol.client.players.DEPRECATEDVIDEOPLAYER;
 
 public enum EOverlayType {
 
-    SOLID_COLOR_OVERLAY("solid", DEPRECATEDCOLOROVERLAY.class),
-    BLACK_BARS_OVERLAY("black_bars", DEPRECATEDBLACKBARS.class),
-    VIDEO_OVERLAY("video", DEPRECATEDVIDEOPLAYER.class),;
+    SOLID_COLOR_OVERLAY("solid", SolidColorOverlay.class),
+    BLACK_BARS_OVERLAY("black_bars", BlackBarsOverlay.class),
+    /* VIDEO_OVERLAY("video", DEPRECATEDVIDEOPLAYER.class),*/;
 
     private final String name;
     private final Class<? extends OverlayComposition> clazz;
