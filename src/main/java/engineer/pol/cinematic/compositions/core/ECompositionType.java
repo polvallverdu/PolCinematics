@@ -2,10 +2,9 @@ package engineer.pol.cinematic.compositions.core;
 
 import engineer.pol.cinematic.compositions.audio.AudioComposition;
 import engineer.pol.cinematic.compositions.camera.CameraComposition;
-import engineer.pol.cinematic.compositions.core.attributes.Attribute;
 import engineer.pol.cinematic.compositions.overlay.OverlayComposition;
 
-public enum CompositionType {
+public enum ECompositionType {
 
     CAMERA_COMPOSITION(0, CameraComposition.class),
     OVERLAY_COMPOSITION(1, OverlayComposition.class),
@@ -14,7 +13,7 @@ public enum CompositionType {
     private final int id;
     private final Class<? extends Composition> clazz;
 
-    CompositionType(int id, Class<? extends Composition> clazz) {
+    ECompositionType(int id, Class<? extends Composition> clazz) {
         this.id = id;
         this.clazz = clazz;
     }
@@ -23,8 +22,8 @@ public enum CompositionType {
         return id;
     }
 
-    public static CompositionType getById(int id) {
-        for (CompositionType type : CompositionType.values()) {
+    public static ECompositionType getById(int id) {
+        for (ECompositionType type : ECompositionType.values()) {
             if (type.getId() == id) {
                 return type;
             }

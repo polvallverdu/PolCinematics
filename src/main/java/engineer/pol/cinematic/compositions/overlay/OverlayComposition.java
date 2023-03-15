@@ -2,7 +2,7 @@ package engineer.pol.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
 import engineer.pol.cinematic.compositions.core.Composition;
-import engineer.pol.cinematic.compositions.core.CompositionType;
+import engineer.pol.cinematic.compositions.core.ECompositionType;
 import engineer.pol.cinematic.compositions.core.attributes.AttributeList;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -17,7 +17,7 @@ public abstract class OverlayComposition extends Composition {
     }
 
     public OverlayComposition(UUID uuid, String name, EOverlayType overlayType, long duration, AttributeList attributes) {
-        super(uuid, name, duration, CompositionType.OVERLAY_COMPOSITION, attributes);
+        super(uuid, name, duration, ECompositionType.OVERLAY_COMPOSITION, attributes);
         this.overlayType = overlayType;
     }
 

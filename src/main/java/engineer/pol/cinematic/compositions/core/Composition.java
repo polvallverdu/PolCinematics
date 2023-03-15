@@ -1,13 +1,11 @@
 package engineer.pol.cinematic.compositions.core;
 
 import com.google.gson.JsonObject;
-import engineer.pol.cinematic.compositions.camera.CameraComposition;
 import engineer.pol.cinematic.compositions.core.attributes.Attribute;
 import engineer.pol.cinematic.compositions.core.attributes.AttributeList;
 import engineer.pol.cinematic.compositions.core.attributes.EAttributeType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.UUID;
 
 public abstract class Composition {
@@ -15,15 +13,15 @@ public abstract class Composition {
     private UUID uuid;
     private String name;
     private long duration;
-    private final CompositionType type;
+    private final ECompositionType type;
 
     private AttributeList attributes;
 
-    public Composition(UUID uuid, String name, long duration, CompositionType type) {
+    public Composition(UUID uuid, String name, long duration, ECompositionType type) {
         this(uuid, name, duration, type, new AttributeList());
     }
 
-    public Composition(UUID uuid, String name, long duration, CompositionType type, AttributeList attributes) {
+    public Composition(UUID uuid, String name, long duration, ECompositionType type, AttributeList attributes) {
         this.uuid = uuid;
         this.name = name;
         this.duration = duration;
@@ -43,7 +41,7 @@ public abstract class Composition {
         return duration;
     }
 
-    public CompositionType getType() {
+    public ECompositionType getType() {
         return type;
     }
 
@@ -104,7 +102,7 @@ public abstract class Composition {
             case OVERLAY_COMPOSITION -> OverlayComposition.fromJson(json);
             case AUDIO_COMPOSITION -> null;
         };*/
-        CompositionType type = CompositionType.getById(json.get("type").getAsInt());
+        ECompositionType type = ECompositionType.getById(json.get("type").getAsInt());
         var compositionClass =  type.getClazz();
         Composition composition = compositionClass.cast(Composition.fromJson(json));
         return composition;
