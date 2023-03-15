@@ -9,6 +9,12 @@ I have 2 reasons why this project doesn't have a license at the moment:
 [More info here](https://choosealicense.com/no-permission/)
 
 ### Things I would love to add
-- [] Play sounds with location.
-- [] Video effects (shake, displacement, etc.)
-- [] UI with a timeline to control keypoints and easings.
+- [ ] Play sounds with location.
+- [ ] Video effects (shake, displacement, etc.)
+- [ ] Better video player
+- [ ] UI with a timeline to control keypoints and easings. **(WORKING ON THIS)**
+- [ ] Supporting other games (Valorant, Source, etc.)
+- [ ] Stream resources instead of download
+- [ ] Client-only commands and tools (useful for videos, etc.)
+- [ ] Independent camera rendering (no need of a window, save directly to file with specific camera)
+- [ ] Support for transitions
