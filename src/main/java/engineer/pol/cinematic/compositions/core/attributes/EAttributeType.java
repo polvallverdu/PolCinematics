@@ -1,5 +1,6 @@
 package engineer.pol.cinematic.compositions.core.attributes;
 
+import engineer.pol.cinematic.compositions.camera.CameraPos;
 import engineer.pol.utils.ColorUtils;
 
 public enum EAttributeType {
@@ -8,7 +9,8 @@ public enum EAttributeType {
     INTEGER("integer", 0, Integer.class, true),
     DOUBLE("double", 0D, Double.class, true),
     STRING("string", "", String.class, false),
-    COLOR("color", ColorUtils.getColor(0, 0, 0), Integer.class, true),;
+    COLOR("color", ColorUtils.getColor(0, 0, 0), Integer.class, true),
+    CAMERAPOS("camerapos", new CameraPos(0D, 0D, 0D, 0D, 0D, 0D, 90D), CameraPos.class, true),;
 
     private final String name;
     private final Object defaultValue;

@@ -2,12 +2,15 @@ package engineer.pol.cinematic.compositions.core.attributes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import engineer.pol.cinematic.compositions.camera.CameraPos;
 import engineer.pol.cinematic.compositions.core.Composition;
 import engineer.pol.exception.DeleteKeyframeException;
 import engineer.pol.utils.BasicCompositionData;
 import engineer.pol.utils.ColorUtils;
 import engineer.pol.utils.math.Easing;
+import engineer.pol.utils.math.MathUtils;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -217,6 +220,19 @@ public class Attribute {
         return this.getValue(time, true); // Easing is enabled by default. It is later checked if the attribute type supports easing.
     }
 
+    private double getFraction(long time, Keyframe current, Keyframe next) {
+        double fraction = (double) (time - current.getTime()) / (next.getTime() - current.getTime());
+        if (!Double.isFinite(fraction)) {
+            return 0d;
+        }
+        return fraction;
+    }
+
+    private double getEasingMultiplier(long time, Keyframe current, Keyframe next) {
+        double fraction = getFraction(time, current, next);
+        return current.getEasing().getValue(fraction);
+    }
+
     public Object getValue(long time, boolean eased) {
         eased = eased && this.type.isEasing(); // Make sure the attribute type supports easing.
 
@@ -234,34 +250,67 @@ public class Attribute {
             double currentValue = keyframes.getLeft().getValueAsDouble();
             double nextValue = keyframes.getRight().getValueAsDouble();
 
-            double fraction = (double) (time - keyframes.getLeft().getTime()) / (keyframes.getRight().getTime() - keyframes.getLeft().getTime());
-            if (!Double.isFinite(fraction)) {
-                fraction = 0;
-            }
-            double easingMultiplier = keyframes.getLeft().getEasing().getValue(fraction);
+            double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
 
-            return currentValue + (nextValue - currentValue) * easingMultiplier;
+            return MathUtils.lerp(currentValue, nextValue, easingMultiplier);
         } else if (type == EAttributeType.COLOR) {
-            Color currentColor = keyframes.getLeft().getValueAsColor();
-            int[] currentColorArray = new int[] {currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentColor.getAlpha()};
-            Color nextColor = keyframes.getRight().getValueAsColor();
-            int[] nextColorArray = new int[] {nextColor.getRed(), nextColor.getGreen(), nextColor.getBlue(), nextColor.getAlpha()};
+            int[] currentColorArray = ColorUtils.splitColors(keyframes.getLeft().getValueAsColor());
+            int[] nextColorArray = ColorUtils.splitColors(keyframes.getRight().getValueAsColor());
 
-            double fraction = (double) (time - keyframes.getLeft().getTime()) / (keyframes.getRight().getTime() - keyframes.getLeft().getTime());
-            if (!Double.isFinite(fraction)) {
-                fraction = 0;
-            }
-            double easingMultiplier = keyframes.getLeft().getEasing().getValue(fraction);
+            double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
 
             for (int i = 0; i < currentColorArray.length; i++) {
-                currentColorArray[i] += (nextColorArray[i] - currentColorArray[i]) * easingMultiplier;
+                currentColorArray[i] = (int) MathUtils.lerp(currentColorArray[i], nextColorArray[i], easingMultiplier);
             }
 
             return new Color(currentColorArray[0], currentColorArray[1], currentColorArray[2], currentColorArray[3]);
+        } else if (type == EAttributeType.CAMERAPOS) {
+            return getLerpCameraPos(time);
         }
 
         // Easing true but not supported?
         return keyframes.getLeft().getValue();
+    }
+
+    public CameraPos getLerpCameraPos(long time) {
+        Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
+
+        CameraPos currentPos = keyframes.getLeft().getValueAsCameraPos();
+        CameraPos nextPos = keyframes.getRight().getValueAsCameraPos();
+
+        double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
+
+        return new CameraPos(
+                MathUtils.lerp(currentPos.getX(), nextPos.getX(), easingMultiplier),
+                MathUtils.lerp(currentPos.getY(), nextPos.getY(), easingMultiplier),
+                MathUtils.lerp(currentPos.getZ(), nextPos.getZ(), easingMultiplier),
+                MathUtils.lerp(currentPos.getPitch(), nextPos.getPitch(), easingMultiplier),
+                MathUtils.lerp(currentPos.getYaw(), nextPos.getYaw(), easingMultiplier),
+                MathUtils.lerp(currentPos.getRoll(), nextPos.getRoll(), easingMultiplier),
+                MathUtils.lerp(currentPos.getFov(), nextPos.getFov(), easingMultiplier)
+        );
+    }
+
+    public CameraPos getSlerpCameraPos(long time) {
+        Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
+
+        CameraPos currentPos = keyframes.getLeft().getValueAsCameraPos();
+        CameraPos nextPos = keyframes.getRight().getValueAsCameraPos();
+
+        double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
+        Vec3d centerPoint = MathUtils.calculateCuttingPoint(currentPos.getVec3d(), currentPos.getVec2f(), nextPos.getVec3d(), nextPos.getVec2f());
+
+        Vec3d newPos = MathUtils.slerp(currentPos.getVec3d(), nextPos.getVec3d(), centerPoint, easingMultiplier);
+
+        return new CameraPos(
+                newPos.getX(),
+                newPos.getY(),
+                newPos.getZ(),
+                MathUtils.lerp(currentPos.getPitch(), nextPos.getPitch(), easingMultiplier),
+                MathUtils.lerp(currentPos.getYaw(), nextPos.getYaw(), easingMultiplier),
+                MathUtils.lerp(currentPos.getRoll(), nextPos.getRoll(), easingMultiplier),
+                MathUtils.lerp(currentPos.getFov(), nextPos.getFov(), easingMultiplier)
+        );
     }
 
     public UUID getUuid() {

@@ -2,6 +2,7 @@ package engineer.pol.cinematic.compositions.core.attributes;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import engineer.pol.cinematic.compositions.camera.CameraPos;
 import engineer.pol.utils.math.Easing;
 
 import java.awt.*;
@@ -68,6 +69,10 @@ public class Keyframe {
         return new Color(this.getValueAsInteger());
     }
 
+    public CameraPos getValueAsCameraPos() {
+        return (CameraPos) value;
+    }
+
     public EAttributeType getType() {
         return type;
     }
@@ -88,9 +93,11 @@ public class Keyframe {
     private void addCorrectValue(JsonObject json) {
         switch (type) {
             case DOUBLE -> json.add("value", new JsonPrimitive((double) value));
-            case INTEGER -> json.add("value", new JsonPrimitive((int) value));
+            case INTEGER, COLOR -> json.add("value", new JsonPrimitive((int) value));
             case BOOLEAN -> json.add("value", new JsonPrimitive((boolean) value));
             case STRING -> json.add("value", new JsonPrimitive((String) value));
+            case CAMERAPOS -> json.add("value", ((CameraPos) value).toJson());
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
 
@@ -107,7 +114,7 @@ public class Keyframe {
             case DOUBLE -> {
                 return json.get("value").getAsDouble();
             }
-            case INTEGER -> {
+            case INTEGER, COLOR -> {
                 return json.get("value").getAsInt();
             }
             case BOOLEAN -> {
@@ -116,9 +123,10 @@ public class Keyframe {
             case STRING -> {
                 return json.get("value").getAsString();
             }
-            default -> {
-                return json.get("value").getAsString();
+            case CAMERAPOS -> {
+                return CameraPos.fromJson(json.get("value").getAsJsonObject());
             }
+            default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
 

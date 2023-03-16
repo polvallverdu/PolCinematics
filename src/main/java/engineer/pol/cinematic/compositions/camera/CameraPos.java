@@ -1,6 +1,8 @@
 package engineer.pol.cinematic.compositions.camera;
 
 import com.google.gson.JsonObject;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
 
 public class CameraPos {
 
@@ -48,6 +50,14 @@ public class CameraPos {
 
     public double getFov() {
         return fov;
+    }
+
+    public Vec3d getVec3d() {
+        return new Vec3d(x, y, z);
+    }
+
+    public Vec2f getVec2f() {
+        return new Vec2f((float) pitch, (float) yaw);
     }
 
     public static CameraPos fromJson(JsonObject json) {
