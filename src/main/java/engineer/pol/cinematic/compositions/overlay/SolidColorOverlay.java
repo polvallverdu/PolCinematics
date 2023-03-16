@@ -24,7 +24,6 @@ public class SolidColorOverlay extends OverlayComposition {
         this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
     }
 
-
     @Override
     public void tick(MatrixStack matrixStack, long time) {
         Color color = (Color) this.getAttribute("COLOR").getValue(time);

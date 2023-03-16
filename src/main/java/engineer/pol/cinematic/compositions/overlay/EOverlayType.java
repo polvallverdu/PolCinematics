@@ -1,13 +1,11 @@
 package engineer.pol.cinematic.compositions.overlay;
 
 
-import engineer.pol.client.players.DEPRECATEDVIDEOPLAYER;
-
 public enum EOverlayType {
 
     SOLID_COLOR_OVERLAY("solid", SolidColorOverlay.class),
     BLACK_BARS_OVERLAY("black_bars", BlackBarsOverlay.class),
-    /* VIDEO_OVERLAY("video", DEPRECATEDVIDEOPLAYER.class),*/;
+    VIDEO_OVERLAY("video", VideoOverlay.class),;
 
     private final String name;
     private final Class<? extends OverlayComposition> clazz;
