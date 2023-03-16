@@ -10,14 +10,16 @@ public class CameraPos {
     private final double pitch;
     private final double yaw;
     private final double roll;
+    private final double fov;
 
-    public CameraPos(double x, double y, double z, double pitch, double yaw, double roll) {
+    public CameraPos(double x, double y, double z, double pitch, double yaw, double roll, double fov) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.pitch = pitch;
         this.yaw = yaw;
         this.roll = roll;
+        this.fov = fov;
     }
 
     public double getX() {
@@ -51,8 +53,9 @@ public class CameraPos {
         double pitch = json.get("pitch").getAsDouble();
         double yaw = json.get("yaw").getAsDouble();
         double roll = json.get("roll").getAsDouble();
+        double fov = json.get("fov").getAsDouble();
 
-        return new CameraPos(x, y, z, pitch, yaw, roll);
+        return new CameraPos(x, y, z, pitch, yaw, roll, fov);
     }
 
     public JsonObject toConfig() {
@@ -64,6 +67,7 @@ public class CameraPos {
         json.addProperty("pitch", pitch);
         json.addProperty("yaw", yaw);
         json.addProperty("roll", roll);
+        json.addProperty("fov", fov);
 
         return json;
     }
