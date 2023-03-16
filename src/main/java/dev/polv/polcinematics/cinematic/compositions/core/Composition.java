@@ -108,4 +108,53 @@ public abstract class Composition {
         return composition;
     }
 
+    // Functions that can be overwritten
+
+    /**
+     * Called when the cinematic starts
+     */
+    public void onCinematicStart() {}
+
+    /**
+     * Called when the cinematic ticks
+     */
+    //public void onCinematicTick() {}
+
+    /**
+     * Called when the cinematic stops
+     */
+    public void onCinematicStop() {}
+
+    /**
+     * Called when the cinematic is paused
+     */
+    public void onCinematicPause() {}
+
+    /**
+     * Called when the cinematic is resumed
+     */
+    public void onCinematicResume() {}
+
+    /**
+     * Called when the cinematic time is changed
+     * @param time new time
+     */
+    public void onCinematicTimeChange(long time) {}
+
+    /**
+     * Called when the composition is shown
+     */
+    public void onCompositionStart() {}
+
+    /**
+     * Called when the composition ticks
+     */
+    public void onCompositionTick(long time) {}
+
+    /**
+     * Called when the composition is no longer shown
+     */
+    public void onCompositionEnd() {}
+
+
 }

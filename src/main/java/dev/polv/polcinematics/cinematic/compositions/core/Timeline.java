@@ -80,9 +80,14 @@ public class Timeline {
     }
 
     public Composition getComposition(long time) {
+        WrappedComposition wc = getWrappedComposition(time);
+        return wc == null ? null : wc.getComposition();
+    }
+
+    public WrappedComposition getWrappedComposition(long time) {
         for (WrappedComposition timeline : compositions) {
             if (timeline.getStartTime() <= time && timeline.getFinishTime() >= time) {
-                return timeline.getComposition();
+                return timeline;
             }
         }
         return null;
@@ -220,5 +225,69 @@ public class Timeline {
 
     public void setOverlapStrategy(EOverlapStrategy overlapStrategy) {
         this.overlapStrategy = overlapStrategy;
+    }
+
+    public void onStart() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCinematicStart();
+        }
+    }
+
+    public void onStop() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCinematicStop();
+        }
+    }
+
+    public void onPause() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCinematicPause();
+        }
+    }
+
+    public void onResume() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCinematicResume();
+        }
+    }
+
+    public void onTimeChange(long oldTime, long time) {
+        WrappedComposition oldComposition = this.getWrappedComposition(oldTime);
+        WrappedComposition newComposition = this.getWrappedComposition(time);
+
+        if (oldComposition != null && newComposition != null) {
+            if (oldComposition == newComposition) {
+                oldComposition.getComposition().onCinematicTimeChange(time - oldComposition.getStartTime());
+            } else {
+                oldComposition.getComposition().onCompositionEnd();
+                newComposition.getComposition().onCompositionStart();
+                newComposition.getComposition().onCinematicTimeChange(time - newComposition.getStartTime());
+            }
+        } else if (oldComposition != null) {
+            oldComposition.getComposition().onCompositionEnd();
+        } else if (newComposition != null) {
+            newComposition.getComposition().onCompositionStart();
+            newComposition.getComposition().onCinematicTimeChange(time - newComposition.getStartTime());
+        }
+    }
+
+    public void onTick(long lastTick, long time) {
+        WrappedComposition oldComposition = this.getWrappedComposition(lastTick);
+        WrappedComposition newComposition = this.getWrappedComposition(time);
+
+        if (oldComposition != null && newComposition != null) {
+            if (oldComposition == newComposition) {
+                oldComposition.getComposition().onCompositionTick(time - oldComposition.getStartTime());
+            } else {
+                oldComposition.getComposition().onCompositionEnd();
+                newComposition.getComposition().onCompositionStart();
+                newComposition.getComposition().onCompositionTick(time - newComposition.getStartTime());
+            }
+        } else if (oldComposition != null) {
+            oldComposition.getComposition().onCompositionEnd();
+        } else if (newComposition != null) {
+            newComposition.getComposition().onCompositionStart();
+            newComposition.getComposition().onCompositionTick(time - newComposition.getStartTime());
+        }
     }
 }
