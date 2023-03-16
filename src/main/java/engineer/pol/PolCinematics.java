@@ -24,8 +24,4 @@ public class PolCinematics implements ModInitializer {
             SERVER = null;
         });
     }
-
-    public static void main(String[] args) {
-        FlutterGuiManager.INSTANCE.test();
-    }
 }
