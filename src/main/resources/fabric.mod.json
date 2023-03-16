@@ -28,5 +28,13 @@
     "fabricloader": ">=0.14.8",
     "fabric": "*",
     "minecraft": "1.19.4"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.github": "https://github.com/polvallverdu/PolCinematics"
+      },
+      "update_checker": false
+    }
   }
 }
