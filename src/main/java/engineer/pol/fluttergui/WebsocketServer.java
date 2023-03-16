@@ -7,6 +7,7 @@ import engineer.pol.cinematic.Cinematic;
 import engineer.pol.cinematic.compositions.core.Timeline;
 import engineer.pol.cinematic.compositions.core.Composition;
 import engineer.pol.exception.InvalidCinematicException;
+import engineer.pol.utils.GsonUtils;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -49,7 +50,7 @@ public class WebsocketServer extends Thread {
         {
             super.onWebSocketText(message);
             LOG.debug("Received TEXT message: {}", message);
-            JsonPacket packet = new Gson().fromJson(message, JsonPacket.class);
+            JsonPacket packet = GsonUtils.gson.fromJson(message, JsonPacket.class);
 
             switch (packet.type) {
                 case 1 -> {  // Auth packet
