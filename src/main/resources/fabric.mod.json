@@ -8,17 +8,17 @@
     "Pol"
   ],
   "contact": {
-    "website": "pol.engineer"
+    "website": "polv.dev"
   },
   "license": "MIT",
   "icon": "assets/PolCinematics/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "engineer.pol.client.PolCinematicsClient"
+      "dev.polv.polcinematics.client.PolCinematicsClient"
     ],
     "main": [
-      "engineer.pol.PolCinematics"
+      "dev.polv.polcinematics.PolCinematics"
     ]
   },
   "mixins": [
