@@ -221,4 +221,36 @@ public class Timeline {
     public void setOverlapStrategy(EOverlapStrategy overlapStrategy) {
         this.overlapStrategy = overlapStrategy;
     }
+
+    public void onStart() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCompositionStart();
+        }
+    }
+
+    public void onStop() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCompositionStart();
+        }
+    }
+
+    public void onPause() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCompositionPause();
+        }
+    }
+
+    public void onResume() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCompositionResume();
+        }
+    }
+
+    public void onTimeChange(long time) {
+        for (WrappedComposition wc : compositions) {
+            if (wc.getStartTime() <= time && wc.getFinishTime() >= time) {
+                wc.getComposition().onCompositionTimeChange(time - wc.getStartTime());
+            }
+        }
+    }
 }

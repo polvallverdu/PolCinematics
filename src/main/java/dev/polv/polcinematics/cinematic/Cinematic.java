@@ -96,6 +96,41 @@ public class Cinematic {
             ((OverlayComposition) compo).tick(matrixStack, time);
         }
     }
+
+    public void onStart() {
+        this.cameraTimeline.onStart();
+        for (Timeline timeline : this.timelines) {
+            timeline.onStart();
+        }
+    }
+
+    public void onPause() {
+        this.cameraTimeline.onPause();
+        for (Timeline timeline : this.timelines) {
+            timeline.onPause();
+        }
+    }
+
+    public void onResume() {
+        this.cameraTimeline.onResume();
+        for (Timeline timeline : this.timelines) {
+            timeline.onResume();
+        }
+    }
+
+    public void onStop() {
+        this.cameraTimeline.onStop();
+        for (Timeline timeline : this.timelines) {
+            timeline.onStop();
+        }
+    }
+
+    public void onTimeChange(long time) {
+        this.cameraTimeline.onTimeChange(time);
+        for (Timeline timeline : this.timelines) {
+            timeline.onTimeChange(time);
+        }
+    }
     
     public JsonObject toJson() {
         JsonObject json = new JsonObject();

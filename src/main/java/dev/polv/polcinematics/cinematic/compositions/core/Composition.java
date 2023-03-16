@@ -108,4 +108,13 @@ public abstract class Composition {
         return composition;
     }
 
+    // Functions that can be overwritten
+    public void onCompositionStart() {}
+    public void onCompositionEnd() {}
+    //public void onCompositionTick() {} COULD BE USEFUL
+    public void onCompositionPause() {}
+    public void onCompositionResume() {}
+    public void onCompositionTimeChange(long time) {}
+
+
 }
