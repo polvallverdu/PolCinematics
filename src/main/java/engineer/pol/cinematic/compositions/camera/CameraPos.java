@@ -46,7 +46,11 @@ public class CameraPos {
         return roll;
     }
 
-    public static CameraPos fromConfig(JsonObject json) {
+    public double getFov() {
+        return fov;
+    }
+
+    public static CameraPos fromJson(JsonObject json) {
         double x = json.get("x").getAsDouble();
         double y = json.get("y").getAsDouble();
         double z = json.get("z").getAsDouble();
@@ -58,7 +62,7 @@ public class CameraPos {
         return new CameraPos(x, y, z, pitch, yaw, roll, fov);
     }
 
-    public JsonObject toConfig() {
+    public JsonObject toJson() {
         JsonObject json = new JsonObject();
 
         json.addProperty("x", x);

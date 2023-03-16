@@ -20,19 +20,19 @@ public class CameraSubcommand {
     private static Easing easing = Easing.EASE_INOUT_CUBIC;
 
     public static LiteralCommandNode<ServerCommandSource> register(LiteralArgumentBuilder<ServerCommandSource> builder, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
-        builder.then(CommandManager.literal("setPosition").then(CommandManager.argument("time", LongArgumentType.longArg(0)).executes(CameraSubcommand::setpos)));
+        /*builder.then(CommandManager.literal("setPosition").then(CommandManager.argument("time", LongArgumentType.longArg(0)).executes(CameraSubcommand::setpos)));
         builder.then(CommandManager.literal("setHighlight").then(CommandManager.argument("time", LongArgumentType.longArg(0)).executes(CameraSubcommand::setHighlight)));
 
         builder.then(CommandManager.literal("setRotLock").then(CommandManager.argument("time", LongArgumentType.longArg(0)).then(CommandManager.argument("value", DoubleArgumentType.doubleArg(0, 1)).executes(CameraSubcommand::setRotLock))));
         builder.then(CommandManager.literal("setPlayerRotLock").then(CommandManager.argument("time", LongArgumentType.longArg(0)).then(CommandManager.argument("value", DoubleArgumentType.doubleArg(0, 1)).executes(CameraSubcommand::setPlayerRotLock))));
         builder.then(CommandManager.literal("setPlayerPosLock").then(CommandManager.argument("time", LongArgumentType.longArg(0)).then(CommandManager.argument("value", DoubleArgumentType.doubleArg(0, 1)).executes(CameraSubcommand::setPlayerPosLock))));
 
-        builder.then(CommandManager.literal("smooth").executes(CameraSubcommand::smooth));
+        builder.then(CommandManager.literal("smooth").executes(CameraSubcommand::smooth));*/
 
         return builder.build();
     }
 
-    private static int setpos(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    /*private static int setpos(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         long time = context.getArgument("time", Long.class);
 
         ServerPlayerEntity player = getPlayer(context);
@@ -141,6 +141,6 @@ public class CameraSubcommand {
             return null;
         }
         return player;
-    }
+    }*/
 
 }

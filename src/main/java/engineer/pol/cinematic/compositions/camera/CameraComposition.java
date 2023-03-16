@@ -2,6 +2,7 @@ package engineer.pol.cinematic.compositions.camera;
 
 import com.google.gson.JsonObject;
 import engineer.pol.cinematic.compositions.core.*;
+import engineer.pol.cinematic.compositions.core.attributes.AttributeList;
 
 import java.util.UUID;
 
@@ -10,13 +11,15 @@ public abstract class CameraComposition extends Composition {
     private final ECameraType cameraType;
 
     public CameraComposition(String name, ECameraType cameraType, long duration) {
-        this(UUID.randomUUID(), name, cameraType, duration);
-    }
-
-    public CameraComposition(UUID uuid, String name, ECameraType cameraType, long duration) {
-        super(uuid, name, duration, CompositionType.CAMERA_COMPOSITION);
+        super(UUID.randomUUID(), name, duration, ECompositionType.CAMERA_COMPOSITION);
         this.cameraType = cameraType;
     }
+
+    protected CameraComposition(UUID uuid, String name, ECameraType cameraType, long duration, AttributeList attributes) {
+        super(uuid, name, duration, ECompositionType.CAMERA_COMPOSITION, attributes);
+        this.cameraType = cameraType;
+    }
+
 /*
     public void addKeyframe(CompositionProperty property, long time, double value) {
         timelines.get(property).addKeyframe(time, value);

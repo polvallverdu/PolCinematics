@@ -2,10 +2,10 @@ package engineer.pol.cinematic.compositions.camera;
 
 public enum ECameraType {
 
-    PLAYER("player"),
-    FIRST_PERSON("first_person"),
-    THIRD_PERSON("third_person"),
-    FIXED("fixed"),;
+    PLAYER("player", PlayerCameraComposition.class),
+    /*FIRST_PERSON("first_person"),
+    THIRD_PERSON("third_person"),*/
+    FIXED("fixed", FixedCameraComposition.class),;
 
     private final String name;
     private final Class<? extends CameraComposition> clazz;
