@@ -15,29 +15,63 @@ import java.nio.charset.StandardCharsets;
 public class ClientPacketHandler {
 
     public ClientPacketHandler() {
-        ClientPlayNetworking.registerGlobalReceiver(Packets.CINEMATIC_BROADCAST_PACKET, (client, handler, buf, responseSender) -> {
-            String json = new String(buf.readByteArray(), StandardCharsets.UTF_8);
-            PolCinematicsClient.getCCM().loadCinematic(GsonUtils.jsonFromString(json));
-        });
-        ClientPlayNetworking.registerGlobalReceiver(Packets.CLIENT_CINEMATIC_PLAY_PACKET, (client, handler, buf, responseSender) -> {
-            PolCinematicsClient.getCCM().start();
-        });
-        ClientPlayNetworking.registerGlobalReceiver(Packets.CLIENT_CINEMATIC_STOP_PACKET, (client, handler, buf, responseSender) -> {
-            PolCinematicsClient.getCCM().stop();
-        });
-        ClientPlayNetworking.registerGlobalReceiver(Packets.CLIENT_EDITOR_OPEN, (client, handler, buf, responseSender) -> {
-            MinecraftClient.getInstance().player.sendMessage(Text.of("Opening editor..."));
-            try {
-                int port = buf.readInt();
-                String password = buf.readString();
-                String serverAddress = MinecraftClient.getInstance().getCurrentServerEntry().address;
-                FlutterGuiManager.executeProgram("ws://" + serverAddress + ":" + port + "/", password);
-            } catch (Exception e) {
-                e.printStackTrace();
-                MinecraftClient.getInstance().player.sendMessage(Text.of("There was an error opening the editor."));
+        ClientPlayNetworking.registerGlobalReceiver(
+                Packets.CINEMATIC_BROADCAST_PACKET,
+                (client, handler, buf, responseSender) -> {
+                    String json = new String(buf.readByteArray(), StandardCharsets.UTF_8);
+                    PolCinematicsClient.getCCM().loadCinematic(GsonUtils.jsonFromString(json));
+                }
+        );
 
-            }
-        });
+        ClientPlayNetworking.registerGlobalReceiver(
+                Packets.CLIENT_CINEMATIC_PLAY_PACKET,
+                (client, handler, buf, responseSender) -> {
+                    boolean paused = buf.readBoolean();
+                    long from = buf.readLong();
+                    if (from != 0) {
+                        PolCinematicsClient.getCCM().startFrom(from, paused);
+                    } else {
+                        PolCinematicsClient.getCCM().start(paused);
+                    }
+                }
+        );
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                Packets.CLIENT_CINEMATIC_GOTO_PACKET,
+                (client, handler, buf, responseSender) -> PolCinematicsClient.getCCM().moveTo(buf.readLong())
+        );
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                Packets.CLIENT_CINEMATIC_PAUSE_PACKET,
+                (client, handler, buf, responseSender) -> PolCinematicsClient.getCCM().pause()
+        );
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                Packets.CLIENT_CINEMATIC_RESUME_PACKET,
+                (client, handler, buf, responseSender) -> PolCinematicsClient.getCCM().resume()
+        );
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                Packets.CLIENT_CINEMATIC_STOP_PACKET,
+                (client, handler, buf, responseSender) -> PolCinematicsClient.getCCM().stop()
+        );
+
+        ClientPlayNetworking.registerGlobalReceiver(
+                Packets.CLIENT_EDITOR_OPEN,
+                (client, handler, buf, responseSender) -> {
+                    MinecraftClient.getInstance().player.sendMessage(Text.of("Opening editor..."));
+                    try {
+                        int port = buf.readInt();
+                        String password = buf.readString();
+                        String serverAddress = MinecraftClient.getInstance().getCurrentServerEntry().address;
+                        FlutterGuiManager.executeProgram("ws://" + serverAddress + ":" + port + "/", password);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        MinecraftClient.getInstance().player.sendMessage(Text.of("There was an error opening the editor."));
+
+                    }
+                }
+        );
     }
 
 }

@@ -16,10 +16,17 @@ import java.util.UUID;
 
 public class Packets {
 
-    public static Identifier CINEMATIC_BROADCAST_PACKET = generatePacketId("broadcast");
-    public static Identifier CLIENT_READY_CINEMATIC_PACKET = generatePacketId("ready");
-    public static Identifier CLIENT_CINEMATIC_PLAY_PACKET = generatePacketId("play");
-    public static Identifier CLIENT_CINEMATIC_STOP_PACKET = generatePacketId("stop");
+    public static Identifier CINEMATIC_BROADCAST_PACKET = generatePacketId("cinematic_broadcast");
+    public static Identifier CLIENT_READY_CINEMATIC_PACKET = generatePacketId("cinematic_ready");
+
+    public static Identifier CLIENT_CINEMATIC_PLAY_PACKET = generatePacketId("cinematic_play");
+    public static Identifier CLIENT_CINEMATIC_STOP_PACKET = generatePacketId("cinematic_stop");
+    public static Identifier CLIENT_CINEMATIC_PAUSE_PACKET = generatePacketId("cinematic_pause");
+    public static Identifier CLIENT_CINEMATIC_RESUME_PACKET = generatePacketId("cinematic_resume");
+    public static Identifier CLIENT_CINEMATIC_GOTO_PACKET = generatePacketId("cinematic_goto");
+
+
+
     public static Identifier CLIENT_EDITOR_OPEN = generatePacketId("editor_open");
 
     private static Identifier generatePacketId(String name) {
