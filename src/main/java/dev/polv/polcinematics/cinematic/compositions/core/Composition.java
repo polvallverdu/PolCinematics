@@ -147,6 +147,16 @@ public abstract class Composition {
     public void onCompositionStart() {}
 
     /**
+     * Called when the cinematic is paused and the composition is visible
+     */
+    public void onCompositionPause() {}
+
+    /**
+     * Called when the cinematic is resumed and the composition is visible
+     */
+    public void onCompositionResume() {}
+
+    /**
      * Called when the composition ticks
      */
     public void onCompositionTick(long time) {}

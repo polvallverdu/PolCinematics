@@ -104,24 +104,24 @@ public class Cinematic {
         }
     }
 
-    public void onPause() {
-        this.cameraTimeline.onPause();
+    public void onPause(long time) {
+        this.cameraTimeline.onPause(time);
         for (Timeline timeline : this.timelines) {
-            timeline.onPause();
+            timeline.onPause(time);
         }
     }
 
-    public void onResume() {
-        this.cameraTimeline.onResume();
+    public void onResume(long time) {
+        this.cameraTimeline.onResume(time);
         for (Timeline timeline : this.timelines) {
-            timeline.onResume();
+            timeline.onResume(time);
         }
     }
 
-    public void onStop() {
-        this.cameraTimeline.onStop();
+    public void onStop(long time) {
+        this.cameraTimeline.onStop(time);
         for (Timeline timeline : this.timelines) {
-            timeline.onStop();
+            timeline.onStop(time);
         }
     }
 

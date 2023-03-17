@@ -228,25 +228,38 @@ public class Timeline {
     }
 
     public void onStart() {
+        long time = 0;
         for (WrappedComposition wc : compositions) {
             wc.getComposition().onCinematicStart();
+            if (wc.getStartTime() <= time && wc.getFinishTime() > time) {
+                wc.getComposition().onCompositionStart();
+            }
         }
     }
 
-    public void onStop() {
+    public void onStop(long time) {
         for (WrappedComposition wc : compositions) {
+            if (wc.getStartTime() <= time && wc.getFinishTime() > time) {
+                wc.getComposition().onCompositionEnd();
+            }
             wc.getComposition().onCinematicStop();
         }
     }
 
-    public void onPause() {
+    public void onPause(long time) {
         for (WrappedComposition wc : compositions) {
+            if (wc.getStartTime() <= time && wc.getFinishTime() > time) {
+                wc.getComposition().onCompositionPause();
+            }
             wc.getComposition().onCinematicPause();
         }
     }
 
-    public void onResume() {
+    public void onResume(long time) {
         for (WrappedComposition wc : compositions) {
+            if (wc.getStartTime() <= time && wc.getFinishTime() > time) {
+                wc.getComposition().onCompositionResume();
+            }
             wc.getComposition().onCinematicResume();
         }
     }
