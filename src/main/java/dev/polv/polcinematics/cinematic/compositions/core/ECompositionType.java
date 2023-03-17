@@ -1,8 +1,8 @@
 package dev.polv.polcinematics.cinematic.compositions.core;
 
-import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
 import dev.polv.polcinematics.cinematic.compositions.audio.AudioComposition;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
 
 public enum ECompositionType {
 

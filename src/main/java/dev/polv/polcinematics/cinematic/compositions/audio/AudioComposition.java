@@ -1,8 +1,8 @@
 package dev.polv.polcinematics.cinematic.compositions.audio;
 
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
+import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 
 import java.util.UUID;
 

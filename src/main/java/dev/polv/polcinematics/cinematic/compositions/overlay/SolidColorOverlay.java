@@ -2,9 +2,9 @@ package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import dev.polv.polcinematics.utils.ColorUtils;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
 import dev.polv.polcinematics.utils.BasicCompositionData;
+import dev.polv.polcinematics.utils.ColorUtils;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 

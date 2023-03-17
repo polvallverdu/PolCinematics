@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import engineer.pol.cinematic.compositions.core.*;
 
 import java.util.UUID;
 

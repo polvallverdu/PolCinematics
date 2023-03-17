@@ -1,11 +1,11 @@
 package dev.polv.polcinematics.cinematic.manager;
 
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
-import dev.polv.polcinematics.utils.GsonUtils;
-import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.net.ServerPacketHandler;
+import dev.polv.polcinematics.utils.GsonUtils;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.io.File;

@@ -1,9 +1,9 @@
 package dev.polv.polcinematics.cinematic.compositions.core;
 
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
 
 import java.util.ArrayList;
 import java.util.UUID;

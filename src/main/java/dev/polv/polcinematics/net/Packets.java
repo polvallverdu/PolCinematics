@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.net;
 
-import dev.polv.polcinematics.fluttergui.FlutterGuiManager;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.fluttergui.FlutterGuiManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;

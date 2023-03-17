@@ -1,9 +1,9 @@
 package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
+import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.UUID;

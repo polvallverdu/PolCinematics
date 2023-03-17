@@ -2,11 +2,11 @@ package dev.polv.polcinematics.fluttergui;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.PolCinematics;
+import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.compositions.core.Composition;
+import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.utils.GsonUtils;
-import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
-import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;

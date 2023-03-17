@@ -1,8 +1,8 @@
 package dev.polv.polcinematics.cinematic.manager;
 
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
 import dev.polv.polcinematics.net.ClientPacketHandler;
 import dev.polv.polcinematics.net.Packets;
 import net.fabricmc.api.EnvType;
