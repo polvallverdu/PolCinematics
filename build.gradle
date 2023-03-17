@@ -7,12 +7,14 @@ version = project.mod_version
 group = project.maven_group
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
+    mavenCentral()
+    mavenLocal()
+
     maven { url 'https://jitpack.io' }
+    maven {
+        name = 'Sponge / Mixin'
+        url = 'https://repo.spongepowered.org/repository/maven-public/'
+    }
 
     // modrinth
     exclusiveContent {
@@ -48,8 +50,13 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 
     // FancyVideo-API for video stuff
-    //    modImplementation("com.github.Nick1st:FancyVideo-API:989e11d")
-    modImplementation(files("lib/FancyVideo-API-1.19.jar"))
+    /*implementation("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") {
+        exclude group: 'net.java.dev.jna', module: 'jna'
+        exclude group: 'net.java.dev.jna', module: 'jna-platform'
+    }*/
+    modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric-1.19.4:c5ad45c61a")
+
+    //  modImplementation(files("lib/FancyVideo-API-1.19.jar"))
 
     //////////// TESTING MODS ////////////
     modLocalRuntime "maven.modrinth:sodium:mc1.19.4-0.4.10"
