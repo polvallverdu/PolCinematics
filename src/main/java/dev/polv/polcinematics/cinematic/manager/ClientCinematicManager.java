@@ -85,14 +85,14 @@ public class ClientCinematicManager {
         if (!this.running || this.pause) return;
         this.pause = true;
 
-        this.loadedCinematic.onPause();
+        this.loadedCinematic.onPause(this.elapsedTime);
     }
 
     public void resume() {
         if (!this.running || !this.pause) return;
         this.pause = false;
 
-        this.loadedCinematic.onResume();
+        this.loadedCinematic.onResume(this.elapsedTime);
     }
 
     public void moveTo(long time) {
@@ -109,7 +109,7 @@ public class ClientCinematicManager {
         this.running = false;
         this.pause = false;
 
-        this.loadedCinematic.onStop();
+        this.loadedCinematic.onStop(this.elapsedTime);
     }
 
     public boolean isCinematicRunning() {

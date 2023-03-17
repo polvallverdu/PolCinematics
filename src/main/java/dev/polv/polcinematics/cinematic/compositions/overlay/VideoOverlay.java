@@ -67,4 +67,29 @@ public class VideoOverlay extends OverlayComposition {
 
         return new VideoOverlay(data.uuid(), data.name(), videoPath, data.duration(), attributes);
     }
+
+    @Override
+    public void onCompositionEnd() {
+        this.videoPlayer.stop();
+    }
+
+    @Override
+    public void onCompositionPause() {
+        this.videoPlayer.pause();
+    }
+
+    @Override
+    public void onCompositionResume() {
+        this.videoPlayer.play();
+    }
+
+    @Override
+    public void onCompositionStart() {
+        this.videoPlayer.play();
+    }
+
+    @Override
+    public void onCinematicTimeChange(long time) {
+        this.videoPlayer.setTime(time);
+    }
 }
