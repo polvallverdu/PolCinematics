@@ -2,8 +2,10 @@ package dev.polv.polcinematics.cinematic;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.camera.BlackCameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
@@ -31,6 +33,16 @@ public class Cinematic {
         this.cameraTimeline = cameraTimeline;
         this.cameraTimeline.setOverlapStrategy(EOverlapStrategy.MOVE);
         this.timelines = timelines;
+    }
+
+    public Timeline addTimeline() {
+        Timeline timeline = new Timeline();
+        this.timelines.add(timeline);
+        return timeline;
+    }
+
+    public void removeTimeline(int index) {
+        this.timelines.remove(index);
     }
 
     public long getDuration() {
@@ -171,7 +183,10 @@ public class Cinematic {
     }
 
     public static Cinematic create(String name, long duration) {
-        return new Cinematic(UUID.randomUUID(), name, duration, new Timeline(), new ArrayList<>());
+        Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new Timeline(), new ArrayList<>());
+        cinematic.addTimeline();
+        cinematic.cameraTimeline.add(new BlackCameraComposition("default", duration), 0);
+        return cinematic;
     }
 
     public UUID getUuid() {
