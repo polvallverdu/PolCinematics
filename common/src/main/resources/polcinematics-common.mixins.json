@@ -3,6 +3,9 @@
   "package": "dev.polv.polcinematics.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "client.CameraMixin",
+    "client.GameOptionsMixin",
+    "client.GameRendererMixin"
   ],
   "mixins": [
   ],

@@ -12,6 +12,31 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
+
+    // Websocket dependencies
+    implementation 'org.eclipse.jetty.websocket:websocket-jetty-api:10.0.14'
+    implementation 'org.eclipse.jetty.websocket:websocket-jetty-server:10.0.14'
+
+    // Config stuff
+    //modImplementation("com.electronwill.night-config:core:3.6.5")
+    //modImplementation("com.electronwill.night-config:json:3.6.5")
+    // Switch to Jackson in a future
+    implementation 'com.google.code.gson:gson:2.9.0'
+
+    // FancyVideo-API for video stuff
+    /*implementation("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") { // Fallback: Direct download from https://oss.sonatype.org/content/repositories/snapshots/uk/co/caprica/
+        exclude group: 'net.java.dev.jna', module: 'jna'
+        exclude group: 'net.java.dev.jna', module: 'jna-platform'
+    }*/// vlcJ
+    //modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric-No-Dep:${rootProject.fancyvideo_api_commit}")
+
+    // Embedded Chromium (jcef)
+    implementation 'me.friwi:jcefmaven:110.0.25'
+
+    // Apache Commons
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-numbers-core
+    implementation 'org.apache.commons:commons-numbers-core:1.1'
+    // implementation 'org.apache.commons:commons-lang3:3.0'
 }
 
 publishing {

@@ -34,6 +34,11 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-forge:${rootProject.fancyvideo_api_commit}")
+
+    //////////// TESTING MODS ////////////
+    // None yet
 }
 
 processResources {

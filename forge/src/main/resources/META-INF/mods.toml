@@ -6,10 +6,10 @@ license = "Insert License Here"
 [[mods]]
 modId = "polcinematics"
 version = "${version}"
-displayName = "Example Mod"
-authors = "Me!"
+displayName = "Pol Cinematics"
+authors = "Pol"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+A mod to create cinematics in Minecraft.
 '''
 #logoFile = ""
 

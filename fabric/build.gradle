@@ -27,6 +27,15 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+
+    // FancyVideo-API for video stuff
+    modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.fancyvideo_api_commit}")
+
+    //////////// TESTING MODS ////////////
+    modLocalRuntime "maven.modrinth:sodium:mc1.19.4-0.4.10"
+    modLocalRuntime "maven.modrinth:lithium:mc1.19.4-0.11.1"
+    modLocalRuntime "maven.modrinth:iris:1.5.2+1.19.4"
+    modLocalRuntime "maven.modrinth:modmenu:6.1.0-rc.1"
 }
 
 processResources {

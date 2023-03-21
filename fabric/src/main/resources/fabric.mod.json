@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "id": "polcinematics",
   "version": "${version}",
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Pol Cinematics",
+  "description": "A cinematic mod for Minecraft",
   "authors": [
     "Me!"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://polv.dev/",
+    "sources": "https://github.com/polvallverdu/PolCinematics"
   },
   "license": "Insert License Here",
   "icon": "assets/polcinematics/icon.png",

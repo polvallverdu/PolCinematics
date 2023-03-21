@@ -17,6 +17,3 @@ classes/
 .vscode
 .settings
 *.launch
-
-ExampleExpectPlatformImpl.java
-ExampleExpectPlatform.java
