@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.polv.polcinematics.mixin.fabric",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

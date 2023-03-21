@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "polcinematics",
+  "version": "${version}",
+  "name": "Example Mod",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Me!"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "Insert License Here",
+  "icon": "assets/polcinematics/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.polv.polcinematics.fabric.PolCinematicsFabric"
+    ]
+  },
+  "mixins": [
+    "polcinematics.mixins.json",
+    "polcinematics-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.19.2",
+    "architectury": ">=6.2.43"
+  }
+}
