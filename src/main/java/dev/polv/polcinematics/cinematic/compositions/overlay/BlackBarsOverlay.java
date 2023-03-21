@@ -35,7 +35,7 @@ public class BlackBarsOverlay extends OverlayComposition {
 
     public static BlackBarsOverlay fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json);
+        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
 
         return new BlackBarsOverlay(data.uuid(), data.name(), data.duration(), attributes);
     }

@@ -5,6 +5,8 @@ import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -91,7 +93,7 @@ public abstract class Composition {
         return json;
     }
 
-    public static Composition fromJson(JsonObject json) {
+    public static Composition fromJson(JsonObject json) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         /*CompositionType type = CompositionType.getById(json.get("type").getAsInt());
 
         if (type == null) return null;
@@ -103,9 +105,10 @@ public abstract class Composition {
             case AUDIO_COMPOSITION -> null;
         };*/
         ECompositionType type = ECompositionType.getById(json.get("type").getAsInt());
-        var compositionClass =  type.getClazz();
-        Composition composition = compositionClass.cast(Composition.fromJson(json));
-        return composition;
+        var compositionClass = type.getClazz();
+        Method m = compositionClass.getMethod("fromJson", JsonObject.class);
+        var res = m.invoke(null, json);
+        return (Composition) res;
     }
 
     // Functions that can be overwritten

@@ -47,15 +47,40 @@ public class Packets {
         ClientPlayNetworking.send(CLIENT_READY_CINEMATIC_PACKET, PacketByteBufs.empty());
     }
 
-    public static void sendCinematicPlay(List<ServerPlayerEntity> players) {
+    public static void sendCinematicPlay(List<ServerPlayerEntity> players, boolean paused, long from) {
         players.forEach(p -> {
-            ServerPlayNetworking.send(p, CLIENT_CINEMATIC_PLAY_PACKET, PacketByteBufs.empty());
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBoolean(paused);
+            buf.writeLong(from);
+
+            ServerPlayNetworking.send(p, CLIENT_CINEMATIC_PLAY_PACKET, buf);
+        });
+    }
+
+    public static void sendCinematicPause(List<ServerPlayerEntity> players) {
+        players.forEach(p -> {
+            ServerPlayNetworking.send(p, CLIENT_CINEMATIC_PAUSE_PACKET, PacketByteBufs.empty());
+        });
+    }
+
+    public static void sendCinematicResume(List<ServerPlayerEntity> players) {
+        players.forEach(p -> {
+            ServerPlayNetworking.send(p, CLIENT_CINEMATIC_RESUME_PACKET, PacketByteBufs.empty());
         });
     }
 
     public static void sendCinematicStop(List<ServerPlayerEntity> players) {
         players.forEach(p -> {
             ServerPlayNetworking.send(p, CLIENT_CINEMATIC_STOP_PACKET, PacketByteBufs.empty());
+        });
+    }
+
+    public static void sendCinematicGoto(List<ServerPlayerEntity> players, long to) {
+        players.forEach(p -> {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeLong(to);
+
+            ServerPlayNetworking.send(p, CLIENT_CINEMATIC_GOTO_PACKET, buf);
         });
     }
 

@@ -12,13 +12,13 @@ import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.UUID;
 
-public class VideoOverlay extends OverlayComposition {
+public class WebBrowserOverlay extends OverlayComposition {
 
     private String videoPath;
     @Environment(EnvType.CLIENT)
     private final VideoPlayer videoPlayer;
 
-    public VideoOverlay(UUID uuid, String name, String videoPath, long duration, AttributeList attributes) {
+    public WebBrowserOverlay(UUID uuid, String name, String videoPath, long duration, AttributeList attributes) {
         super(uuid, name, EOverlayType.VIDEO_OVERLAY, duration, attributes);
         this.videoPath = videoPath;
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -33,7 +33,7 @@ public class VideoOverlay extends OverlayComposition {
         this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
     }
 
-    public VideoOverlay(String name, String videoPath, long duration) {
+    public WebBrowserOverlay(String name, String videoPath, long duration) {
         this(UUID.randomUUID(), name, videoPath, duration, new AttributeList());
     }
 
@@ -60,12 +60,12 @@ public class VideoOverlay extends OverlayComposition {
         return json;
     }
 
-    public static VideoOverlay fromJson(JsonObject json) {
+    public static WebBrowserOverlay fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
         AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
         String videoPath = json.get("videoPath").getAsString();
 
-        return new VideoOverlay(data.uuid(), data.name(), videoPath, data.duration(), attributes);
+        return new WebBrowserOverlay(data.uuid(), data.name(), videoPath, data.duration(), attributes);
     }
 
     @Override

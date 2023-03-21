@@ -102,6 +102,13 @@ public class Timeline {
         return null;
     }
 
+    @Deprecated // TODO: NOT SAFE
+    public void replaceComposition(UUID uuid, Composition newComposition) {
+        long startTime = findWrappedComposition(uuid).getStartTime();
+        remove(uuid);
+        add(newComposition, startTime);
+    }
+
     public void sort() {
         compositions.sort((a, b) -> (int) (a.getStartTime() - b.getStartTime()));
     }
@@ -217,8 +224,13 @@ public class Timeline {
         for (int i = 0; i < compositionsArray.size(); i++) {
             JsonObject compositionJson = compositionsArray.get(i).getAsJsonObject();
             long startTime = compositionJson.get("startTime").getAsLong();
-            Composition composition = Composition.fromJson(compositionJson.getAsJsonObject("composition"));
-            compositions.add(new WrappedComposition(composition, startTime));
+            try {
+                Composition composition = Composition.fromJson(compositionJson.get("composition").getAsJsonObject());
+                compositions.add(new WrappedComposition(composition, startTime));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null; // TODO: NOT SAFE
+            }
         }
         return new Timeline(compositions);
     }

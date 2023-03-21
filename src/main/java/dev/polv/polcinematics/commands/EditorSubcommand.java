@@ -14,8 +14,6 @@ import net.minecraft.text.Text;
 public class EditorSubcommand {
 
     public static LiteralCommandNode<ServerCommandSource> register(LiteralArgumentBuilder<ServerCommandSource> builder, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
-        LiteralArgumentBuilder<ServerCommandSource> literalBuilder = CommandManager.literal("ceditor");
-
         builder.then(CommandManager.literal("start").executes(EditorSubcommand::start));
         builder.then(CommandManager.literal("stop").executes(EditorSubcommand::stop));
         builder.then(CommandManager.literal("open").executes(EditorSubcommand::open));

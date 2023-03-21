@@ -50,7 +50,7 @@ public class SolidColorOverlay extends OverlayComposition {
 
     public static SolidColorOverlay fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json);
+        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
 
         return new SolidColorOverlay(data.uuid(), data.name(), data.duration(), attributes);
     }

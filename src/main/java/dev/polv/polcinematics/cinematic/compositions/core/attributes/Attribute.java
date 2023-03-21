@@ -299,7 +299,7 @@ public class Attribute {
         double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
         Vec3d centerPoint = MathUtils.calculateCuttingPoint(currentPos.getVec3d(), currentPos.getVec2f(), nextPos.getVec3d(), nextPos.getVec2f());
 
-        Vec3d newPos = MathUtils.slerp(currentPos.getVec3d(), nextPos.getVec3d(), centerPoint, easingMultiplier);
+        Vec3d newPos = MathUtils.slerp(currentPos, nextPos, easingMultiplier); // TODO: DOESN'T WORK
 
         return new CameraPos(
                 newPos.getX(),

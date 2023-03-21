@@ -2,7 +2,7 @@ package dev.polv.polcinematics.cinematic.manager;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
 import dev.polv.polcinematics.net.ClientPacketHandler;
 import dev.polv.polcinematics.net.Packets;
 import net.fabricmc.api.EnvType;
@@ -120,9 +120,9 @@ public class ClientCinematicManager {
         return this.elapsedTime;
     }
 
-    public CameraPos getCameraPos() {
+    public CameraComposition getCameraComposition() {
         this.tick();
-        return this.loadedCinematic.getCameraPos(this.elapsedTime);
+        return this.loadedCinematic.getCameraComposition(this.elapsedTime);
     }
 
 }

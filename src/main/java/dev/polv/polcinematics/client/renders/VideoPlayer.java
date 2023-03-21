@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.client.players;
+package dev.polv.polcinematics.client.renders;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.polv.polcinematics.PolCinematics;

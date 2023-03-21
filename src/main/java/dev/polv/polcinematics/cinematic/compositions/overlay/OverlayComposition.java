@@ -1,11 +1,15 @@
 package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import net.minecraft.client.util.math.MatrixStack;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 public abstract class OverlayComposition extends Composition {
@@ -33,7 +37,7 @@ public abstract class OverlayComposition extends Composition {
         return json;
     }
 
-    public static OverlayComposition fromJson(JsonObject json) {
+    public static OverlayComposition fromJson(JsonObject json) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         /*UUID uuid = UUID.fromString(json.get("uuid").getAsString());
         String name = json.get("name").getAsString();
         EOverlayType overlayType = EOverlayType.fromName(json.get("overlayType").getAsString());
@@ -49,8 +53,9 @@ public abstract class OverlayComposition extends Composition {
         }*/
         EOverlayType overlayType = EOverlayType.fromName(json.get("overlayType").getAsString());
         var compositionClass =  overlayType.getClazz();
-        OverlayComposition overlayComposition = compositionClass.cast(Composition.fromJson(json));
-        return overlayComposition;
+        Method m = compositionClass.getMethod("fromJson", JsonObject.class);
+        var res = m.invoke(null, json);
+        return (OverlayComposition) res;
     }
 
 }

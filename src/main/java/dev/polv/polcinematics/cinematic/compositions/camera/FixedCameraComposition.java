@@ -107,7 +107,7 @@ public class FixedCameraComposition extends CameraComposition {
 
     public static FixedCameraComposition fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json);
+        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
 
         CameraPos cameraPos = CameraPos.fromJson(json.get("cameraPos").getAsJsonObject());
 

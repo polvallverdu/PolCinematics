@@ -2,10 +2,8 @@ package dev.polv.polcinematics.cinematic;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.camera.BlackCameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
-import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
+import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
@@ -68,15 +66,19 @@ public class Cinematic {
         return null;
     }
 
+    public Timeline getCameraTimeline() {
+        return cameraTimeline;
+    }
+
     /*public CameraComposition createCameraComposition(String name, ECameraType cameraType, long duration) {
         CameraComposition cameraComposition = new CameraComposition(name, cameraType, duration);
         cameraTimeline.add(cameraComposition, cameraTimeline.getMaxDuration());
         return cameraComposition;
     }*/
 
-    public CameraComposition checkCameraComposition(long time) {  // TODO: THERE WILL ALWAYS BE A CAMERA COMPOSITION
+    /*public CameraComposition checkCameraComposition(long time) {  // THERE WILL ALWAYS BE A CAMERA COMPOSITION
         CameraComposition compo = this.getCameraComposition(time);
-        /*if (compo == null) {
+        if (compo == null) {
             if (this.cameraTimeline.compositions.isEmpty()) {
                 CameraComposition cameraComposition = new CameraComposition("temp", time);
                 this.cameraTimeline.add(cameraComposition, 0);
@@ -86,17 +88,9 @@ public class Cinematic {
             CameraComposition cameraComposition = (CameraComposition) this.cameraTimeline.getComposition(0);
             this.cameraTimeline.changeDuration(cameraComposition.getUuid(), time);
             return cameraComposition;
-        }*/
-        return compo;
-    }
-
-    public CameraPos getCameraPos(long time) {
-        CameraComposition cameraComposition = getCameraComposition(time);
-        if (cameraComposition == null) {
-            return null;
         }
-        return cameraComposition.getCameraPos(time);
-    }
+        return compo;
+    }*/
 
     public void tickOverlay(MatrixStack matrixStack, long time) {
         for (int i = this.timelines.size() - 1; i >= 0; i--) {  // loop reverse
@@ -185,7 +179,7 @@ public class Cinematic {
     public static Cinematic create(String name, long duration) {
         Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new Timeline(), new ArrayList<>());
         cinematic.addTimeline();
-        cinematic.cameraTimeline.add(new BlackCameraComposition("default", duration), 0);
+        cinematic.cameraTimeline.add(new PlayerCameraComposition("default", duration), 0);
         return cinematic;
     }
 

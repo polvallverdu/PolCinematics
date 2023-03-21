@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.mixin.client;
 
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -10,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Deprecated
 @Mixin(Camera.class)
 public class CameraMixin {
 
@@ -40,10 +40,17 @@ public class CameraMixin {
     @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
     private void injectedArgsSetRotationOnUpdate(Args args) {
         if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
-        CameraPos cameraPos = PolCinematicsClient.getCCM().getCameraPos();
+        var camera = PolCinematicsClient.getCCM().getCameraComposition();
+        if (camera == null) return;
 
-        if (cameraPos == null) return;
+        /*switch (camera.getCameraType()) {
+            case PLAYER -> {
+                return;
+            }
+        }*/
+        if (camera instanceof PlayerCameraComposition) return;
 
+        CameraPos cameraPos = camera.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime());
         args.set(0, (float) cameraPos.getYaw());
         args.set(1, (float) cameraPos.getPitch());
     }
@@ -51,10 +58,17 @@ public class CameraMixin {
     @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setPos(DDD)V"))
     private void injectedArgsSetPosOnUpdate(Args args) {
         if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
-        CameraPos cameraPos = PolCinematicsClient.getCCM().getCameraPos();
+        var camera = PolCinematicsClient.getCCM().getCameraComposition();
+        if (camera == null) return;
 
-        if (cameraPos == null) return;
+        /*switch (camera.getCameraType()) {
+            case PLAYER -> {
+                return;
+            }
+        }*/
+        if (camera instanceof PlayerCameraComposition) return;
 
+        CameraPos cameraPos = camera.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime());
         args.set(0, cameraPos.getX());
         args.set(1, cameraPos.getY());
         args.set(2, cameraPos.getZ());

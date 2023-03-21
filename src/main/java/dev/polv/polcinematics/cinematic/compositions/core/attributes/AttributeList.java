@@ -59,7 +59,7 @@ public class AttributeList {
     }
 
     public static AttributeList fromJson(JsonObject json) {
-        JsonArray jsonArray = json.getAsJsonArray();
+        JsonArray jsonArray = json.get("attributes").getAsJsonArray();
 
         HashMap<String, Attribute> attributesHashMap = new HashMap<>();
 

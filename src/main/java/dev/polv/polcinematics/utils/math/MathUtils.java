@@ -1,5 +1,7 @@
 package dev.polv.polcinematics.utils.math;
 
+import com.jogamp.opengl.math.Quaternion;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 
@@ -60,51 +62,13 @@ public class MathUtils {
         return new Vec3d(x, y, z);
     }
 
-    /**
-     * Linear spherical interpolation between two points in a 3D space, and a center point.
-     *
-     * @param pos1 Position when t = 0
-     * @param pos2 Position when t = 1
-     * @param center Center point
-     * @param t Interpolation value
-     * @return Interpolated position
-     */
-    public static Vec3d slerp(/*double x1, double y1, double z1*/Vec3d pos1, /*double x2, double y2, double z2*/Vec3d pos2, /*double cx, double cy, double cz*/Vec3d center, double t) {
-        // Calculate the vectors from the center point to each endpoint
-        double[] v1 = new double[] { pos1.getX() - center.getX(), pos1.getY() - center.getY(), pos1.getZ() - center.getZ() };
-        double[] v2 = new double[] { pos2.getX() - center.getX(), pos2.getY() - center.getY(), pos2.getZ() - center.getZ() };
+    public static Vec3d slerp(CameraPos pre, CameraPos post, double t) {
+        Quaternion preQuat = new Quaternion((float) pre.getPitch(), (float) pre.getYaw(), (float) pre.getRoll(), 1);
+        Quaternion postQuat = new Quaternion((float) post.getPitch(), (float) post.getYaw(), (float) post.getRoll(), 1);
+        Quaternion result = new Quaternion();
+        result.setSlerp(preQuat, postQuat, (float) t);
 
-        // Normalize the vectors
-        double v1Len = Math.sqrt(v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]);
-        double v2Len = Math.sqrt(v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]);
-        v1[0] /= v1Len;
-        v1[1] /= v1Len;
-        v1[2] /= v1Len;
-        v2[0] /= v2Len;
-        v2[1] /= v2Len;
-        v2[2] /= v2Len;
-
-        // Calculate the dot product of the two vectors
-        double dot = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
-
-        // Calculate the angle between the two vectors
-        double angle = Math.acos(dot);
-
-        // Calculate the sin of the angle
-        double sinAngle = Math.sin(angle);
-
-        // Calculate the weights for each endpoint
-        double weight1 = Math.sin((1 - t) * angle) / sinAngle;
-        double weight2 = Math.sin(t * angle) / sinAngle;
-
-        // Calculate the slerped point
-        Vec3d slerp = new Vec3d(
-                weight1 * v1[0] + weight2 * v2[0],
-                weight1 * v1[1] + weight2 * v2[1],
-                weight1 * v1[2] + weight2 * v2[2]
-        );
-
-        return slerp;
+        return new Vec3d(result.getX(), result.getY(), result.getZ());
     }
 
 }

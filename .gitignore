@@ -120,3 +120,4 @@ run/
 # Added by me
 logs/
 /src/main/resources/gui/windows/
+jcef-bundle/

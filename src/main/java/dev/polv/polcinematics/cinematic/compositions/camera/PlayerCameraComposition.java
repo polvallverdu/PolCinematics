@@ -8,13 +8,12 @@ import java.util.UUID;
 
 public class PlayerCameraComposition extends CameraComposition {
 
-
-    public PlayerCameraComposition(String name, ECameraType cameraType, long duration) {
-        super(name, cameraType, duration);
+    public PlayerCameraComposition(String name, long duration) {
+        this(UUID.randomUUID(), name, duration, new AttributeList());
     }
 
-    private PlayerCameraComposition(UUID uuid, String name, ECameraType cameraType, long duration, AttributeList attributeList) {
-        super(uuid, name, cameraType, duration, attributeList);
+    private PlayerCameraComposition(UUID uuid, String name, long duration, AttributeList attributeList) {
+        super(uuid, name, ECameraType.PLAYER, duration, attributeList);
     }
 
     @Override
@@ -24,8 +23,8 @@ public class PlayerCameraComposition extends CameraComposition {
 
     public static PlayerCameraComposition fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json);
+        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
 
-        return new PlayerCameraComposition(data.uuid(), data.name(), ECameraType.FIXED, data.duration(), attributes);
+        return new PlayerCameraComposition(data.uuid(), data.name(), data.duration(), attributes);
     }
 }

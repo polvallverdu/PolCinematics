@@ -5,6 +5,8 @@ import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 public abstract class CameraComposition extends Composition {
@@ -21,7 +23,11 @@ public abstract class CameraComposition extends Composition {
         this.cameraType = cameraType;
     }
 
-/*
+    public ECameraType getCameraType() {
+        return cameraType;
+    }
+
+    /*
     public void addKeyframe(CompositionProperty property, long time, double value) {
         timelines.get(property).addKeyframe(time, value);
     }
@@ -124,7 +130,7 @@ public abstract class CameraComposition extends Composition {
         return json;
     }
 
-    public static CameraComposition fromJson(JsonObject json) {
+    public static CameraComposition fromJson(JsonObject json) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         /*UUID uuid = UUID.fromString(json.get("uuid").getAsString());
         String name = json.get("name").getAsString();
         ECameraType cameraType = ECameraType.fromName(json.get("cameraType").getAsString());
@@ -138,10 +144,12 @@ public abstract class CameraComposition extends Composition {
                 return null;
             }
         }*/
+
         ECameraType cameraType = ECameraType.fromName(json.get("cameraType").getAsString());
         var compositionClass = cameraType.getClazz();
-        CameraComposition composition = compositionClass.cast(Composition.fromJson(json));
-        return composition;
+        Method m = compositionClass.getMethod("fromJson", JsonObject.class);
+        var res = m.invoke(null, json);
+        return (CameraComposition) res;
     }
 
 }

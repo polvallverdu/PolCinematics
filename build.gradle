@@ -50,13 +50,15 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.9.0'
 
     // FancyVideo-API for video stuff
-    /*implementation("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") {
-        exclude group: 'net.java.dev.jna', module: 'jna'
-        exclude group: 'net.java.dev.jna', module: 'jna-platform'
-    }*/
     modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric-1.19.4:c5ad45c61a")
 
-    //  modImplementation(files("lib/FancyVideo-API-1.19.jar"))
+    // Embedded Chromium (jcef)
+    implementation 'me.friwi:jcefmaven:110.0.25'
+
+    // Apache Commons
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-numbers-core
+    implementation 'org.apache.commons:commons-numbers-core:1.1'
+    // implementation 'org.apache.commons:commons-lang3:3.0'
 
     //////////// TESTING MODS ////////////
     modLocalRuntime "maven.modrinth:sodium:mc1.19.4-0.4.10"

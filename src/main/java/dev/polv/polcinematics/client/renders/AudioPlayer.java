@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.client.players;
+package dev.polv.polcinematics.client.renders;
 
 import dev.polv.polcinematics.PolCinematics;
 import nick1st.fancyvideo.api.DynamicResourceLocation;

@@ -56,6 +56,10 @@ public class CameraPos {
         return new Vec3d(x, y, z);
     }
 
+    public double[] getArray() {
+        return new double[] {x, y, z, pitch, yaw, roll, fov};
+    }
+
     public Vec2f getVec2f() {
         return new Vec2f((float) pitch, (float) yaw);
     }

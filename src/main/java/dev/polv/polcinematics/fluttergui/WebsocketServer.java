@@ -34,6 +34,52 @@ public class WebsocketServer extends Thread {
         public JsonObject data;
     }
 
+    enum EPacketType {
+        /*
+        CONNECTED,
+  AUTH,
+  INVALID_AUTH,
+  LOGGED,
+  PING,
+  PONG,
+  GET_CINEMATICS_LIST,
+  RESPONSE_CINEMATICS_LIST,
+  GET_CINEMATIC,
+  RESPONSE_CINEMATIC,
+  RESPONSE_INVALID_CINEMATIC,
+  UPDATE_COMPOSITION,
+  UPDATE_TIMELINE_TIME, // TO UPDATE THE CAMERA ON THE CLIENT
+  DISCONNECT,
+         */
+
+        CONNECTED(),
+        DISCONNECT(),
+        AUTH(),
+        INVALID_AUTH(),
+        LOGGED(),
+        PING(),
+        PONG(),
+        GET_CINEMATICS_LIST(),
+        RESPONSE_CINEMATICS_LIST(),
+        GET_CINEMATIC(),
+        RESPONSE_CINEMATIC(),
+        RESPONSE_INVALID_CINEMATIC(),
+        UPDATE_COMPOSITION(),
+        UPDATE_TIMELINE_TIME(),
+        ;
+
+        EPacketType() {
+        }
+
+        public int getId() {
+            return this.ordinal();
+        }
+
+        public static EPacketType fromId(int id) {
+            return EPacketType.values()[id];
+        }
+    }
+
     class WSEndpoint extends WebSocketAdapter {
         private static final Logger LOG = LoggerFactory.getLogger(WSEndpoint.class);
 
@@ -44,38 +90,42 @@ public class WebsocketServer extends Thread {
             getSession().getRemote().sendString("{\"type\": 0, \"data\": {}}", null);
         }
 
+        private void sendPacket(EPacketType type, String data) {
+            getSession().getRemote().sendString("{\"type\": " + type.getId() + ", \"data\": " + data + "}", null);
+        }
+
         @Override
-        public void onWebSocketText(String message)
-        {
+        public void onWebSocketText(String message) {
             super.onWebSocketText(message);
             LOG.debug("Received TEXT message: {}", message);
             JsonPacket packet = GsonUtils.gson.fromJson(message, JsonPacket.class);
+            EPacketType packetType = EPacketType.fromId(packet.type);
 
-            switch (packet.type) {
-                case 1 -> {  // Auth packet
+            switch (packetType) {
+                case AUTH -> {  // Auth packet
                     String editorPassword = packet.data.get("password").getAsString();
                     UUID playerUUID = FlutterGuiManager.INSTANCE.playerPasswords.get(editorPassword);
                     if (playerUUID == null) {
-                        getSession().getRemote().sendString("{\"type\": 2, \"data\": {\"message\": \"Invalid password\"}}", null);
+                        sendPacket(EPacketType.INVALID_AUTH, "{\"message\": \"Invalid password\"}");
                         return;
                         // Auth success
                     }
                     ServerPlayerEntity player = PolCinematics.SERVER.getPlayerManager().getPlayer(playerUUID);
                     if (player == null) {
-                        getSession().getRemote().sendString("{\"type\": 2, \"data\": {\"message\": \"Invalid player\"}}", null);
+                        sendPacket(EPacketType.INVALID_AUTH, "{\"message\": \"Invalid player\"}");
                         return;
                     }
                     sessionPlayerRelation.put(getSession(), player.getUuid());
-                    getSession().getRemote().sendString("{\"type\": 3, \"data\": {\"playerName\": \"" + player.getName() + "\", \"playerUUID\": \"" + player.getUuid() + "\"}}", null);
+                    sendPacket(EPacketType.LOGGED, "{\"playerName\": \"" + player.getName() + "\", \"playerUUID\": \"" + player.getUuid() + "\"}");
                 }
-                case 4 -> { // PING
-                    getSession().getRemote().sendString("{\"type\": 5, \"data\": {\"timestamp\": " + System.currentTimeMillis() + "}}", null);
+                case PING -> { // PING
+                    sendPacket(EPacketType.PONG, "{\"timestamp\": " + System.currentTimeMillis() + "}");
                 }
-                case 6 -> { // GET CINEMATICS LIST
+                case GET_CINEMATICS_LIST -> { // GET CINEMATICS LIST
                     List<String> simpleCinematics = PolCinematics.CINEMATICS_MANAGER.getFileCinematics().stream().map(c -> "{\"uuid\": \"" + c.getUuid().toString() + "\", \"name\":\"" + c.getName() + "\"").toList();
-                    getSession().getRemote().sendString("{\"type\": 7, \"data\": {\"cinematics\": [" + String.join("\", \"", simpleCinematics) + "]}}", null);
+                    sendPacket(EPacketType.RESPONSE_CINEMATICS_LIST, "{\"cinematics\": [" + String.join("\", \"", simpleCinematics) + "]}");
                 }
-                case 8 -> { // GET CINEMATIC
+                case GET_CINEMATIC -> { // GET CINEMATIC
                     String cinematicUUID = packet.data.get("uuid").getAsString();
                     try {
                         Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(cinematicUUID);
@@ -85,7 +135,7 @@ public class WebsocketServer extends Thread {
                         getRemote().sendString("{\"type\": 10, \"data\": {\"error\": \"" + e.getMessage() + "\"}}", null);
                     }
                 }
-                case 11 -> {  // UPDATE COMPOSITION
+                case UPDATE_COMPOSITION -> {  // UPDATE COMPOSITION
                     Cinematic cinematic = sessionCinematicRelation.get(getSession());
                     if (cinematic == null) {
                         // Maybe send error packet?
@@ -102,16 +152,13 @@ public class WebsocketServer extends Thread {
                         timeline.remove(composition.getUuid());
                     }
                 }
-                case 12 -> {  // TIMELINE POS UPDATE (TO UPDATE PLAYER CAMERA WHILE EDITING)
+                case UPDATE_TIMELINE_TIME -> {  // TIMELINE POS UPDATE (TO UPDATE PLAYER CAMERA WHILE EDITING)
                     // TODO: Implement
                 }
-                case 13 -> { // DISCONNECT
+                case DISCONNECT -> { // DISCONNECT
                     // TODO
                     sessionPlayerRelation.remove(getSession());
                     sessionCinematicRelation.remove(getSession());
-                }
-                case 14 -> {  // SET CLIENT IDENTIFICATION
-
                 }
             }
 

@@ -6,7 +6,9 @@ public enum ECameraType {
     /*FIRST_PERSON("first_person"),
     THIRD_PERSON("third_person"),*/
     FIXED("fixed", FixedCameraComposition.class),
-    BLACK("black", BlackCameraComposition.class);
+    SLERP("slerp", SlerpCameraComposition.class),
+    LERP("lerp", LerpCameraComposition.class),
+    ;
 
     private final String name;
     private final Class<? extends CameraComposition> clazz;
