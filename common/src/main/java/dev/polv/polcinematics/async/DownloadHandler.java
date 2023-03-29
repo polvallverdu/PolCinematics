@@ -1,12 +1,14 @@
 package dev.polv.polcinematics.async;
 
+import dev.polv.polcinematics.utils.render.DynamicImage;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class DownloadHandler {
 
@@ -18,16 +20,16 @@ public class DownloadHandler {
         this.executorService = Executors.newFixedThreadPool(5);
     }
 
-    public Future<DownloadedImage> download(String url) {
-        return executorService.submit(() -> {
+    public DynamicImage downloadImage(String url) {
+        CompletableFuture<BufferedImage> futureImage = CompletableFuture.supplyAsync(() -> {
             try {
-                BufferedImage image = ImageIO.read(new URL(url));
-                return new DownloadedImage(image);
+                return ImageIO.read(new URL(url));
             } catch (IOException e) {
                 e.printStackTrace();
-                return null;
             }
-        });
+            return null;
+        }, executorService);
+        return new DynamicImage(futureImage);
     }
 
 }

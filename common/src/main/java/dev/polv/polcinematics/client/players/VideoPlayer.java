@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.client.renders;
+package dev.polv.polcinematics.client.players;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.polv.polcinematics.PolCinematics;
@@ -8,6 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import nick1st.fancyvideo.api.DynamicResourceLocation;
 import nick1st.fancyvideo.api.MediaPlayerHandler;
 import nick1st.fancyvideo.api.mediaPlayer.SimpleMediaPlayer;
@@ -16,13 +17,13 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 
 @Environment(EnvType.CLIENT)
-public class VideoPlayer {
+public class VideoPlayer implements IMediaPlayer {
 
     private String mediaPath;
     private SimpleMediaPlayer player;
 
     private DynamicResourceLocation playerResourceLocation;
-    private DynamicResourceLocation lastFrame;
+    private Identifier lastFrame;
 
     private boolean playing = false;
     private float volume = 1f;
@@ -40,6 +41,7 @@ public class VideoPlayer {
         this.player.api().audio().setVolume(this.getVolume());
     }
 
+    @Override
     public void setTime(long time) {
         if (this.player != null) {
             this.player.api().controls().setTime(time);
@@ -68,24 +70,39 @@ public class VideoPlayer {
         return this.player;
     }
 
-    public void restart() {
-        this.setTime(0L);
-    }
-
+    @Override
     public void play() {
         if (this.playing) return;
         this.playing = true;
         this.player.api().controls().play();
     }
 
+    @Override
     public void pause() {
         if (!this.playing) return;
-        this.playing = false;
         this.player.api().controls().pause();
     }
 
+    @Override
+    public void resume() {
+        if (!this.playing) return;
+        this.player.api().controls().play();
+    }
+
+    @Override
     public int getVolume() {
-        return (int) ((this.volume * this.volume) * 100);
+        return (int) (this.getVolumeFloat() * 100);
+    }
+
+    @Override
+    public void setVolume(float volume) {
+        this.volume = volume;
+        this.player.api().audio().setVolume(this.getVolume());
+    }
+
+    @Override
+    public float getVolumeFloat() {
+        return (this.volume * this.volume);
     }
 
     public void setLooping(boolean b) {
@@ -105,15 +122,16 @@ public class VideoPlayer {
         return this.playing;
     }
 
+    @Override
     public void stop() {
         if (this.player != null) {
             this.playing = false;
             this.player.api().controls().stop();
+            MediaPlayerHandler.getInstance().flagPlayerRemoval(this.playerResourceLocation);
         }
     }
 
-    //@Override
-    public void render(MatrixStack matrix, int x, int y, int width, int height/*, double alpha*/) {
+    public void render(MatrixStack matrix, int x, int y, int width, int height, float alpha) {
         if (!this.isPlaying() || this.player == null) return;
 
         this.lastFrame = this.player.renderToResourceLocation();
@@ -131,7 +149,7 @@ public class VideoPlayer {
         //RenderUtils.renderBlackScreen(matrix, 1);
         RenderUtils.bindTexture(this.lastFrame);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         DrawableHelper.drawTexture(matrix, x, y, 0, 0, 0, width, height, width, height);
         RenderSystem.disableBlend();
     }

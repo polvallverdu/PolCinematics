@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "dev.polv.polcinematics.fabric.PolCinematicsFabric"
+    ],
+    "client": [
+      "dev.polv.polcinematics.fabric.client.PolCinematicsFabricClient"
     ]
   },
   "mixins": [

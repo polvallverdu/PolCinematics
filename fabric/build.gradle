@@ -29,7 +29,9 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     // FancyVideo-API for video stuff
-    modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.fancyvideo_api_commit}")
+    // modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.fancyvideo_api_commit}")
+    modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo-fabric:${rootProject.fancyvideo_api}")
+    modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-fabric:${rootProject.mcef_api}")
 
     //////////// TESTING MODS ////////////
     modLocalRuntime "maven.modrinth:sodium:mc1.19.4-0.4.10"

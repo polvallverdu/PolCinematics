@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
 architectury {
     common(rootProject.enabled_platforms.split(","))
 }
@@ -23,19 +27,18 @@ dependencies {
     // Switch to Jackson in a future
     implementation 'com.google.code.gson:gson:2.9.0'
 
-    // FancyVideo-API for video stuff
-    /*implementation("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") { // Fallback: Direct download from https://oss.sonatype.org/content/repositories/snapshots/uk/co/caprica/
-        exclude group: 'net.java.dev.jna', module: 'jna'
-        exclude group: 'net.java.dev.jna', module: 'jna-platform'
-    }*/// vlcJ
-    //modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric-No-Dep:${rootProject.fancyvideo_api_commit}")
+    // MediaExtractor
+    // shadow(implementation("com.github.polvallverdu:MediaExtractor-PolCinematics:${rootProject.mediaextractor_commit}"))
+    // shadow(implementation("dev.polv:MediaExtractor:0.3.2"))
+    modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo:${rootProject.fancyvideo_api}")
+    implementation("uk.co.caprica:vlcj:${rootProject.vlcj_version}") // vlcJ
 
     // Embedded Chromium (jcef)
-    implementation 'me.friwi:jcefmaven:110.0.25'
+    modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef:${rootProject.mcef_api}")
 
     // Apache Commons
     // https://mvnrepository.com/artifact/org.apache.commons/commons-numbers-core
-    implementation 'org.apache.commons:commons-numbers-core:1.1'
+    // implementation 'org.apache.commons:commons-numbers-core:1.1'
     // implementation 'org.apache.commons:commons-lang3:3.0'
 }
 
@@ -51,4 +54,8 @@ publishing {
     repositories {
         // Add repositories to publish to here.
     }
+}
+
+shadowJar {
+    minimize()
 }

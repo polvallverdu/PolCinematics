@@ -35,7 +35,12 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-forge:${rootProject.fancyvideo_api_commit}")
+    /*shadow(implementation("dev.polv:MediaExtractor:0.2.2"))
+    shadow(implementation("org.bytedeco:javacv-platform:1.5.8"))
+    shadow(implementation("org.bytedeco:ffmpeg-platform:5.1.2-1.5.8"))*/
+
+    modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo-forge:${rootProject.fancyvideo_api}")
+    modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-forge:${rootProject.mcef_api}")
 
     //////////// TESTING MODS ////////////
     // None yet

@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.client.renders;
+package dev.polv.polcinematics.client.players;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
