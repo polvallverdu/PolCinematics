@@ -103,6 +103,20 @@ public class Cinematic {
         }
     }
 
+    public void onCinematicLoad() {
+        this.cameraTimeline.onCinematicLoad();
+        for (Timeline timeline : this.timelines) {
+            timeline.onCinematicLoad();
+        }
+    }
+
+    public void onCinematicUnload() {
+        this.cameraTimeline.onCinematicUnload();
+        for (Timeline timeline : this.timelines) {
+            timeline.onCinematicUnload();
+        }
+    }
+
     public void onStart() {
         this.cameraTimeline.onStart();
         for (Timeline timeline : this.timelines) {

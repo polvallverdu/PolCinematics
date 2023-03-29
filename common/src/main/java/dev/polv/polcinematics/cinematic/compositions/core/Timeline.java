@@ -239,6 +239,18 @@ public class Timeline {
         this.overlapStrategy = overlapStrategy;
     }
 
+    public void onCinematicLoad() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCinematicLoad();
+        }
+    }
+
+    public void onCinematicUnload() {
+        for (WrappedComposition wc : compositions) {
+            wc.getComposition().onCinematicLoad();
+        }
+    }
+
     public void onStart() {
         long time = 0;
         for (WrappedComposition wc : compositions) {
@@ -296,7 +308,7 @@ public class Timeline {
         }
     }
 
-    public void onTick(long lastTick, long time) {
+    public void onTick(long lastTick, long time) { // It's more effective a callstack here than comparing if composition is listening
         WrappedComposition oldComposition = this.getWrappedComposition(lastTick);
         WrappedComposition newComposition = this.getWrappedComposition(time);
 

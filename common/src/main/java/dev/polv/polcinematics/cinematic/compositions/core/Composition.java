@@ -18,7 +18,6 @@ public abstract class Composition {
     private final ECompositionType type;
 
     private AttributeList attributes;
-
     public Composition(UUID uuid, String name, long duration, ECompositionType type) {
         this(uuid, name, duration, type, new AttributeList());
     }
@@ -114,6 +113,16 @@ public abstract class Composition {
     // Functions that can be overwritten
 
     /**
+     * Called when the cinematic is loaded at the client
+     */
+    public void onCinematicLoad() {}
+
+    /**
+     * Called when the cinematic is unloaded at the client
+     */
+    public void onCinematicUnload() {}
+
+    /**
      * Called when the cinematic starts
      */
     public void onCinematicStart() {}
@@ -168,6 +177,5 @@ public abstract class Composition {
      * Called when the composition is no longer shown
      */
     public void onCompositionEnd() {}
-
 
 }

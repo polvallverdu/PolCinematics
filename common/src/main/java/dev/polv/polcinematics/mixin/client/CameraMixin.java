@@ -37,17 +37,17 @@ public class CameraMixin {
         return focusedEntity;
     }
 
-    @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
+    /*@ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
     private void injectedArgsSetRotationOnUpdate(Args args) {
         if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
         var camera = PolCinematicsClient.getCCM().getCameraComposition();
         if (camera == null) return;
 
-        /*switch (camera.getCameraType()) {
+        switch (camera.getCameraType()) {
             case PLAYER -> {
                 return;
             }
-        }*/
+        }
         if (camera instanceof PlayerCameraComposition) return;
 
         CameraPos cameraPos = camera.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime());
@@ -61,11 +61,11 @@ public class CameraMixin {
         var camera = PolCinematicsClient.getCCM().getCameraComposition();
         if (camera == null) return;
 
-        /*switch (camera.getCameraType()) {
+        switch (camera.getCameraType()) {
             case PLAYER -> {
                 return;
             }
-        }*/
+        }
         if (camera instanceof PlayerCameraComposition) return;
 
         CameraPos cameraPos = camera.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime());
@@ -74,6 +74,6 @@ public class CameraMixin {
         args.set(2, cameraPos.getZ());
 
         System.out.println(cameraPos.getX() + " " + cameraPos.getY() + " " + cameraPos.getZ() + " " + cameraPos.getYaw() + " " + cameraPos.getPitch());
-    }
+    }*/
 
 }
