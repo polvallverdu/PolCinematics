@@ -51,6 +51,7 @@ public class AudioPlayer implements IMediaPlayer {
     @Override
     public void setVolume(float volume) {
         this.volume = volume;
+        this.player.api().audio().setVolume(this.getVolume());
     }
 
     @Override
