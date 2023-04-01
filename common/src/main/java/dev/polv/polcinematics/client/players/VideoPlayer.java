@@ -28,7 +28,7 @@ public class VideoPlayer implements IMediaPlayer {
     private boolean playing = false;
     private float volume = 1f;
 
-    public VideoPlayer(String mediaPath) {
+    protected VideoPlayer(String mediaPath) {
         this.changeMediaPath(mediaPath);
     }
 
@@ -151,6 +151,7 @@ public class VideoPlayer implements IMediaPlayer {
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         DrawableHelper.drawTexture(matrix, x, y, 0, 0, 0, width, height, width, height);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableBlend();
     }
 }

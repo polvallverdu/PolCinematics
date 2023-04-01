@@ -14,11 +14,7 @@ public abstract class OverlayComposition extends Composition {
 
     private final EOverlayType overlayType;
 
-    public OverlayComposition(String name, EOverlayType overlayType, long duration) {
-        this(UUID.randomUUID(), name, overlayType, duration, new AttributeList());
-    }
-
-    public OverlayComposition(UUID uuid, String name, EOverlayType overlayType, long duration, AttributeList attributes) {
+    protected OverlayComposition(UUID uuid, String name, EOverlayType overlayType, long duration, AttributeList attributes) {
         super(uuid, name, duration, ECompositionType.OVERLAY_COMPOSITION, attributes);
         this.overlayType = overlayType;
     }

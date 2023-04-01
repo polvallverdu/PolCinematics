@@ -5,7 +5,11 @@ public enum EOverlayType {
 
     SOLID_COLOR_OVERLAY("solid", SolidColorOverlay.class),
     BLACK_BARS_OVERLAY("black_bars", BlackBarsOverlay.class),
-    VIDEO_OVERLAY("video", VideoOverlay.class),;
+    BROWSER_OVERLAY("browser", WebBrowserOverlay.class),
+    VIDEO_OVERLAY("video", VideoOverlay.class),
+    IMAGE_OVERLAY("image", ImageOverlay.class),
+    //TEXT_OVERLAY("tezt", TextOverlay.class),
+    ;
 
     private final String name;
     private final Class<? extends OverlayComposition> clazz;

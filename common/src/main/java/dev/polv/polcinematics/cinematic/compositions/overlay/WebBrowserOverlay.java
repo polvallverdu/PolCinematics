@@ -3,7 +3,7 @@ package dev.polv.polcinematics.cinematic.compositions.overlay;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
-import dev.polv.polcinematics.client.renders.VideoPlayer;
+import dev.polv.polcinematics.client.players.BrowserView;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -14,18 +14,16 @@ import java.util.UUID;
 
 public class WebBrowserOverlay extends OverlayComposition {
 
-    private String videoPath;
-    @Environment(EnvType.CLIENT)
-    private final VideoPlayer videoPlayer;
+    private final String url;
+    private final String customCSS;
+    private final BrowserView browserView;
 
-    public WebBrowserOverlay(UUID uuid, String name, String videoPath, long duration, AttributeList attributes) {
-        super(uuid, name, EOverlayType.VIDEO_OVERLAY, duration, attributes);
-        this.videoPath = videoPath;
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            this.videoPlayer = new VideoPlayer(videoPath);
-        } else {
-            this.videoPlayer = null;
-        }
+    public WebBrowserOverlay(UUID uuid, String name, String url, String customCSS, long duration, AttributeList attributes) {
+        super(uuid, name, EOverlayType.BROWSER_OVERLAY, duration, attributes);
+
+        this.url = url;
+        this.customCSS = customCSS;
+        this.browserView = new BrowserView(url, customCSS);
 
         this.declareAttribute("X", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
         this.declareAttribute("Y", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
@@ -33,63 +31,44 @@ public class WebBrowserOverlay extends OverlayComposition {
         this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
     }
 
-    public WebBrowserOverlay(String name, String videoPath, long duration) {
-        this(UUID.randomUUID(), name, videoPath, duration, new AttributeList());
-    }
-
-    public void setNewVideoPath(String newVideoPath) {
-        this.videoPath = newVideoPath;
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT)
-            this.videoPlayer.changeMediaPath(newVideoPath);
+    public WebBrowserOverlay(String name, String url, String customCSS, long duration) {
+        this(UUID.randomUUID(), name, url, customCSS, duration, new AttributeList());
     }
 
     @Override
-    public void tick(MatrixStack MatrixStack, long time) {
+    public void tick(MatrixStack matrixStack, long time) {
         int x = (int) this.getAttribute("X").getValue(time);
         int y = (int) this.getAttribute("Y").getValue(time);
         int width = (int) this.getAttribute("WIDTH").getValue(time);
         int height = (int) this.getAttribute("HEIGHT").getValue(time);
 
-        this.videoPlayer.render(MatrixStack, x, y, width, height);
+        this.browserView.render(matrixStack, x, y, width, height);
     }
 
     @Override
     public JsonObject toJson() {
         JsonObject json = super.toJson();
-        json.addProperty("videoPath", this.videoPath); // Injecting videopath variable
+        json.addProperty("url", this.url);
+        json.addProperty("customCSS", this.customCSS);
         return json;
     }
 
     public static WebBrowserOverlay fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
         AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
-        String videoPath = json.get("videoPath").getAsString();
+        String url = json.get("url").getAsString();
+        String customCSS = json.get("customCSS").getAsString();
 
-        return new WebBrowserOverlay(data.uuid(), data.name(), videoPath, data.duration(), attributes);
+        return new WebBrowserOverlay(data.uuid(), data.name(), url, customCSS, data.duration(), attributes);
     }
 
     @Override
-    public void onCompositionEnd() {
-        this.videoPlayer.stop();
+    public void onCinematicLoad() {
+        this.browserView.newUrl(this.url);
     }
 
     @Override
-    public void onCompositionPause() {
-        this.videoPlayer.pause();
-    }
-
-    @Override
-    public void onCompositionResume() {
-        this.videoPlayer.play();
-    }
-
-    @Override
-    public void onCompositionStart() {
-        this.videoPlayer.play();
-    }
-
-    @Override
-    public void onCinematicTimeChange(long time) {
-        this.videoPlayer.setTime(time);
+    public void onCinematicUnload() {
+        this.browserView.stop();
     }
 }

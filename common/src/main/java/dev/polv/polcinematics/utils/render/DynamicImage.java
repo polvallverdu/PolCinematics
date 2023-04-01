@@ -83,6 +83,10 @@ public class DynamicImage {
         return rescaledImage;
     }
 
+    public boolean isDownloaded() {
+        return image != BLACK_IMAGE;
+    }
+
     public void setNewImage(BufferedImage image) {
         this.image = image;
         this.rescaledImage = image;

@@ -6,7 +6,6 @@ import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
 import dev.polv.polcinematics.net.ServerPacketHandler;
 import dev.polv.polcinematics.utils.GsonUtils;
-import net.minecraft.entity.player.PlayerEntity;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -117,10 +116,6 @@ public class ServerCinematicManager {
         this.loadedCinematics.add(loadedCinematic);
 
         return loadedCinematic;
-    }
-
-    public void onPlayerReady(PlayerEntity player) {
-        // TODO: Implement player ready check
     }
 
     public void unloadCinematic(UUID cinematicUUID) {

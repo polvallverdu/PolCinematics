@@ -23,11 +23,15 @@ public class RenderUtils {
      */
     public static void renderImage(DynamicImage dynamicImage, MatrixStack matrix, int x, int y, int width, int height, float alpha) {
         //RenderUtils.renderBlackScreen(matrix, 1);  IF YOU DON'T WANT TRASPARENCY
+        if (!dynamicImage.isDownloaded()) {
+            return;
+        }
 
         RenderUtils.bindTexture(dynamicImage.getTextureIdentifier());
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
         DrawableHelper.drawTexture(matrix, x, y, 0, 0, 0, width, height, width, height);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableBlend();
     }
 

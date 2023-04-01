@@ -28,6 +28,9 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
+    shadow(implementation('org.eclipse.jetty.websocket:websocket-jetty-api:11.0.14'))
+    shadow(implementation('org.eclipse.jetty.websocket:websocket-jetty-server:11.0.14'))
+
     // FancyVideo-API for video stuff
     // modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.fancyvideo_api_commit}")
     modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo-fabric:${rootProject.fancyvideo_api}")

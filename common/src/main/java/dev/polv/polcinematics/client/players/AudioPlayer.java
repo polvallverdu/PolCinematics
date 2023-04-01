@@ -13,7 +13,7 @@ public class AudioPlayer implements IMediaPlayer {
     private boolean playing = false;
     private float volume = 1f;
 
-    public AudioPlayer(String path) {
+    protected AudioPlayer(String path) {
         this.path = path;
         this.playerResourceLocation = new DynamicResourceLocation(PolCinematics.MOD_ID, "audio/" + this.path.hashCode());
         MediaPlayerHandler.getInstance().registerPlayerOnFreeResLoc(this.playerResourceLocation, AudioMediaPlayer.class);

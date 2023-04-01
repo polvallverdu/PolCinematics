@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.client.players.AudioPlayer;
+import dev.polv.polcinematics.client.players.IMediaPlayer;
 
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class AudioComposition extends Composition {
 
     @Override
     public void onCinematicLoad() {
-        this.player = new AudioPlayer(audioPath);
+        this.player = (AudioPlayer) IMediaPlayer.createPlayer(AudioPlayer.class, audioPath);
     }
 
     @Override
