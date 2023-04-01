@@ -107,11 +107,12 @@ public class ClientPacketHandler {
                     this.mediaPlayer = null;
 
                     //this.mediaPlayer = audio ? new AudioPlayer(url) : new VideoPlayer(url);
-                    this.mediaPlayer = IMediaPlayer.createPlayer(audio ? AudioPlayer.class : VideoPlayer.class, url);
-
-                    if (!paused) {
-                        this.mediaPlayer.play();
-                    }
+                    MinecraftClient.getInstance().executeSync(() -> {
+                        this.mediaPlayer = IMediaPlayer.createPlayer(audio ? AudioPlayer.class : VideoPlayer.class, url);
+                        if (!paused) {
+                            this.mediaPlayer.play();
+                        }
+                    });
                 }
         );
 
