@@ -30,7 +30,6 @@ public class ClientCinematicManager {
     public void loadCinematic(JsonObject json) {
         this.loadedCinematic = Cinematic.fromJson(json);
         System.out.println("Loaded cinematic: " + this.loadedCinematic.getName());
-        // TODO: Load images, audios and videos
         Packets.sendCinematicReady();
     }
 
