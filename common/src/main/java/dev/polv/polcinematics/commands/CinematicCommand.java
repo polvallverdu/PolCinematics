@@ -10,7 +10,7 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.compositions.camera.SlerpCameraComposition;
 import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
-import dev.polv.polcinematics.commands.suggetions.CinematicNameSuggestion;
+import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
 import net.minecraft.command.CommandRegistryAccess;
@@ -41,9 +41,9 @@ final public class CinematicCommand {
         literalBuilder.executes(CinematicCommand::help);
         literalBuilder.then(CommandManager.literal("help").executes(CinematicCommand::help));
 
-        literalBuilder.then(CommandManager.literal("select").then(CommandManager.argument("cinematicname", StringArgumentType.string()).suggests(new CinematicNameSuggestion()).executes(CinematicCommand::select)));
+        literalBuilder.then(CommandManager.literal("select").then(CommandManager.argument("cinematicname", StringArgumentType.string()).suggests(new CinematicLoadedSuggestion()).executes(CinematicCommand::select)));
         literalBuilder.then(CommandManager.literal("load").then(CommandManager.argument("filename", StringArgumentType.string()).suggests(new CinematicFileSuggetion()).executes(CinematicCommand::load)));
-        literalBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematicname", StringArgumentType.string()).suggests(new CinematicNameSuggestion()).executes(CinematicCommand::unload)));
+        literalBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematicname", StringArgumentType.string()).suggests(new CinematicLoadedSuggestion()).executes(CinematicCommand::unload)));
         literalBuilder.then(CommandManager.literal("create").then(CommandManager.argument("cinematicname", StringArgumentType.word()).executes(CinematicCommand::create)));
         literalBuilder.then(CommandManager.literal("save").executes(CinematicCommand::save));
 

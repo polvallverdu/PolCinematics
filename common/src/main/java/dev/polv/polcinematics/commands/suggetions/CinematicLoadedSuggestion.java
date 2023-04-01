@@ -10,7 +10,7 @@ import net.minecraft.server.command.ServerCommandSource;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CinematicNameSuggestion implements SuggestionProvider<ServerCommandSource> {
+public class CinematicLoadedSuggestion implements SuggestionProvider<ServerCommandSource> {
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {

@@ -9,7 +9,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.commands.suggetions.CinematicNameSuggestion;
+import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.net.Packets;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -24,7 +24,7 @@ public class ControlSubcommand {
             CommandManager.literal("broadcast")
                 .then(
                     CommandManager.argument("cinematicname", StringArgumentType.string())
-                        .suggests(new CinematicNameSuggestion())
+                        .suggests(new CinematicLoadedSuggestion())
                         .then(
                             CommandManager.argument("paused", BoolArgumentType.bool())
                                 .then(

@@ -55,7 +55,7 @@ public class ServerCinematicManager {
     }
 
     public List<SimpleCinematic> getFileCinematics() {
-        if (System.currentTimeMillis() - lastCacheRefresh > 1000) {
+        if (System.currentTimeMillis() - lastCacheRefresh > 30000) {
             this.loadCache();
         }
         return new ArrayList<>(fileCinematicsCache);
@@ -196,9 +196,10 @@ public class ServerCinematicManager {
         return null;
     }
 
-    private SimpleCinematic getSimpleCinematic(String name) {
+    private SimpleCinematic getSimpleCinematic(String nameOrUUID) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
-            if (cinematic.getName().equalsIgnoreCase(name)) {
+            if (cinematic.getName().equalsIgnoreCase(nameOrUUID) ||
+                    cinematic.getUuid().toString().replaceAll("-", "").equalsIgnoreCase(nameOrUUID.replace("-", ""))) {
                 return cinematic;
             }
         }

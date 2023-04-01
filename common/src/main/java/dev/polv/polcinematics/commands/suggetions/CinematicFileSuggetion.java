@@ -8,18 +8,24 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public class CinematicFileSuggetion implements SuggestionProvider<ServerCommandSource> {
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {  // TODO: Read cinematic name
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
+        String tfilename = "";
         try {
-            String filename = context.getArgument("filename", String.class);
-            Stream.of(PolCinematics.CINEMATICS_MANAGER.getCinematicFiles()).filter(file -> file.toLowerCase().contains(filename.toLowerCase())).forEach(builder::suggest);
-        } catch (Exception ignore) {
-            Stream.of(PolCinematics.CINEMATICS_MANAGER.getCinematicFiles()).forEach(builder::suggest);
-        }
+            tfilename = context.getArgument("filename", String.class);
+        } catch (Exception ignore) {}
+
+        final String filename = tfilename;
+
+        PolCinematics.CINEMATICS_MANAGER.getFileCinematics().stream().filter(cinematic -> cinematic.getName().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getName()));
+        PolCinematics.CINEMATICS_MANAGER.getFileCinematics().stream().filter(cinematic -> cinematic.getUuid().toString().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getUuid().toString()));
+
         return builder.buildFuture();
     }
 }
