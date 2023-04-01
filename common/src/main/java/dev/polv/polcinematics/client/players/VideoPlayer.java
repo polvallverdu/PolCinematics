@@ -28,7 +28,7 @@ public class VideoPlayer implements IMediaPlayer {
     private boolean playing = false;
     private float volume = 1f;
 
-    protected VideoPlayer(String mediaPath) {
+    public VideoPlayer(String mediaPath) {
         this.changeMediaPath(mediaPath);
     }
 
@@ -127,7 +127,7 @@ public class VideoPlayer implements IMediaPlayer {
         if (this.player != null) {
             this.playing = false;
             this.player.api().controls().stop();
-            MediaPlayerHandler.getInstance().flagPlayerRemoval(this.playerResourceLocation);
+            // MediaPlayerHandler.getInstance().flagPlayerRemoval(this.playerResourceLocation); TODO: DEBUG WHY DOES THIS CREATE A CALLSTACK ERROR WITH PRE EVENT.
         }
     }
 

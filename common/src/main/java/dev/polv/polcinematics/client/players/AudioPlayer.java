@@ -13,7 +13,7 @@ public class AudioPlayer implements IMediaPlayer {
     private boolean playing = false;
     private float volume = 1f;
 
-    protected AudioPlayer(String path) {
+    public AudioPlayer(String path) {
         this.path = path;
         this.playerResourceLocation = new DynamicResourceLocation(PolCinematics.MOD_ID, "audio/" + this.path.hashCode());
         MediaPlayerHandler.getInstance().registerPlayerOnFreeResLoc(this.playerResourceLocation, AudioMediaPlayer.class);
@@ -45,7 +45,7 @@ public class AudioPlayer implements IMediaPlayer {
     public void stop() {
         if (!this.playing) return;
         this.player.api().controls().stop();
-        MediaPlayerHandler.getInstance().flagPlayerRemoval(this.playerResourceLocation);
+        // MediaPlayerHandler.getInstance().flagPlayerRemoval(this.playerResourceLocation); TODO: DEBUG WHY DOES THIS CREATE A CALLSTACK ERROR WITH PRE EVENT.
     }
 
     @Override
