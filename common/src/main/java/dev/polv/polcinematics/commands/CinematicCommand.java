@@ -9,6 +9,7 @@ import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.compositions.camera.SlerpCameraComposition;
+import dev.polv.polcinematics.cinematic.manager.ServerCinematicManager;
 import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
 import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
@@ -51,7 +52,6 @@ final public class CinematicCommand {
         literalBuilder.then(CommandManager.literal("listfiles").executes(CinematicCommand::listfiles));
 
         literalBuilder.then(CameraSubcommand.register(CommandManager.literal("camera"), registryAccess, environment));
-        literalBuilder.then(EditorSubcommand.register(CommandManager.literal("editor"), registryAccess, environment));
         literalBuilder.then(ControlSubcommand.register(CommandManager.literal("control"), registryAccess, environment));
 
         literalBuilder.then(CommandManager.literal("test1").executes(CinematicCommand::test1));
@@ -101,9 +101,11 @@ final public class CinematicCommand {
     private static int load(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String name = context.getArgument("filename", String.class);
 
+        ServerCinematicManager.SimpleCinematic filename = PolCinematics.CINEMATICS_MANAGER.getSimpleCinematic(name);
+
         Cinematic cinematic;
         try {
-            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(name);
+            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(filename.getUuid() + ".json");
         } catch (InvalidCinematicException e) {
             context.getSource().sendMessage(Text.of(PREFIX + "§cCinematic §6" + name + " §cnot found"));
             e.printStackTrace();
@@ -184,7 +186,7 @@ final public class CinematicCommand {
         float playerYaw = context.getSource().getPlayer().getYaw();
         float playerPitch = context.getSource().getPlayer().getPitch();
 
-        c.getCameraComposition(0l).getAttribute("position").setKeyframe(0l, new CameraPos(playerLoc.x, playerLoc.y, playerLoc.z, playerPitch, playerYaw, -25D, 50));
+        c.getCameraComposition(0l).getAttribute("position").setKeyframe(0l, new CameraPos(playerLoc.x, playerLoc.y, playerLoc.z, playerPitch, playerYaw, 0, 90));
 
         return 1;
     }
@@ -195,12 +197,19 @@ final public class CinematicCommand {
         float playerYaw = context.getSource().getPlayer().getYaw();
         float playerPitch = context.getSource().getPlayer().getPitch();
 
-        c.getCameraComposition(0l).getAttribute("position").setKeyframe(5000l, new CameraPos(playerLoc.x, playerLoc.y, playerLoc.z, playerPitch, playerYaw, 25D, 100));
+        c.getCameraComposition(0l).getAttribute("position").setKeyframe(2500l, new CameraPos(playerLoc.x, playerLoc.y, playerLoc.z, playerPitch, playerYaw, 0, 90));
 
         return 1;
     }
 
     private static int test4(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        Cinematic c = getCinematic(context.getSource().getPlayer());
+        Vec3d playerLoc = context.getSource().getPlayer().getPos();
+        float playerYaw = context.getSource().getPlayer().getYaw();
+        float playerPitch = context.getSource().getPlayer().getPitch();
+
+        c.getCameraComposition(0l).getAttribute("position").setKeyframe(5000l, new CameraPos(playerLoc.x, playerLoc.y, playerLoc.z, playerPitch, playerYaw, 0, 90));
+
         return 1;
     }
 }
