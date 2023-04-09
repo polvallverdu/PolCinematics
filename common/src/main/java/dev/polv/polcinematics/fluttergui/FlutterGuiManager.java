@@ -88,6 +88,11 @@ public class FlutterGuiManager {
         // TODO: Check if socket started successfully
     }
 
+    @Deprecated // THIS IS DANGEROUS
+    public void setPublic() {
+        playerPasswords.put("public", UUID.randomUUID());
+    }
+
     public void stopServer() {
         if (!this.running) return;
         this.running = false;
@@ -104,11 +109,6 @@ public class FlutterGuiManager {
 
     public int getPort() {
         return port;
-    }
-
-    public void test() {
-        var t = new WebsocketServer(5555);
-        t.start();
     }
 
 }

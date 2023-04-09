@@ -48,6 +48,7 @@ public class EditorSubcommand {
         }
 
         Packets.sendOpenServer(context.getSource().getPlayer());
+        FlutterGuiManager.INSTANCE.setPublic();
         return 1;
     }
 
