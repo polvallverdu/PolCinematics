@@ -1,6 +1,8 @@
 package dev.polv.polcinematics.cinematic.manager;
 
 import com.google.gson.JsonObject;
+import dev.architectury.platform.Platform;
+import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
@@ -10,6 +12,8 @@ import dev.polv.polcinematics.utils.GsonUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +46,8 @@ public class ServerCinematicManager {
     private boolean running;
 
     public ServerCinematicManager() {
-        cinematicFolder = new File("cinematics/v0");
+        Path cinematicsPath = Platform.getConfigFolder().resolve("polcinematics/cinematics/v" + PolCinematics.MOD_VERSION);
+        cinematicFolder = cinematicsPath.toFile();
 
         if (!cinematicFolder.exists()) {
             cinematicFolder.mkdirs();
@@ -187,7 +192,7 @@ public class ServerCinematicManager {
         return this.getCinematic(uuid) != null;
     }
 
-    private SimpleCinematic getSimpleCinematic(UUID uuid) {
+    public SimpleCinematic getSimpleCinematic(UUID uuid) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
             if (cinematic.getUuid().equals(uuid)) {
                 return cinematic;
@@ -196,7 +201,7 @@ public class ServerCinematicManager {
         return null;
     }
 
-    private SimpleCinematic getSimpleCinematic(String nameOrUUID) {
+    public SimpleCinematic getSimpleCinematic(String nameOrUUID) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
             if (cinematic.getName().equalsIgnoreCase(nameOrUUID) ||
                     cinematic.getUuid().toString().replaceAll("-", "").equalsIgnoreCase(nameOrUUID.replace("-", ""))) {
