@@ -6,7 +6,6 @@ import dev.polv.polcinematics.client.PolCinematicsClient;
 import dev.polv.polcinematics.client.players.AudioPlayer;
 import dev.polv.polcinematics.client.players.IMediaPlayer;
 import dev.polv.polcinematics.client.players.VideoPlayer;
-import dev.polv.polcinematics.fluttergui.FlutterGuiManager;
 import dev.polv.polcinematics.utils.GsonUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -83,7 +82,6 @@ public class ClientPacketHandler {
                         int port = buf.readInt();
                         String password = buf.readString();
                         String serverAddress = MinecraftClient.getInstance().getCurrentServerEntry().address;
-                        FlutterGuiManager.executeProgram("ws://" + serverAddress + ":" + port + "/", password);
                     } catch (Exception e) {
                         e.printStackTrace();
                         MinecraftClient.getInstance().player.sendMessage(Text.of("There was an error opening the editor."));

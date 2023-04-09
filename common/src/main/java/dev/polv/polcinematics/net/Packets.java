@@ -2,7 +2,6 @@ package dev.polv.polcinematics.net;
 
 import dev.architectury.networking.NetworkManager;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.fluttergui.FlutterGuiManager;
 import dev.polv.polcinematics.utils.NetworkUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -78,9 +77,7 @@ public class Packets {
 
     public static void sendOpenServer(ServerPlayerEntity player) {
         PacketByteBuf buf = NetworkUtils.createBuffer();
-        buf.writeInt(FlutterGuiManager.INSTANCE.getPort());
         String password = UUID.randomUUID().toString().replaceAll("-", "");
-        FlutterGuiManager.INSTANCE.playerPasswords.put(password, player.getUuid());
         buf.writeString(password);
         NetworkManager.sendToPlayer(player, CLIENT_EDITOR_OPEN, buf);
     }
