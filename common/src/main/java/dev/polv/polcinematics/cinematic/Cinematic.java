@@ -92,6 +92,20 @@ public class Cinematic {
     }
 
     /**
+     * @return The {@link Timeline} at the given index
+     */
+    public Timeline getTimeline(String index) {
+        if (index.equals("camera")) {
+            return this.cameraTimeline;
+        }
+        try {
+            return this.timelines.get(Integer.parseInt(index));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
      * @return The amount of timelines in the cinematic
      */
     public int getTimelineCount() {
