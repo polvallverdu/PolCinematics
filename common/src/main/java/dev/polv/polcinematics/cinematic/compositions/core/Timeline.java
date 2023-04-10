@@ -2,7 +2,6 @@ package dev.polv.polcinematics.cinematic.compositions.core;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.EOverlapStrategy;
 import dev.polv.polcinematics.exception.OverlapException;
 
 import java.lang.reflect.Constructor;
@@ -69,8 +68,6 @@ public class Timeline {
 
     protected List<WrappedComposition> compositions;
 
-    private EOverlapStrategy overlapStrategy = EOverlapStrategy.ERROR;
-
     public Timeline() {
         this(new ArrayList<>());
     }
@@ -116,18 +113,9 @@ public class Timeline {
 
     public void add(Composition composition, long startTime) {
         WrappedComposition wc = new WrappedComposition(composition, startTime);
-        switch (overlapStrategy) {
-            case MOVE -> {  // change duration of composition if the composition with the new duration doesn't overlap with any other compositions
-                for (WrappedComposition oWc : compositions.stream().filter(oWc -> oWc.getStartTime() >= wc.getStartTime()).toList()) {
-                    oWc.setStartTime(oWc.getStartTime() + wc.getDuration());
-                }
-            }
-            case ERROR -> {  // Check that the composition doesn't overlap with any other compositions
-                for (WrappedComposition wc1 : compositions) {
-                    if (wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime() > wc1.getStartTime()) {
-                        throw new OverlapException("Composition overlaps with another composition");
-                    }
-                }
+        for (WrappedComposition wc1 : compositions) {
+            if (wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime() > wc1.getStartTime()) {
+                throw new OverlapException("Composition overlaps with another composition");
             }
         }
 
@@ -138,45 +126,23 @@ public class Timeline {
         for (WrappedComposition wc : new ArrayList<>(compositions)) {
             if (wc.getUUID().equals(compositionUUID)) {
                 compositions.remove(wc);
-                if (overlapStrategy == EOverlapStrategy.MOVE) {
-                    for (WrappedComposition oWc : compositions.stream().filter(oWc -> oWc.getStartTime() > wc.getStartTime()).toList()) {
-                        oWc.setStartTime(oWc.getStartTime() - wc.getDuration());
-                    }
-                }
                 break;
             }
         }
     }
 
     public void changeDuration(UUID compositionUUID, long newDuration) {
-        switch (overlapStrategy) {
-            case ERROR -> {  // Check that the composition doesn't overlap with any other compositions
-                for (WrappedComposition wc : compositions) {
-                    if (wc.getUUID().equals(compositionUUID)) {
-                        long timeDuration = newDuration - wc.getDuration();
-                        for (WrappedComposition wc1 : compositions) {
-                            if (!wc.equals(wc1) && wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime(timeDuration) > wc1.getStartTime()) {
-                                throw new OverlapException("Composition overlaps with another composition");
-                            }
-                        }
-                        wc.setDuration(newDuration);
-                        this.sort();
-                        return;
+        for (WrappedComposition wc : compositions) {
+            if (wc.getUUID().equals(compositionUUID)) {
+                long timeDuration = newDuration - wc.getDuration();
+                for (WrappedComposition wc1 : compositions) {
+                    if (!wc.equals(wc1) && wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime(timeDuration) > wc1.getStartTime()) {
+                        throw new OverlapException("Composition overlaps with another composition");
                     }
                 }
-            }
-            case MOVE -> {  // change duration of composition if the composition with the new duration doesn't overlap with any other compositions
-                for (WrappedComposition wc : compositions) {
-                    if (wc.getUUID().equals(compositionUUID)) {
-                        long timeDifference = newDuration - wc.getDuration();
-                        wc.setDuration(newDuration);
-                        for (WrappedComposition oWc : compositions.stream().filter(oWc -> oWc.getStartTime() > wc.getStartTime()).toList()) {
-                            oWc.setStartTime(oWc.getStartTime() + timeDifference);
-                        }
-                        this.sort();
-                        return;
-                    }
-                }
+                wc.setDuration(newDuration);
+                this.sort();
+                return;
             }
         }
 
@@ -207,10 +173,6 @@ public class Timeline {
         }
 
         sort();
-    }
-
-    public void setOverlapStrategy(EOverlapStrategy overlapStrategy) {
-        this.overlapStrategy = overlapStrategy;
     }
 
     public void onCinematicLoad() {
