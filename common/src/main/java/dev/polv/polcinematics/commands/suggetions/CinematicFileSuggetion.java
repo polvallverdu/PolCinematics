@@ -8,10 +8,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import net.minecraft.server.command.ServerCommandSource;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 public class CinematicFileSuggetion implements SuggestionProvider<ServerCommandSource> {
     @Override
@@ -23,8 +20,8 @@ public class CinematicFileSuggetion implements SuggestionProvider<ServerCommandS
 
         final String filename = tfilename;
 
-        PolCinematics.CINEMATICS_MANAGER.getFileCinematics().stream().filter(cinematic -> cinematic.getName().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getName()));
-        PolCinematics.CINEMATICS_MANAGER.getFileCinematics().stream().filter(cinematic -> cinematic.getUuid().toString().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getUuid().toString()));
+        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().stream().filter(cinematic -> cinematic.getName().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getName()));
+        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().stream().filter(cinematic -> cinematic.getUuid().toString().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getUuid().toString()));
 
         return builder.buildFuture();
     }
