@@ -2,6 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.core;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,10 @@ public class CameraTimeline extends Timeline {
 
     public CameraTimeline(List<WrappedComposition> compositions) {
         super(compositions);
+    }
+
+    public CameraComposition getCameraComposition(long time) {
+        return (CameraComposition) this.getComposition(time);
     }
 
     @Override

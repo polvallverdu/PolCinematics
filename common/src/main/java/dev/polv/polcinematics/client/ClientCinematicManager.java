@@ -27,7 +27,7 @@ public class ClientCinematicManager {
         new ClientPacketHandler();
     }
 
-    public void loadCinematic(JsonObject json) {
+    public void loadCinematic(JsonObject json) { // TODO: Support multiple cinematics loaded
         this.loadedCinematic = Cinematic.fromJson(json);
         System.out.println("Loaded cinematic: " + this.loadedCinematic.getName());
         Packets.sendCinematicReady();
@@ -64,7 +64,7 @@ public class ClientCinematicManager {
         long oldElapsedTime = this.elapsedTime;
         this.elapsedTime = System.currentTimeMillis() - this.startedTime;
 
-        if (this.elapsedTime >= this.loadedCinematic.getDuration()) {
+        if (this.elapsedTime >= this.loadedCinematic.getDurationInMillis()) {
             this.stop();
         }
 
@@ -119,7 +119,7 @@ public class ClientCinematicManager {
 
     public CameraComposition getCameraComposition() {
         this.tick();
-        return this.loadedCinematic.getCameraComposition(this.elapsedTime);
+        return this.loadedCinematic.getCameraTimeline().getCameraComposition(this.elapsedTime);
     }
 
 }
