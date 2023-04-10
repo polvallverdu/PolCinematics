@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.commands;
+package dev.polv.polcinematics.commands.subcommands;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
@@ -9,38 +9,49 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.net.Packets;
-import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-public class ControlSubcommand {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-    public static LiteralCommandNode<ServerCommandSource> register(LiteralArgumentBuilder<ServerCommandSource> builder, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
-        //builder.then(Commands.literal("broadcast").then(Commands.argument("cinematicname", StringArgumentType.string()).suggests(new CinematicNameSuggestion()).executes(ControlSubcommand::broadcast)));
-        builder.then(
-            CommandManager.literal("broadcast")
+public class PlayerSubcommand {
+
+    private static final List<UUID> broadcastedCinematics = new ArrayList<>();
+
+    public static LiteralCommandNode<ServerCommandSource> build() {
+        LiteralArgumentBuilder<ServerCommandSource> controlArgumentBuilder = CommandManager.literal("control");
+
+        controlArgumentBuilder.then(CommandManager.literal("broadcast")
                 .then(
-                    CommandManager.argument("cinematicname", StringArgumentType.string())
+                        CommandManager.argument("cinematicname", StringArgumentType.string())
                         .suggests(new CinematicLoadedSuggestion())
-                        .then(
-                            CommandManager.argument("paused", BoolArgumentType.bool())
-                                .then(
-                                    CommandManager.argument("from", LongArgumentType.longArg(0))
-                                        .executes(ControlSubcommand::broadcast)
-                                ).executes(ControlSubcommand::broadcast)
-                        ).executes(ControlSubcommand::broadcast)
+                        .executes(PlayerSubcommand::broadcast)
                 )
         );
-        builder.then(CommandManager.literal("play").then(CommandManager.argument("paused", BoolArgumentType.bool()).executes(ControlSubcommand::play)).then(CommandManager.argument("from", LongArgumentType.longArg(0)).executes(ControlSubcommand::play)));
-        builder.then(CommandManager.literal("stop").executes(ControlSubcommand::stop));
-        builder.then(CommandManager.literal("pause").executes(ControlSubcommand::pause));
-        builder.then(CommandManager.literal("goto").then(CommandManager.argument("to", LongArgumentType.longArg(0)).executes(ControlSubcommand::gotocmd)));
-        builder.then(CommandManager.literal("resume").executes(ControlSubcommand::resume));
+        controlArgumentBuilder.then(CommandManager.literal("update").executes(PlayerSubcommand::update));
+        controlArgumentBuilder.then(
+                CommandManager.literal("play")
+                        .then(
+                                CommandManager.argument("from", LongArgumentType.longArg(0))
+                                        .then(
+                                                CommandManager.argument("paused", BoolArgumentType.bool())
+                                                        .executes(PlayerSubcommand::play)
+                                        )
+                        )
+                        .executes(PlayerSubcommand::play)
+        );
+        controlArgumentBuilder.then(CommandManager.literal("stop").executes(PlayerSubcommand::stop));
+        controlArgumentBuilder.then(CommandManager.literal("pause").executes(PlayerSubcommand::pause));
+        controlArgumentBuilder.then(CommandManager.literal("goto").then(CommandManager.argument("to", LongArgumentType.longArg(0)).executes(PlayerSubcommand::gotocmd)));
+        controlArgumentBuilder.then(CommandManager.literal("resume").executes(PlayerSubcommand::resume));
 
-        return builder.build();
+        return controlArgumentBuilder.build();
     }
 
     private static int play(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -57,14 +68,14 @@ public class ControlSubcommand {
         from = from == null ? 0 : from;
 
         Packets.sendCinematicPlay(context.getSource().getServer().getPlayerManager().getPlayerList(), paused, from);
-        context.getSource().sendMessage(Text.of(CinematicCommand.PREFIX + "§aPlaying cinematic"));
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aPlaying cinematic"));
         return 1;
     }
 
     private static int stop(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Packets.sendCinematicStop(context.getSource().getServer().getPlayerManager().getPlayerList());
 
-        context.getSource().sendMessage(Text.of(CinematicCommand.PREFIX + "§aStopping cinematic"));
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aStopping cinematic"));
         return 1;
     }
 
@@ -73,11 +84,18 @@ public class ControlSubcommand {
         Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinematicname);
 
         if (cinematic == null) {
-            context.getSource().sendMessage(Text.of(CinematicCommand.PREFIX + "§cCinematic §6" + cinematicname + " §cnot found"));
+            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + cinematicname + " §cnot found"));
             return 1;
         }
 
+        broadcastedCinematics.add(cinematic.getUuid());
         Packets.broadcastCinematic(cinematic, context.getSource().getServer().getPlayerManager().getPlayerList());
+
+        return 1;
+    }
+
+    private static int update(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        // TODO
 
         return 1;
     }
@@ -85,14 +103,14 @@ public class ControlSubcommand {
     private static int pause(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Packets.sendCinematicPause(context.getSource().getServer().getPlayerManager().getPlayerList());
 
-        context.getSource().sendMessage(Text.of(CinematicCommand.PREFIX + "§ePausing cinematic"));
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§ePausing cinematic"));
         return 1;
     }
 
     private static int resume(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Packets.sendCinematicResume(context.getSource().getServer().getPlayerManager().getPlayerList());
 
-        context.getSource().sendMessage(Text.of(CinematicCommand.PREFIX + "§eResuming cinematic"));
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§eResuming cinematic"));
         return 1;
     }
 
@@ -100,7 +118,7 @@ public class ControlSubcommand {
         long to = context.getArgument("to", Long.class);
         Packets.sendCinematicGoto(context.getSource().getServer().getPlayerManager().getPlayerList(), to);
 
-        context.getSource().sendMessage(Text.of(CinematicCommand.PREFIX + "§eMoving cinematic to: " + to));
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§eMoving cinematic to: " + to));
         return 1;
     }
 

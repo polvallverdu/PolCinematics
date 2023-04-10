@@ -100,6 +100,10 @@ public class Timeline {
         return null;
     }
 
+    public List<WrappedComposition> getWrappedCompositions() {
+        return new ArrayList<>(compositions);
+    }
+
     public void sort() {
         compositions.sort((a, b) -> (int) (a.getStartTime() - b.getStartTime()));
     }
