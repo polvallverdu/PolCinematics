@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.EOverlapStrategy;
 import dev.polv.polcinematics.exception.OverlapException;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -208,33 +209,6 @@ public class Timeline {
         sort();
     }
 
-    public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        JsonArray compositionsArray = new JsonArray();
-        for (WrappedComposition wc : compositions) {
-            compositionsArray.add(wc.toJson());
-        }
-        json.add("compositions", compositionsArray);
-        return json;
-    }
-
-    public static Timeline fromJson(JsonObject json) {
-        JsonArray compositionsArray = json.getAsJsonArray("compositions");
-        List<WrappedComposition> compositions = new ArrayList<>();
-        for (int i = 0; i < compositionsArray.size(); i++) {
-            JsonObject compositionJson = compositionsArray.get(i).getAsJsonObject();
-            long startTime = compositionJson.get("startTime").getAsLong();
-            try {
-                Composition composition = Composition.fromJson(compositionJson.get("composition").getAsJsonObject());
-                compositions.add(new WrappedComposition(composition, startTime));
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null; // TODO: NOT SAFE
-            }
-        }
-        return new Timeline(compositions);
-    }
-
     public void setOverlapStrategy(EOverlapStrategy overlapStrategy) {
         this.overlapStrategy = overlapStrategy;
     }
@@ -327,4 +301,44 @@ public class Timeline {
             newComposition.getComposition().onCompositionTick(time - newComposition.getStartTime());
         }
     }
+
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        JsonArray compositionsArray = new JsonArray();
+        for (WrappedComposition wc : compositions) {
+            compositionsArray.add(wc.toJson());
+        }
+        json.add("compositions", compositionsArray);
+        return json;
+    }
+
+    public static Timeline fromJson(JsonObject json) {
+        return fromJson(json, Timeline.class);
+    }
+
+    public static Timeline fromJson(JsonObject json, Class<? extends Timeline> timelineClass) {
+        JsonArray compositionsArray = json.getAsJsonArray("compositions");
+        List<WrappedComposition> compositions = new ArrayList<>();
+        for (int i = 0; i < compositionsArray.size(); i++) {
+            JsonObject compositionJson = compositionsArray.get(i).getAsJsonObject();
+            long startTime = compositionJson.get("startTime").getAsLong();
+            try {
+                Composition composition = Composition.fromJson(compositionJson.get("composition").getAsJsonObject());
+                compositions.add(new WrappedComposition(composition, startTime));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null; // TODO: NOT SAFE
+            }
+        }
+
+        //return new Timeline(compositions);
+
+        try {
+            Constructor<? extends Timeline> constructor = timelineClass.getConstructor(List.class);
+            return constructor.newInstance(compositions);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not create timeline from json", e);
+        }
+    }
+
 }

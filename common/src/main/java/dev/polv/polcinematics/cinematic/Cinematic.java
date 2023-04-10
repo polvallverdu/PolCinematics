@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.core.CameraTimeline;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
@@ -22,15 +23,14 @@ public class Cinematic {
     private String name;
     private long duration;
 
-    private final Timeline cameraTimeline;
+    private final CameraTimeline cameraTimeline;
     private final List<Timeline> timelines;
 
-    protected Cinematic(UUID uuid, String name, long duration, Timeline cameraTimeline, List<Timeline> timelines) {
+    protected Cinematic(UUID uuid, String name, long duration, CameraTimeline cameraTimeline, List<Timeline> timelines) {
         this.uuid = uuid;
         this.name = name;
         this.duration = duration;
         this.cameraTimeline = cameraTimeline;
-        this.cameraTimeline.setOverlapStrategy(EOverlapStrategy.MOVE);
         this.timelines = timelines;
     }
 
@@ -78,9 +78,9 @@ public class Cinematic {
     }
 
     /**
-     * @return The {@link Timeline} of the camera
+     * @return {@link CameraTimeline}
      */
-    public Timeline getCameraTimeline() {
+    public CameraTimeline getCameraTimeline() {
         return cameraTimeline;
     }
 
@@ -207,7 +207,7 @@ public class Cinematic {
     public static Cinematic fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
 
-        Timeline cameraTimeline = Timeline.fromJson(json.get("cameraTimeline").getAsJsonObject());
+        CameraTimeline cameraTimeline = (CameraTimeline) Timeline.fromJson(json.get("cameraTimeline").getAsJsonObject(), CameraTimeline.class);
         List<Timeline> overlayTimeline = new ArrayList<>();
         JsonArray overlayTimelineJson = json.get("overlayTimeline").getAsJsonArray();
         for (int i = 0; i < overlayTimelineJson.size(); i++) {
@@ -218,7 +218,7 @@ public class Cinematic {
     }
 
     public static Cinematic create(String name, long duration) {
-        Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new Timeline(), new ArrayList<>());
+        Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new CameraTimeline(), new ArrayList<>());
         cinematic.addTimeline();
         cinematic.cameraTimeline.add(new PlayerCameraComposition("default", duration), 0);
         return cinematic;
