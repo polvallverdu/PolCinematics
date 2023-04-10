@@ -100,13 +100,6 @@ public class Timeline {
         return null;
     }
 
-    @Deprecated // TODO: NOT SAFE
-    public void replaceComposition(UUID uuid, Composition newComposition) {
-        long startTime = findWrappedComposition(uuid).getStartTime();
-        remove(uuid);
-        add(newComposition, startTime);
-    }
-
     public void sort() {
         compositions.sort((a, b) -> (int) (a.getStartTime() - b.getStartTime()));
     }
