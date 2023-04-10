@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -59,17 +58,6 @@ public class ServerCinematicManager {
         new ServerPacketHandler();
     }
 
-    public List<SimpleCinematic> getFileCinematics() {
-        if (System.currentTimeMillis() - lastCacheRefresh > 30000) {
-            this.loadCache();
-        }
-        return new ArrayList<>(fileCinematicsCache);
-    }
-
-    public List<Cinematic> getLoadedCinematics() {
-        return new ArrayList<>(loadedCinematics);
-    }
-
     private void loadCache() {
         fileCinematicsCache.clear();
 
@@ -90,15 +78,30 @@ public class ServerCinematicManager {
         this.lastCacheRefresh = System.currentTimeMillis();
     }
 
+    /**
+     * Creates a {@link Cinematic} and adds it to the loaded cinematics.
+     *
+     * @param name Name of the cinematic
+     * @param duration Duration of the cinematic in milliseconds
+     * @return The created cinematic
+     * @throws NameException If the name is already taken
+     */
     public Cinematic createCinematic(String name, long duration) {
         if (this.isNameTaken(name)) {
             throw new NameException("Cinematic name already taken");
         }
         Cinematic cinematic = Cinematic.create(name, duration);
         this.loadedCinematics.add(cinematic);
+        this.saveCinematic(cinematic.getUuid());
         return cinematic;
     }
 
+    /**
+     * Loads a cinematic from file
+     *
+     * @param fileName Name of the file
+     * @return The loaded cinematic
+     */
     public Cinematic loadCinematic(String fileName) {
         File cinematicFile = new File(cinematicFolder, fileName);
         if (!cinematicFile.exists()) {
@@ -123,6 +126,11 @@ public class ServerCinematicManager {
         return loadedCinematic;
     }
 
+    /**
+     * Unload a loaded cinematic
+     *
+     * @param cinematicUUID The UUID of the cinematic
+     */
     public void unloadCinematic(UUID cinematicUUID) {
         Cinematic cinematic = getCinematic(cinematicUUID);
         if (cinematic == null) {
@@ -136,6 +144,11 @@ public class ServerCinematicManager {
         this.loadedCinematics.remove(cinematic);
     }
 
+    /**
+     * Save a loaded cinematic.
+     *
+     * @param cinematicUUID The UUID of the cinematic
+     */
     public void saveCinematic(UUID cinematicUUID) {
         Cinematic cinematic = getCinematic(cinematicUUID);
         if (cinematic == null) {
@@ -160,12 +173,21 @@ public class ServerCinematicManager {
         }
     }
 
+    /**
+     * Save all loaded cinematics
+     */
     public void saveAllCinematics() {
         for (Cinematic cinematic : loadedCinematics) {
             saveCinematic(cinematic.getUuid());
         }
     }
 
+    /**
+     * Get a loaded {@link Cinematic} by name
+     *
+     * @param name The name of the cinematic
+     * @return The cinematic, or null if not found
+     */
     public Cinematic getCinematic(String name) {
         for (Cinematic cinematic : loadedCinematics) {
             if (cinematic.getName().equalsIgnoreCase(name)) {
@@ -175,6 +197,12 @@ public class ServerCinematicManager {
         return null;
     }
 
+    /**
+     * Get a loaded {@link Cinematic} by {@link UUID}
+     *
+     * @param uuid The {@link UUID} of the cinematic
+     * @return The cinematic, or null if not found
+     */
     public Cinematic getCinematic(UUID uuid) {
         for (Cinematic cinematic : loadedCinematics) {
             if (cinematic.getUuid().equals(uuid)) {
@@ -184,14 +212,39 @@ public class ServerCinematicManager {
         return null;
     }
 
+    /**
+     * @return A list of all loaded {@link Cinematic}
+     */
+    public List<Cinematic> getLoadedCinematics() {
+        return new ArrayList<>(loadedCinematics);
+    }
+
+    /**
+     * Check if a cinematic is loaded by name
+     *
+     * @return true if the cinematic is loaded, false otherwise
+     */
     public boolean isCinematicLoaded(String name) {
         return this.getCinematic(name) != null;
     }
 
+    /**
+     * Check if a cinematic is loaded by {@link UUID}
+     *
+     * @return true if the cinematic is loaded, false otherwise
+     */
     public boolean isCinematicLoaded(UUID uuid) {
         return this.getCinematic(uuid) != null;
     }
 
+    /**
+     * Get a {@link SimpleCinematic} by {@link UUID}
+     * <p>
+     * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
+     *
+     * @param uuid The {@link UUID} of the cinematic
+     * @return The cinematic, or null if not found
+     */
     public SimpleCinematic getSimpleCinematic(UUID uuid) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
             if (cinematic.getUuid().equals(uuid)) {
@@ -201,6 +254,14 @@ public class ServerCinematicManager {
         return null;
     }
 
+    /**
+     * Get a {@link SimpleCinematic} by name or {@link UUID#toString()}
+     * <p>
+     * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
+     *
+     * @param nameOrUUID The name of the cinematic or it's UUID strigified.
+     * @return
+     */
     public SimpleCinematic getSimpleCinematic(String nameOrUUID) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
             if (cinematic.getName().equalsIgnoreCase(nameOrUUID) ||
@@ -211,6 +272,22 @@ public class ServerCinematicManager {
         return null;
     }
 
+    /**
+     * @return list of all {@link SimpleCinematic}
+     */
+    public List<SimpleCinematic> getSimpleCinematics() {
+        if (System.currentTimeMillis() - lastCacheRefresh > 30000) {
+            this.loadCache();
+        }
+        return new ArrayList<>(fileCinematicsCache);
+    }
+
+    /**
+     * Checks if a name for a cinematic is taken. It is case insensitive.
+     *
+     * @param name The name to check
+     * @return true if the name is taken, false otherwise
+     */
     public boolean isNameTaken(String name) {
         return this.getSimpleCinematic(name) != null;
     }
