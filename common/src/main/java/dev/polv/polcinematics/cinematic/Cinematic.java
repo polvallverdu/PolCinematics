@@ -11,6 +11,7 @@ import dev.polv.polcinematics.utils.BasicCompositionData;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Pair;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,24 +34,76 @@ public class Cinematic {
         this.timelines = timelines;
     }
 
+    /**
+     * Adds a new timeline to the cinematic
+     *
+     * @return The created {@link Timeline}
+     */
     public Timeline addTimeline() {
         Timeline timeline = new Timeline();
         this.timelines.add(timeline);
         return timeline;
     }
 
+    /**
+     * Removes a timeline from the cinematic by its index
+     *
+     * @param index The index of the timeline to remove
+     */
     public void removeTimeline(int index) {
         this.timelines.remove(index);
     }
 
-    public long getDuration() {
+    /**
+     * Removes a timeline from the cinematic
+     *
+     * @param timeline The timeline to remove
+     */
+    public void removeTimeline(Timeline timeline) {
+        this.timelines.remove(timeline);
+    }
+
+    /**
+     * @return The duration of the cinematic in milliseconds
+     */
+    public long getDurationInMillis() {
         return duration;
     }
 
-    public CameraComposition getCameraComposition(long time) {
-        return (CameraComposition) this.cameraTimeline.getComposition(time);
+    /**
+     * @return The duration of the cinematic
+     */
+    public Duration getDuration() {
+        return Duration.ofMillis(duration);
     }
 
+    /**
+     * @return The {@link Timeline} of the camera
+     */
+    public Timeline getCameraTimeline() {
+        return cameraTimeline;
+    }
+
+    /**
+     * @return The {@link Timeline} at the given index
+     */
+    public Timeline getTimeline(int index) {
+        return this.timelines.get(index);
+    }
+
+    /**
+     * @return The amount of timelines in the cinematic
+     */
+    public int getTimelineCount() {
+        return this.timelines.size();
+    }
+
+    /**
+     * Get the timeline and composition by the given composition UUID
+     *
+     * @param compositionUUID The {@link UUID} of a composition
+     * @return A {@link Pair} containing the timeline and the composition, or null if the composition was not found.
+     */
     public Pair<Timeline, Composition> getTimelineAndComposition(UUID compositionUUID) {
         Timeline.WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionUUID);
         if (c != null) {
@@ -65,32 +118,6 @@ public class Cinematic {
         }
         return null;
     }
-
-    public Timeline getCameraTimeline() {
-        return cameraTimeline;
-    }
-
-    /*public CameraComposition createCameraComposition(String name, ECameraType cameraType, long duration) {
-        CameraComposition cameraComposition = new CameraComposition(name, cameraType, duration);
-        cameraTimeline.add(cameraComposition, cameraTimeline.getMaxDuration());
-        return cameraComposition;
-    }*/
-
-    /*public CameraComposition checkCameraComposition(long time) {  // THERE WILL ALWAYS BE A CAMERA COMPOSITION
-        CameraComposition compo = this.getCameraComposition(time);
-        if (compo == null) {
-            if (this.cameraTimeline.compositions.isEmpty()) {
-                CameraComposition cameraComposition = new CameraComposition("temp", time);
-                this.cameraTimeline.add(cameraComposition, 0);
-                return cameraComposition;
-            }
-
-            CameraComposition cameraComposition = (CameraComposition) this.cameraTimeline.getComposition(0);
-            this.cameraTimeline.changeDuration(cameraComposition.getUuid(), time);
-            return cameraComposition;
-        }
-        return compo;
-    }*/
 
     public void tickOverlay(MatrixStack MatrixStack, long time) {
         for (int i = this.timelines.size() - 1; i >= 0; i--) {  // loop reverse
