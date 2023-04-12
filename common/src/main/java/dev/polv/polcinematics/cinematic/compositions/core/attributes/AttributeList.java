@@ -2,6 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.core.attributes;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +33,7 @@ public class AttributeList {
         attributesHashMap.put(attribute.getName(), attribute);
     }
 
-    public Attribute createAttribute(String name, String description, EAttributeType type) {
+    public Attribute createAttribute(String name, String description, EValueType type) {
         Attribute attribute = new Attribute(UUID.randomUUID(), name, description, type, new ArrayList<>());
         attributesHashMap.put(name, attribute);
         return attribute;

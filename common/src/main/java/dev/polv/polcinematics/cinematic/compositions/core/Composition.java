@@ -3,11 +3,16 @@ package dev.polv.polcinematics.cinematic.compositions.core;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.CompositionProperties;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
+import dev.polv.polcinematics.exception.CompositionException;
+import dev.polv.polcinematics.utils.BasicCompositionData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public abstract class Composition {
@@ -15,20 +20,49 @@ public abstract class Composition {
     private UUID uuid;
     private String name;
     private long duration;
-    private final ECompositionType type;
+    private ECompositionType type;
 
+    private CompositionProperties properties;
     private AttributeList attributes;
-    public Composition(UUID uuid, String name, long duration, ECompositionType type) {
-        this(uuid, name, duration, type, new AttributeList());
+
+    protected Composition() {
     }
 
-    public Composition(UUID uuid, String name, long duration, ECompositionType type, AttributeList attributes) {
-        this.uuid = uuid;
+    protected void init(String name, long duration, ECompositionType type) {
+        this.uuid = UUID.randomUUID();
         this.name = name;
         this.duration = duration;
         this.type = type;
-        this.attributes = attributes;
+
+        this.properties = new CompositionProperties();
+        this.attributes = new AttributeList();
+
+        this.declareVariables();
     }
+
+    protected abstract void declareVariables();
+
+    protected void readComposition(JsonObject json) {
+        BasicCompositionData data = BasicCompositionData.fromJson(json);
+        this.uuid = data.uuid();
+        this.name = data.name();
+        this.duration = data.duration();
+        this.type = ECompositionType.getById(json.get("type").getAsInt());
+    }
+
+    protected CompositionProperties readProperties(JsonObject json) {
+        this.properties = CompositionProperties.fromJson(json.get("properties").getAsJsonObject());
+        return CompositionProperties.fromJson(json.get("properties").getAsJsonObject());
+    }
+
+    protected AttributeList readAttributeList(JsonObject json) {
+        this.attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
+        return AttributeList.fromJson(json.get("attributes").getAsJsonObject());
+    }
+
+    protected void configure(JsonObject json) {
+        // TO IMPLEMENT
+    };
 
     public UUID getUuid() {
         return uuid;
@@ -46,19 +80,36 @@ public abstract class Composition {
         return type;
     }
 
-    protected void setUuid(UUID uuid) {
+    /*protected void setUuid(UUID uuid) {
         this.uuid = uuid;
-    }
+    }*/
 
-    protected void setName(String name) {
+    /*protected void setName(String name) {
         this.name = name;
-    }
+    }*/
 
     public void setDuration(long duration) {
         this.duration = duration;
     }
 
-    public ArrayList<Attribute> getAttributes() {
+    public CompositionProperties getProperties() {
+        return properties;
+    }
+
+    public Value getProperty(String key) {
+        return properties.getValue(key);
+    }
+
+    public Value declareProperty(String key, String description, EValueType type) { // Not using description. Leaving here for the future.
+        Value value = this.getProperty(key);
+        if (value != null) {
+            return value;
+        }
+
+        return properties.createProperty(key, type, type.getDefaultValue());
+    }
+
+    public List<Attribute> getAttributes() {
         return new ArrayList<>(attributes.getAttributes());
     }
 
@@ -70,15 +121,14 @@ public abstract class Composition {
         return attributes;
     }
 
-    public Attribute declareAttribute(String name, String description, EAttributeType type) {
-        if (this.getAttribute(name) != null) {
-            Attribute atr = this.getAttribute(name);
+    public Attribute declareAttribute(String name, String description, EValueType type) {
+        Attribute atr = this.getAttribute(name);
+        if (atr != null) {
             atr.setDescription(description);
             return atr;
         }
-        else {
-            return attributes.createAttribute(name, description, type);
-        }
+
+        return attributes.createAttribute(name, description, type);
     }
 
     public JsonObject toJson() {
@@ -87,27 +137,33 @@ public abstract class Composition {
         json.addProperty("name", this.getName());
         json.addProperty("duration", this.getDuration());
         json.addProperty("type", this.getType().getId());
+
+        json.add("properties", this.properties.toJson());
         json.add("attributes", this.getAttributesList().toJson());
 
         return json;
     }
 
-    public static Composition fromJson(JsonObject json) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        /*CompositionType type = CompositionType.getById(json.get("type").getAsInt());
-
-        if (type == null) return null;
-
-        return switch (type) {
-            case BASIC -> null; // No basic type
-            case CAMERA_COMPOSITION -> CameraComposition.fromJson(json);
-            case OVERLAY_COMPOSITION -> OverlayComposition.fromJson(json);
-            case AUDIO_COMPOSITION -> null;
-        };*/
+    public static Composition fromJson(JsonObject json) throws CompositionException {
         ECompositionType type = ECompositionType.getById(json.get("type").getAsInt());
-        var compositionClass = type.getClazz();
+
+        /*var compositionClass = type.getClazz();
         Method m = compositionClass.getMethod("fromJson", JsonObject.class);
-        var res = m.invoke(null, json);
-        return (Composition) res;
+        Composition compo = (Composition) m.invoke(null, json);*/
+
+        var compositionClass = type.getClazz();
+        Composition compo;
+        try {
+            compo = compositionClass.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new CompositionException("Could not create new instance of composition class " + compositionClass.getName());
+        }
+
+        compo.readComposition(json);
+        compo.readProperties(json);
+        compo.readAttributeList(json);
+        compo.configure(json);
+        return compo;
     }
 
     // Functions that can be overwritten

@@ -2,9 +2,9 @@ package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.async.DownloadHandler;
+import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
-import dev.polv.polcinematics.client.players.VideoPlayer;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import dev.polv.polcinematics.utils.render.DynamicImage;
 import dev.polv.polcinematics.utils.render.RenderUtils;
@@ -14,24 +14,19 @@ import java.util.UUID;
 
 public class ImageOverlay extends OverlayComposition {
 
-    private String imageUrl;
     private DynamicImage image;
 
-    public ImageOverlay(UUID uuid, String name, String imageUrl, long duration, AttributeList attributes) {
-        super(uuid, name, EOverlayType.VIDEO_OVERLAY, duration, attributes);
+    public static final String IMAGE_URL_KEY = "IMAGE_URL";
 
-        this.imageUrl = imageUrl;
-        this.image = DownloadHandler.INSTANCE.downloadImage(imageUrl);
+    @Override
+    protected void declareVariables() {
+        this.declareProperty("IMAGE_URL", "The url of the image", EValueType.STRING);
 
-        this.declareAttribute("X", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("Y", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("WIDTH", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("ALPHA", "Goes from 0.0 to 1.0", EAttributeType.DOUBLE);
-    }
-
-    public ImageOverlay(String name, String mediaPath, long duration) {
-        this(UUID.randomUUID(), name, mediaPath, duration, new AttributeList());
+        this.declareAttribute("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("ALPHA", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
     }
 
     @Override
@@ -45,20 +40,17 @@ public class ImageOverlay extends OverlayComposition {
         RenderUtils.renderImage(this.image, matrixStack, x, y, width, height, (float) alpha);
     }
 
+    public void setImageUrl(String imageUrl) {
+        this.getProperty(IMAGE_URL_KEY).setValue(imageUrl);
+        download();
+    }
+
+    private void download() {
+        this.image = DownloadHandler.INSTANCE.downloadImage(this.getProperty(IMAGE_URL_KEY).getValueAsString());
+    }
+
     @Override
-    public JsonObject toJson() {
-        JsonObject json = super.toJson();
-        json.addProperty("imageUrl", this.imageUrl);
-        return json;
+    public void onCinematicLoad() {
+        this.download();
     }
-
-    public static ImageOverlay fromJson(JsonObject json) {
-        BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
-        String imageUrl = json.get("imageUrl").getAsString();
-
-        return new ImageOverlay(data.uuid(), data.name(), imageUrl, data.duration(), attributes);
-    }
-
-
 }

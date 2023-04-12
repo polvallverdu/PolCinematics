@@ -180,7 +180,7 @@ public class Timeline {
 
     public void onCinematicUnload() {
         for (WrappedComposition wc : compositions) {
-            wc.getComposition().onCinematicLoad();
+            wc.getComposition().onCinematicUnload();
         }
     }
 

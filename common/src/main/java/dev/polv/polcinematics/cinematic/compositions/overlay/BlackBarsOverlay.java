@@ -2,7 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import dev.polv.polcinematics.utils.ColorUtils;
 import net.minecraft.client.MinecraftClient;
@@ -14,11 +14,10 @@ import java.util.UUID;
 
 public class BlackBarsOverlay extends OverlayComposition {
 
-    public BlackBarsOverlay(UUID uuid, String name, long duration, AttributeList attributes) {
-        super(uuid, name, EOverlayType.BLACK_BARS_OVERLAY, duration, attributes);
-
-        this.declareAttribute("COLOR", "Color for the bars", EAttributeType.COLOR);
-        this.declareAttribute("SIZE", "Goes from 0.0 to 1.0", EAttributeType.DOUBLE);
+    @Override
+    protected void declareVariables() {
+        this.declareAttribute("COLOR", "Color for the bars", EValueType.COLOR);
+        this.declareAttribute("SIZE", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
     }
 
     @Override
@@ -33,10 +32,4 @@ public class BlackBarsOverlay extends OverlayComposition {
         DrawableHelper.fill(MatrixStack, 0, MinecraftClient.getInstance().getWindow().getScaledHeight(), MinecraftClient.getInstance().getWindow().getScaledWidth(), MinecraftClient.getInstance().getWindow().getScaledHeight()-barHeight, color);
     }
 
-    public static BlackBarsOverlay fromJson(JsonObject json) {
-        BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
-
-        return new BlackBarsOverlay(data.uuid(), data.name(), data.duration(), attributes);
-    }
 }

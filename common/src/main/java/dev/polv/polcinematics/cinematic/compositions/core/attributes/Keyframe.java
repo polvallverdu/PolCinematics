@@ -2,7 +2,8 @@ package dev.polv.polcinematics.cinematic.compositions.core.attributes;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
 import dev.polv.polcinematics.utils.math.Easing;
 
 import java.awt.*;
@@ -11,17 +12,15 @@ public class Keyframe {
 
     private long time;
     private Easing easing;
-    private final EAttributeType type;
-    private Object value;
+    private Value value;
 
-    public Keyframe(long time, Object value, EAttributeType type) {
-        this(time, value, type, Easing.LINEAR);
+    public Keyframe(long time, Value value) {
+        this(time, value, Easing.LINEAR);
     }
 
-    public Keyframe(long time, Object value, EAttributeType type, Easing easing) {
+    public Keyframe(long time, Value value, Easing easing) {
         this.time = time;
         this.value = value;
-        this.type = type;
         this.easing = easing;
     }
 
@@ -45,40 +44,12 @@ public class Keyframe {
         this.time = time;
     }
 
-    public Object getValue() {
+    public Value getValue() {
         return value;
     }
 
-    public double getValueAsDouble() {
-        return (double) value;
-    }
-
-    public int getValueAsInteger() {
-        return (int) value;
-    }
-
-    public boolean getValueAsBoolean() {
-        return (boolean) value;
-    }
-
-    public String getValueAsString() {
-        return (String) value;
-    }
-
-    public Color getValueAsColor() {
-        return new Color(this.getValueAsInteger());
-    }
-
-    public CameraPos getValueAsCameraPos() {
-        return (CameraPos) value;
-    }
-
-    public EAttributeType getType() {
-        return type;
-    }
-
-    public void setValue(Object value) {
-        this.value = value;
+    public EValueType getType() {
+        return this.value.getType();
     }
 
     public JsonObject toJson() {
@@ -86,48 +57,16 @@ public class Keyframe {
         json.add("time", new JsonPrimitive(time));
         json.add("easing", new JsonPrimitive(easing.getId()));
         //json.add("value", new JsonPrimitive(value));
-        this.addCorrectValue(json);
+        json.add("value", value.toJson());
         return json;
     }
 
-    private void addCorrectValue(JsonObject json) {
-        switch (type) {
-            case DOUBLE -> json.add("value", new JsonPrimitive((double) value));
-            case INTEGER, COLOR -> json.add("value", new JsonPrimitive((int) value));
-            case BOOLEAN -> json.add("value", new JsonPrimitive((boolean) value));
-            case STRING -> json.add("value", new JsonPrimitive((String) value));
-            case CAMERAPOS -> json.add("value", ((CameraPos) value).toJson());
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        }
-    }
-
-    public static Keyframe fromJson(JsonObject json, EAttributeType type) {
+    public static Keyframe fromJson(JsonObject json) {
         long time = json.get("time").getAsLong();
         Easing easing = Easing.fromId(json.get("easing").getAsInt());
-        //Object value = json.get("value").getAs();
-        Object value = readCorrectValue(json, type);
-        return new Keyframe(time, value, type, easing);
+        Value value = Value.fromJson(json.get("value").getAsJsonObject());
+        return new Keyframe(time, value, easing);
     }
 
-    private static Object readCorrectValue(JsonObject json, EAttributeType type) {
-        switch (type) {
-            case DOUBLE -> {
-                return json.get("value").getAsDouble();
-            }
-            case INTEGER, COLOR -> {
-                return json.get("value").getAsInt();
-            }
-            case BOOLEAN -> {
-                return json.get("value").getAsBoolean();
-            }
-            case STRING -> {
-                return json.get("value").getAsString();
-            }
-            case CAMERAPOS -> {
-                return CameraPos.fromJson(json.get("value").getAsJsonObject());
-            }
-            default -> throw new IllegalStateException("Unexpected value: " + type);
-        }
-    }
 
 }

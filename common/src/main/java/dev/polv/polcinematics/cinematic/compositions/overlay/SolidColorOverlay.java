@@ -2,7 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import dev.polv.polcinematics.utils.ColorUtils;
 import net.minecraft.client.gui.DrawableHelper;
@@ -13,14 +13,13 @@ import java.util.UUID;
 
 public class SolidColorOverlay extends OverlayComposition {
 
-    public SolidColorOverlay(UUID uuid, String name, long duration, AttributeList attributes) {
-        super(uuid, name, EOverlayType.SOLID_COLOR_OVERLAY, duration, attributes);
-
-        this.declareAttribute("COLOR", "Color for the solid", EAttributeType.COLOR);
-        this.declareAttribute("X", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("Y", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("WIDTH", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
+    @Override
+    protected void declareVariables() {
+        this.declareAttribute("COLOR", "Color for the solid", EValueType.COLOR);
+        this.declareAttribute("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
     }
 
     @Override
@@ -48,10 +47,4 @@ public class SolidColorOverlay extends OverlayComposition {
         DrawableHelper.fill(MatrixStack, x, y, width, height, ColorUtils.getColor(color));
     }
 
-    public static SolidColorOverlay fromJson(JsonObject json) {
-        BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
-
-        return new SolidColorOverlay(data.uuid(), data.name(), data.duration(), attributes);
-    }
 }

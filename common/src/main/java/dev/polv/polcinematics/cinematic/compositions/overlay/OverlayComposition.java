@@ -1,9 +1,12 @@
 package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
+import dev.polv.polcinematics.exception.CompositionException;
 import net.minecraft.client.util.math.MatrixStack;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,44 +15,33 @@ import java.util.UUID;
 
 public abstract class OverlayComposition extends Composition {
 
-    private final EOverlayType overlayType;
+    private EOverlayType overlayType;
 
-    protected OverlayComposition(UUID uuid, String name, EOverlayType overlayType, long duration, AttributeList attributes) {
-        super(uuid, name, duration, ECompositionType.OVERLAY_COMPOSITION, attributes);
-        this.overlayType = overlayType;
+    public static OverlayComposition create(String name, long duration, EOverlayType overlayType) throws CompositionException {
+        OverlayComposition compo;
+        // new CameraComposition() from the class in cameraType. Constructor is empty.
+        try {
+            var compositionClass = overlayType.getClazz();
+            compo = compositionClass.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new CompositionException("Could not create composition", e);
+        }
+
+        compo.init(name, duration, ECompositionType.OVERLAY_COMPOSITION);
+
+        return compo;
     }
 
     public abstract void tick(MatrixStack MatrixStack, long time);
 
     //public abstract void render(MatrixStack matrix, int x, int y, int width, int height, double alpha, long time);
 
-    public JsonObject toJson() {
-        JsonObject json = super.toJson();
-
-        json.addProperty("overlayType", overlayType.getName());
-
-        return json;
+    @Override
+    protected void configure(JsonObject json) {
+        this.overlayType = EOverlayType.fromName(json.get("overlayType").getAsString());
     }
 
-    public static OverlayComposition fromJson(JsonObject json) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        /*UUID uuid = UUID.fromString(json.get("uuid").getAsString());
-        String name = json.get("name").getAsString();
-        EOverlayType overlayType = EOverlayType.fromName(json.get("overlayType").getAsString());
-        long duration = json.get("duration").getAsLong();
-
-        switch (overlayType) { // TODO
-            case SOLID_COLOR_OVERLAY -> {
-                return null;
-            }
-            default -> {
-                return null;
-            }
-        }*/
-        EOverlayType overlayType = EOverlayType.fromName(json.get("overlayType").getAsString());
-        var compositionClass =  overlayType.getClazz();
-        Method m = compositionClass.getMethod("fromJson", JsonObject.class);
-        var res = m.invoke(null, json);
-        return (OverlayComposition) res;
+    public EOverlayType getOverlayType() {
+        return overlayType;
     }
-
 }

@@ -3,25 +3,19 @@ package dev.polv.polcinematics.cinematic.compositions.camera;
 import com.google.gson.JsonObject;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Quaterniond;
+import org.joml.Vector3d;
 
 public class CameraPos {
 
     private final double x;
     private final double y;
     private final double z;
-    private final double pitch;
-    private final double yaw;
-    private final double roll;
-    private final double fov;
 
-    public CameraPos(double x, double y, double z, double pitch, double yaw, double roll, double fov) {
+    public CameraPos(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.pitch = pitch;
-        this.yaw = yaw;
-        this.roll = roll;
-        this.fov = fov;
     }
 
     public double getX() {
@@ -36,44 +30,24 @@ public class CameraPos {
         return z;
     }
 
-    public double getPitch() {
-        return pitch;
-    }
-
-    public double getYaw() {
-        return yaw;
-    }
-
-    public double getRoll() {
-        return roll;
-    }
-
-    public double getFov() {
-        return fov;
-    }
-
     public Vec3d getVec3d() {
         return new Vec3d(x, y, z);
     }
 
-    public double[] getArray() {
-        return new double[] {x, y, z, pitch, yaw, roll, fov};
+    public Vector3d getVector3d() {
+        return new Vector3d(x, y, z);
     }
 
-    public Vec2f getVec2f() {
-        return new Vec2f((float) pitch, (float) yaw);
+    public double[] getArray() {
+        return new double[] {x, y, z};
     }
 
     public static CameraPos fromJson(JsonObject json) {
         double x = json.get("x").getAsDouble();
         double y = json.get("y").getAsDouble();
         double z = json.get("z").getAsDouble();
-        double pitch = json.get("pitch").getAsDouble();
-        double yaw = json.get("yaw").getAsDouble();
-        double roll = json.get("roll").getAsDouble();
-        double fov = json.get("fov").getAsDouble();
 
-        return new CameraPos(x, y, z, pitch, yaw, roll, fov);
+        return new CameraPos(x, y, z);
     }
 
     public JsonObject toJson() {
@@ -82,10 +56,6 @@ public class CameraPos {
         json.addProperty("x", x);
         json.addProperty("y", y);
         json.addProperty("z", z);
-        json.addProperty("pitch", pitch);
-        json.addProperty("yaw", yaw);
-        json.addProperty("roll", roll);
-        json.addProperty("fov", fov);
 
         return json;
     }

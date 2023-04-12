@@ -8,7 +8,7 @@ public enum EOverlayType {
     BROWSER_OVERLAY("browser", WebBrowserOverlay.class),
     VIDEO_OVERLAY("video", VideoOverlay.class),
     IMAGE_OVERLAY("image", ImageOverlay.class),
-    //TEXT_OVERLAY("tezt", TextOverlay.class),
+    //TEXT_OVERLAY("text", TextOverlay.class),
     ;
 
     private final String name;

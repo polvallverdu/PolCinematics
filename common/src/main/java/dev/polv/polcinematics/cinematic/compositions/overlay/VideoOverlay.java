@@ -2,7 +2,8 @@ package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
+import dev.polv.polcinematics.client.players.AudioPlayer;
 import dev.polv.polcinematics.client.players.IMediaPlayer;
 import dev.polv.polcinematics.client.players.VideoPlayer;
 import dev.polv.polcinematics.utils.BasicCompositionData;
@@ -12,24 +13,19 @@ import java.util.UUID;
 
 public class VideoOverlay extends OverlayComposition {
 
-    private final String mediaPath;
-    private final VideoPlayer videoPlayer;
+    private VideoPlayer videoPlayer;
 
-    public VideoOverlay(UUID uuid, String name, String mediaPath, long duration, AttributeList attributes) {
-        super(uuid, name, EOverlayType.VIDEO_OVERLAY, duration, attributes);
+    public static final String VIDEO_URL_KEY = "VIDEO_URL";
 
-        this.mediaPath = mediaPath;
-        this.videoPlayer = (VideoPlayer) IMediaPlayer.createPlayer(VideoPlayer.class, mediaPath);
+    @Override
+    protected void declareVariables() {
+        this.declareProperty(VIDEO_URL_KEY, "The url of the video", EValueType.STRING);
 
-        this.declareAttribute("X", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("Y", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("WIDTH", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EAttributeType.INTEGER);
-        this.declareAttribute("ALPHA", "Goes from 0.0 to 1.0", EAttributeType.DOUBLE);
-    }
-
-    public VideoOverlay(String name, String mediaPath, long duration) {
-        this(UUID.randomUUID(), name, mediaPath, duration, new AttributeList());
+        this.declareAttribute("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareAttribute("ALPHA", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
     }
 
     @Override
@@ -43,19 +39,20 @@ public class VideoOverlay extends OverlayComposition {
         this.videoPlayer.render(matrixStack, x, y, width, height, (float) alpha);
     }
 
-    @Override
-    public JsonObject toJson() {
-        JsonObject json = super.toJson();
-        json.addProperty("mediaPath", this.mediaPath);
-        return json;
+    public void setVideo(String videoUrl) {
+        this.getProperty(VIDEO_URL_KEY).setValue(videoUrl);
+        this.initPlayer();
     }
 
-    public static VideoOverlay fromJson(JsonObject json) {
-        BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
-        String mediaPath = json.get("mediaPath").getAsString();
+    private void initPlayer() {
+        if (this.videoPlayer != null)
+            this.videoPlayer.stop();
+        this.videoPlayer = (VideoPlayer) IMediaPlayer.createPlayer(VideoPlayer.class, this.getProperty(VIDEO_URL_KEY).getValueAsString());
+    }
 
-        return new VideoOverlay(data.uuid(), data.name(), mediaPath, data.duration(), attributes);
+    @Override
+    public void onCinematicLoad() {
+        this.initPlayer();
     }
 
     @Override

@@ -2,32 +2,30 @@ package dev.polv.polcinematics.cinematic.compositions.camera;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.EAttributeType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 
 import java.util.UUID;
 
-public class SlerpCameraComposition extends CameraComposition {
+public class SlerpCameraComposition extends LerpCameraComposition {
 
-    public SlerpCameraComposition(String name, long duration) {
-        this(UUID.randomUUID(), name, duration, new AttributeList());
-    }
+    /*public static final String POSITION_KEY = "position";
+    public static final String ROTATION_KEY = "rotation";
 
-    private SlerpCameraComposition(UUID uuid, String name, long duration, AttributeList attributeList) {
-        super(uuid, name, ECameraType.SLERP, duration, attributeList);
-
-        this.declareAttribute("position", "Camera positon", EAttributeType.CAMERAPOS);
+    @Override
+    protected void declareVariables() {
+        this.declareProperty(POSITION_KEY, "Position", EValueType.CAMERAPOS);
+        this.declareProperty(ROTATION_KEY, "Rotation", EValueType.CAMERAROT);
     }
 
     @Override
     public CameraPos getCameraPos(long time) {
-        return this.getAttribute("position").getSlerpCameraPos(time);
+        return this.getAttribute(POSITION_KEY).getLerpCameraPos(time);
     }
 
-    public static SlerpCameraComposition fromJson(JsonObject json) {
-        BasicCompositionData data = BasicCompositionData.fromJson(json);
-        AttributeList attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
+    @Override
+    public CameraRot getCameraRot(long time) {
+        return this.getAttribute(ROTATION_KEY).getLerpCameraRot(time);
+    }*/
 
-        return new SlerpCameraComposition(data.uuid(), data.name(), data.duration(), attributes);
-    }
 }

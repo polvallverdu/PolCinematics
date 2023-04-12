@@ -3,13 +3,16 @@ package dev.polv.polcinematics.cinematic.compositions.core.attributes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraRot;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
 import dev.polv.polcinematics.exception.DeleteKeyframeException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import dev.polv.polcinematics.utils.ColorUtils;
 import dev.polv.polcinematics.utils.math.Easing;
 import dev.polv.polcinematics.utils.math.MathUtils;
 import net.minecraft.util.Pair;
-import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3d;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -22,10 +25,10 @@ public class Attribute {
     private final UUID uuid;
     private final String name;
     private String description;
-    private final EAttributeType type;
+    private final EValueType type;
     private final List<Keyframe> keyframes;
 
-    protected Attribute(UUID uuid, String name, String description, EAttributeType type, List<Keyframe> keyframes) {
+    protected Attribute(UUID uuid, String name, String description, EValueType type, List<Keyframe> keyframes) {
         this.uuid = uuid;
         this.name = name;
         this.description = description;
@@ -56,14 +59,28 @@ public class Attribute {
     public void setKeyframe(long time, Object value) {
         Keyframe keyframe = this.getExactKeyframe(time);
         if (keyframe != null) {
-            keyframe.setValue(value);
+            keyframe.getValue().setValue(value);
         } else {
             addKeyframe(time, value);
         }
     }
 
+    public void setKeyframe(long time, Object value, Easing easing) {
+        Keyframe keyframe = this.getExactKeyframe(time);
+        if (keyframe != null) {
+            keyframe.getValue().setValue(value);
+            keyframe.setEasing(easing);
+        } else {
+            addKeyframe(time, value, easing);
+        }
+    }
+
     private void addKeyframe(long time, Object value) {
-        keyframes.add(new Keyframe(time, value, type));
+        this.addKeyframe(time, value, Easing.LINEAR);
+    }
+
+    private void addKeyframe(long time, Object value, Easing easing) {
+        keyframes.add(new Keyframe(time, new Value(value, type), easing));
         sort();
     }
 
@@ -245,16 +262,16 @@ public class Attribute {
             return keyframes.getLeft().getValue();
         }
 
-        if (type == EAttributeType.DOUBLE || type == EAttributeType.INTEGER) {
-            double currentValue = keyframes.getLeft().getValueAsDouble();
-            double nextValue = keyframes.getRight().getValueAsDouble();
+        if (type == EValueType.DOUBLE || type == EValueType.INTEGER) {
+            double currentValue = keyframes.getLeft().getValue().getValueAsDouble();
+            double nextValue = keyframes.getRight().getValue().getValueAsDouble();
 
             double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
 
             return MathUtils.lerp(currentValue, nextValue, easingMultiplier);
-        } else if (type == EAttributeType.COLOR) {
-            int[] currentColorArray = ColorUtils.splitColors(keyframes.getLeft().getValueAsColor());
-            int[] nextColorArray = ColorUtils.splitColors(keyframes.getRight().getValueAsColor());
+        } else if (type == EValueType.COLOR) {
+            int[] currentColorArray = ColorUtils.splitColors(keyframes.getLeft().getValue().getValueAsColor());
+            int[] nextColorArray = ColorUtils.splitColors(keyframes.getRight().getValue().getValueAsColor());
 
             double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
 
@@ -263,7 +280,7 @@ public class Attribute {
             }
 
             return new Color(currentColorArray[0], currentColorArray[1], currentColorArray[2], currentColorArray[3]);
-        } else if (type == EAttributeType.CAMERAPOS) {
+        } else if (type == EValueType.CAMERAPOS) {
             return getLerpCameraPos(time);
         }
 
@@ -274,41 +291,48 @@ public class Attribute {
     public CameraPos getLerpCameraPos(long time) {
         Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
 
-        CameraPos currentPos = keyframes.getLeft().getValueAsCameraPos();
-        CameraPos nextPos = keyframes.getRight().getValueAsCameraPos();
+        CameraPos currentPos = keyframes.getLeft().getValue().getValueAsCameraPos();
+        CameraPos nextPos = keyframes.getRight().getValue().getValueAsCameraPos();
 
         double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
 
         return new CameraPos(
                 MathUtils.lerp(currentPos.getX(), nextPos.getX(), easingMultiplier),
                 MathUtils.lerp(currentPos.getY(), nextPos.getY(), easingMultiplier),
-                MathUtils.lerp(currentPos.getZ(), nextPos.getZ(), easingMultiplier),
-                MathUtils.lerp(currentPos.getPitch(), nextPos.getPitch(), easingMultiplier),
-                MathUtils.lerp(currentPos.getYaw(), nextPos.getYaw(), easingMultiplier),
-                MathUtils.lerp(currentPos.getRoll(), nextPos.getRoll(), easingMultiplier),
-                MathUtils.lerp(currentPos.getFov(), nextPos.getFov(), easingMultiplier)
+                MathUtils.lerp(currentPos.getZ(), nextPos.getZ(), easingMultiplier)
+        );
+    }
+
+    public CameraRot getLerpCameraRot(long time) {
+        Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
+
+        CameraRot currentPos = keyframes.getLeft().getValue().getValueAsCameraRot();
+        CameraRot nextPos = keyframes.getRight().getValue().getValueAsCameraRot();
+
+        double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
+
+        return new CameraRot(
+                (float) MathUtils.lerp(currentPos.getPitch(), nextPos.getPitch(), easingMultiplier),
+                (float) MathUtils.lerp(currentPos.getYaw(), nextPos.getYaw(), easingMultiplier),
+                (float) MathUtils.lerp(currentPos.getRoll(), nextPos.getRoll(), easingMultiplier)
         );
     }
 
     public CameraPos getSlerpCameraPos(long time) {
         Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
 
-        CameraPos currentPos = keyframes.getLeft().getValueAsCameraPos();
-        CameraPos nextPos = keyframes.getRight().getValueAsCameraPos();
+        CameraPos currentPos = keyframes.getLeft().getValue().getValueAsCameraPos();
+        CameraPos nextPos = keyframes.getRight().getValue().getValueAsCameraPos();
 
         double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
-        Vec3d centerPoint = MathUtils.calculateCuttingPoint(currentPos.getVec3d(), currentPos.getVec2f(), nextPos.getVec3d(), nextPos.getVec2f());
+        //Vec3d centerPoint = MathUtils.calculateCuttingPoint(currentPos.getVec3d(), currentPos.getVec2f(), nextPos.getVec3d(), nextPos.getVec2f());
 
-        Vec3d newPos = MathUtils.slerp(currentPos, nextPos, easingMultiplier); // TODO: DOESN'T WORK
+        Vector3d newPos = MathUtils.slerp(currentPos, nextPos, easingMultiplier); // TODO: DOESN'T WORK
 
         return new CameraPos(
-                newPos.getX(),
-                newPos.getY(),
-                newPos.getZ(),
-                MathUtils.lerp(currentPos.getPitch(), nextPos.getPitch(), easingMultiplier),
-                MathUtils.lerp(currentPos.getYaw(), nextPos.getYaw(), easingMultiplier),
-                MathUtils.lerp(currentPos.getRoll(), nextPos.getRoll(), easingMultiplier),
-                MathUtils.lerp(currentPos.getFov(), nextPos.getFov(), easingMultiplier)
+                newPos.x,
+                newPos.y,
+                newPos.z
         );
     }
 
@@ -329,7 +353,7 @@ public class Attribute {
         return this;
     }
 
-    public EAttributeType getType() {
+    public EValueType getType() {
         return type;
     }
 
@@ -356,11 +380,11 @@ public class Attribute {
 
         BasicCompositionData data = BasicCompositionData.fromJson(json);
         String description = json.get("description").getAsString();
-        EAttributeType type = EAttributeType.fromName(json.get("type").getAsString());
+        EValueType type = EValueType.fromName(json.get("type").getAsString());
 
         List<Keyframe> keyframes = new ArrayList<>();
         for (int i = 0; i < keyframesArray.size(); i++) {
-            keyframes.add(Keyframe.fromJson(keyframesArray.get(i).getAsJsonObject(), type));
+            keyframes.add(Keyframe.fromJson(keyframesArray.get(i).getAsJsonObject()));
         }
 
         return new Attribute(data.uuid(), data.name(), description, type, keyframes);
