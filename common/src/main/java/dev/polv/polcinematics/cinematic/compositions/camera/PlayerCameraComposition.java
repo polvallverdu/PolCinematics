@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.cinematic.compositions.camera;
 
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.utils.BasicCompositionData;
@@ -17,6 +18,13 @@ public class PlayerCameraComposition extends CameraComposition {
     }
 
     @Override
+    protected void init(String name, long duration, ECompositionType type) {
+        super.init(name, duration, type);
+
+        this.setPerspective(PlayerPerspective.FIRST_PERSON);
+    }
+
+    @Override
     public CameraPos getCameraPos(long time) {
         return null;
     }
@@ -28,6 +36,10 @@ public class PlayerCameraComposition extends CameraComposition {
 
     public PlayerPerspective getPerspective() {
         return PlayerPerspective.fromId(this.getProperty(PERSPECTIVE_KEY).getValueAsInteger());
+    }
+
+    public void setPerspective(PlayerPerspective perspective) {
+        this.getProperty(PERSPECTIVE_KEY).setValue(perspective.getId());
     }
 
     public enum PlayerPerspective {
@@ -51,7 +63,7 @@ public class PlayerCameraComposition extends CameraComposition {
                     return perspective;
                 }
             }
-            return null;
+            return FIRST_PERSON;
         }
     }
 
