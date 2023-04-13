@@ -3,6 +3,7 @@ package dev.polv.polcinematics.cinematic;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
 import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.core.CameraTimeline;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
@@ -234,7 +235,8 @@ public class Cinematic {
     public static Cinematic create(String name, long duration) {
         Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new CameraTimeline(), new ArrayList<>());
         cinematic.addTimeline();
-        cinematic.cameraTimeline.add(new PlayerCameraComposition("default", duration), 0);
+        var playerCamCompo = CameraComposition.create("default_camera", duration, ECameraType.PLAYER);
+        cinematic.cameraTimeline.add(playerCamCompo, 0);
         return cinematic;
     }
 
