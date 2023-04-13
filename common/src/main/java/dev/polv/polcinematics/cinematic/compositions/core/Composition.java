@@ -3,6 +3,7 @@ package dev.polv.polcinematics.cinematic.compositions.core;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
+import dev.polv.polcinematics.cinematic.compositions.core.helpers.CompositionInfo;
 import dev.polv.polcinematics.cinematic.compositions.core.value.CompositionProperties;
 import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
@@ -233,5 +234,10 @@ public abstract class Composition {
      * Called when the composition is no longer shown
      */
     public void onCompositionEnd() {}
+
+    /**
+     * Called when requesting info about the composition
+     */
+    public void onInfoRequest(CompositionInfo info) {}
 
 }
