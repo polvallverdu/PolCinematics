@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.mixin.client;
 
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraRot;
 import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import net.minecraft.client.render.Camera;
@@ -37,22 +38,22 @@ public class CameraMixin {
         return focusedEntity;
     }
 
-    /*@ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
+    @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
     private void injectedArgsSetRotationOnUpdate(Args args) {
         if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
         var camera = PolCinematicsClient.getCCM().getCameraComposition();
         if (camera == null) return;
 
-        switch (camera.getCameraType()) {
+        /*switch (camera.getCameraType()) {
             case PLAYER -> {
                 return;
             }
-        }
+        }*/
         if (camera instanceof PlayerCameraComposition) return;
 
-        CameraPos cameraPos = camera.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime());
-        args.set(0, (float) cameraPos.getYaw());
-        args.set(1, (float) cameraPos.getPitch());
+        CameraRot cameraRot = camera.getCameraRot(PolCinematicsClient.getCCM().getElapsedTime());
+        args.set(0, cameraRot.getYaw());
+        args.set(1, cameraRot.getPitch());
     }
 
     @ModifyArgs(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setPos(DDD)V"))
@@ -61,19 +62,17 @@ public class CameraMixin {
         var camera = PolCinematicsClient.getCCM().getCameraComposition();
         if (camera == null) return;
 
-        switch (camera.getCameraType()) {
+        /*switch (camera.getCameraType()) {
             case PLAYER -> {
                 return;
             }
-        }
+        }*/
         if (camera instanceof PlayerCameraComposition) return;
 
         CameraPos cameraPos = camera.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime());
         args.set(0, cameraPos.getX());
         args.set(1, cameraPos.getY());
         args.set(2, cameraPos.getZ());
-
-        System.out.println(cameraPos.getX() + " " + cameraPos.getY() + " " + cameraPos.getZ() + " " + cameraPos.getYaw() + " " + cameraPos.getPitch());
-    }*/
+    }
 
 }
