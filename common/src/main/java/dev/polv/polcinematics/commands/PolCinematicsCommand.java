@@ -2,6 +2,8 @@ package dev.polv.polcinematics.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.commands.subcommands.EditorSubcommand;
 import dev.polv.polcinematics.commands.subcommands.MediaPlayerSubcommand;
@@ -20,6 +22,9 @@ public class PolCinematicsCommand {
             + "§3/cpm §8- §bCinematic media player\n"
             + "§3/cm §8- §bCinematic manager\n"
             ;
+
+    public static final SimpleCommandExceptionType CINEMATIC_NOT_FOUND = new SimpleCommandExceptionType(Text.of("Cinematic not found"));
+    public static final SimpleCommandExceptionType INVALID_UUID = new SimpleCommandExceptionType(Text.of("Invalid UUID"));
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         LiteralArgumentBuilder<ServerCommandSource> mainBuilder = CommandManager.literal("polcinematics");
@@ -40,14 +45,22 @@ public class PolCinematicsCommand {
         mainBuilder.then(managerNode); // /polcinematics manager
         mainBuilder.then(editorNode); // /polcinematics editor
 
-        // Registering main command /polcinematics
-        LiteralCommandNode<ServerCommandSource> mainNode = mainBuilder.build();
+        // Creating main command /polcinematics
+        // LiteralCommandNode<ServerCommandSource> mainNode = mainBuilder.build();
 
-        // Registering aliases
-        CommandManager.literal("cp").redirect(playerNode);
-        CommandManager.literal("cmp").redirect(mediaPlayerNode);
-        CommandManager.literal("cm").redirect(managerNode);
-        CommandManager.literal("ce").redirect(editorNode);
+        // Creating aliases
+        LiteralArgumentBuilder<ServerCommandSource>[] aliases = new LiteralArgumentBuilder[]{
+            CommandManager.literal("cp").redirect(playerNode),
+            CommandManager.literal("cmp").redirect(mediaPlayerNode),
+            CommandManager.literal("cm").redirect(managerNode),
+            CommandManager.literal("ce").redirect(editorNode)
+        };
+
+        // Registering main command and aliases
+        dispatcher.register(mainBuilder);
+        for (LiteralArgumentBuilder alias : aliases) {
+            dispatcher.register(alias);
+        }
     }
 
 }

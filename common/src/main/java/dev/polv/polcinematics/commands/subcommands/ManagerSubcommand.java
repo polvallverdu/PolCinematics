@@ -9,7 +9,6 @@ import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.manager.ServerCinematicManager;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
-import dev.polv.polcinematics.commands.arguments.CinematicArgumentType;
 import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
 import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
@@ -31,9 +30,9 @@ final public class ManagerSubcommand {
     public static LiteralCommandNode<ServerCommandSource> build() {
         LiteralArgumentBuilder<ServerCommandSource> managerArgumentBuilder = CommandManager.literal("manager");
 
-        managerArgumentBuilder.then(CommandManager.literal("select").then(CommandManager.argument("cinematic", CinematicArgumentType.name()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::select)));
+        managerArgumentBuilder.then(CommandManager.literal("select").then(CommandManager.argument("cinematicname", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::select)));
         managerArgumentBuilder.then(CommandManager.literal("load").then(CommandManager.argument("filename", StringArgumentType.string()).suggests(new CinematicFileSuggetion()).executes(ManagerSubcommand::load)));
-        managerArgumentBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematic", CinematicArgumentType.name()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::unload)));
+        managerArgumentBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematicname", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::unload)));
         managerArgumentBuilder.then(CommandManager.literal("create").then(CommandManager.argument("cinematicname", StringArgumentType.word()).executes(ManagerSubcommand::create)));
         managerArgumentBuilder.then(CommandManager.literal("save").executes(ManagerSubcommand::save));
         managerArgumentBuilder.then(
@@ -47,13 +46,16 @@ final public class ManagerSubcommand {
 
     private static int select(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         UUID uuid = context.getSource().getPlayer().getUuid();
-        Cinematic cinematic = CinematicArgumentType.getCinematic(context, "cinematic");
-        if (cinematic != null) {
-            selectedCinematics.put(uuid, cinematic.getUuid());
-            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
-        } else {
-            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic not found"));
+        String cinameticName = StringArgumentType.getString(context, "cinematicname");
+        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinameticName);
+
+        if (cinematic == null) {
+            throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
         }
+
+        selectedCinematics.put(uuid, cinematic.getUuid());
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
+
         return 1;
     }
 
@@ -97,11 +99,11 @@ final public class ManagerSubcommand {
     }
 
     private static int unload(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = CinematicArgumentType.getCinematic(context, "cinematic");
+        String cinameticName = StringArgumentType.getString(context, "cinematicname");
+        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinameticName);
 
         if (cinematic == null) {
-            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic not found"));
-            return 1;
+            throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
         }
 
         new HashMap<>(selectedCinematics).forEach((uuid, cinematicUuid) -> {
@@ -140,7 +142,7 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    private static Cinematic getSelectedCinematic(ServerPlayerEntity player) {
+    public static Cinematic getSelectedCinematic(ServerPlayerEntity player) {
         UUID uuid = player.getUuid();
         if (selectedCinematics.containsKey(uuid)) {
             return PolCinematics.CINEMATICS_MANAGER.getCinematic(selectedCinematics.get(uuid));
