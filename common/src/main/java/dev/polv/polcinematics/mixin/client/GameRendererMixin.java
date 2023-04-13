@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.mixin.client;
 
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraRot;
 import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import net.minecraft.client.MinecraftClient;
@@ -22,7 +23,7 @@ public class GameRendererMixin {
     @Shadow @Final private Camera camera;
     private Camera cinematicCamera = new Camera();
 
-    @Inject(at = @At("HEAD"), method = "getFov", cancellable = true)
+    /*@Inject(at = @At("HEAD"), method = "getFov", cancellable = true)
     public void getFov(Camera camera, float tickDelta, boolean changingFov, CallbackInfoReturnable<Double> cir) {
         if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
 
@@ -31,15 +32,10 @@ public class GameRendererMixin {
         var cameracompo = PolCinematicsClient.getCCM().getCameraComposition();
         if (cameracompo == null) return;
 
-            /*switch (camera.getCameraType()) {
-                case PLAYER -> {
-                    return;
-                }
-            }*/
         if (cameracompo instanceof PlayerCameraComposition) return;
 
         cir.setReturnValue(cameracompo.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime()).getFov());
-    }
+    }*/
 
 
     @Inject(at = @At("HEAD"), method = "renderHand", cancellable = true)
@@ -80,8 +76,8 @@ public class GameRendererMixin {
             }*/
         if (cameracompo instanceof PlayerCameraComposition) return;
 
-        CameraPos cameraPos = cameracompo.getCameraPos(PolCinematicsClient.getCCM().getElapsedTime());
-        MatrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) cameraPos.getRoll()));
+        CameraRot cameraRot = cameracompo.getCameraRot(PolCinematicsClient.getCCM().getElapsedTime());
+        MatrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(cameraRot.getRoll()));
     }
 
     /*@Inject(at = @At("HEAD"), method = "renderWorld")
