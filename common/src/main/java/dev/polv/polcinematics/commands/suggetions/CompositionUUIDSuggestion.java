@@ -8,7 +8,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
+import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -16,16 +18,28 @@ public class CompositionUUIDSuggestion implements SuggestionProvider<ServerComma
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        String cinematicname = context.getArgument("cinematicname", String.class);
-        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinematicname);
+        ServerPlayerEntity player = context.getSource().getPlayer();
+
+        if (player == null) {
+            return Suggestions.empty();
+        }
+
+        Cinematic cinematic = ManagerSubcommand.getSelectedCinematic(player);
+
+        if (cinematic == null) {
+            return Suggestions.empty();
+        }
+
         String timelineI = context.getArgument("timeline", String.class);
         Timeline timeline = cinematic.getTimeline(timelineI);
 
-        if (timeline != null) {
-            timeline.getWrappedCompositions().forEach(wrappedComposition -> {
-                builder.suggest(wrappedComposition.getComposition().getUuid().toString());
-            });
+        if (timeline == null) {
+            return Suggestions.empty();
         }
+
+        timeline.getWrappedCompositions().forEach(wrappedComposition -> {
+            builder.suggest(wrappedComposition.getComposition().getUuid().toString());
+        });
 
         return builder.buildFuture();
     }

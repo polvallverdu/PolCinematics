@@ -7,7 +7,9 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -15,13 +17,21 @@ public class CinematicTimelineSuggestion implements SuggestionProvider<ServerCom
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        String cinematicname = context.getArgument("cinematicname", String.class);
-        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinematicname);
-        if (cinematic != null) {
-            builder.suggest("camera");
-            for (int i = 0; i < cinematic.getTimelineCount(); i++) {
-                builder.suggest(String.valueOf(i));
-            }
+        ServerPlayerEntity player = context.getSource().getPlayer();
+
+        if (player == null) {
+            return Suggestions.empty();
+        }
+
+        Cinematic cinematic = ManagerSubcommand.getSelectedCinematic(player);
+
+        if (cinematic == null) {
+            return Suggestions.empty();
+        }
+
+        builder.suggest("camera");
+        for (int i = 0; i < cinematic.getTimelineCount(); i++) {
+            builder.suggest(String.valueOf(i));
         }
 
         return builder.buildFuture();
