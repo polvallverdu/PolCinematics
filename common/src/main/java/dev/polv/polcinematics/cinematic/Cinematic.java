@@ -114,10 +114,10 @@ public class Cinematic {
     }
 
     /**
-     * Get the timeline and composition by the given composition UUID
+     * Get the {@link Timeline} and {@link Composition} by the given composition UUID
      *
      * @param compositionUUID The {@link UUID} of a composition
-     * @return A {@link Pair} containing the timeline and the composition, or null if the composition was not found.
+     * @return A {@link Pair} containing the {@link Timeline} and the {@link Composition}, or null if the composition was not found.
      */
     public Pair<Timeline, Composition> getTimelineAndComposition(UUID compositionUUID) {
         Timeline.WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionUUID);
@@ -129,6 +129,27 @@ public class Cinematic {
             c = timeline.findWrappedComposition(compositionUUID);
             if (c != null) {
                 return new Pair<>(timeline, c.getComposition());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the {@link Timeline} and {@link dev.polv.polcinematics.cinematic.compositions.core.Timeline.WrappedComposition} by the given composition UUID
+     *
+     * @param compositionUUID The {@link UUID} of a composition
+     * @return A {@link Pair} containing the {@link Timeline} and the {@link dev.polv.polcinematics.cinematic.compositions.core.Timeline.WrappedComposition}, or null if the composition was not found.
+     */
+    public Pair<Timeline, Timeline.WrappedComposition> getTimelineAndWrappedComposition(UUID compositionUUID) {
+        Timeline.WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionUUID);
+        if (c != null) {
+            return new Pair<>(this.cameraTimeline, c);
+        }
+
+        for (Timeline timeline : this.timelines) {
+            c = timeline.findWrappedComposition(compositionUUID);
+            if (c != null) {
+                return new Pair<>(timeline, c);
             }
         }
         return null;
