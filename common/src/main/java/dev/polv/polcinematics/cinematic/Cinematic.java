@@ -95,7 +95,7 @@ public class Cinematic {
     /**
      * @return The {@link Timeline} at the given index
      */
-    public Timeline getTimeline(String index) {
+    public Timeline resolveTimeline(String index) {
         if (index.equals("camera")) {
             return this.cameraTimeline;
         }

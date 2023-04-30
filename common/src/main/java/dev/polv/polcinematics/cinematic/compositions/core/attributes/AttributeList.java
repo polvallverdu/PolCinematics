@@ -47,6 +47,10 @@ public class AttributeList {
         attributesHashMap.remove(attribute.getName());
     }
 
+    public List<String> getKeys() {
+        return new ArrayList<>(attributesHashMap.keySet());
+    }
+
     public JsonObject toJson() {
         JsonObject jsonObject = new JsonObject();
 

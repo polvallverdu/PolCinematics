@@ -100,6 +100,15 @@ public class Timeline {
         return null;
     }
 
+    public WrappedComposition findWrappedComposition(String name) {
+        for (WrappedComposition wc : compositions) {
+            if (wc.getComposition().getName().equals(name)) {
+                return wc;
+            }
+        }
+        return null;
+    }
+
     public List<WrappedComposition> getWrappedCompositions() {
         return new ArrayList<>(compositions);
     }
