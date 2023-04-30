@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import dev.architectury.platform.Platform;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
 import dev.polv.polcinematics.net.ServerPacketHandler;
@@ -102,7 +103,7 @@ public class ServerCinematicManager {
      * @param fileName Name of the file
      * @return The loaded cinematic
      */
-    public Cinematic loadCinematic(String fileName) {
+    public Cinematic loadCinematic(String fileName) throws InvalidCinematicException, AlreadyLoadedCinematicException {
         File cinematicFile = new File(cinematicFolder, fileName);
         if (!cinematicFile.exists()) {
             throw new InvalidCinematicException("Cinematic file does not exist");
@@ -118,7 +119,7 @@ public class ServerCinematicManager {
 
         Cinematic currentlyLoadedCinematic = getCinematic(loadedCinematic.getUuid());
         if (currentlyLoadedCinematic != null) {
-            throw new InvalidCinematicException("Cinematic is already loaded");
+            throw new AlreadyLoadedCinematicException("Cinematic is already loaded");
         }
 
         this.loadedCinematics.add(loadedCinematic);
