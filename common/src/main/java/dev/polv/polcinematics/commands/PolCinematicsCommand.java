@@ -9,6 +9,7 @@ import dev.polv.polcinematics.commands.subcommands.EditorSubcommand;
 import dev.polv.polcinematics.commands.subcommands.MediaPlayerSubcommand;
 import dev.polv.polcinematics.commands.subcommands.PlayerSubcommand;
 import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
+import dev.polv.polcinematics.utils.BridagierUtils;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -24,6 +25,9 @@ public class PolCinematicsCommand {
             ;
 
     public static final SimpleCommandExceptionType CINEMATIC_NOT_FOUND = new SimpleCommandExceptionType(Text.of("Cinematic not found"));
+    public static final SimpleCommandExceptionType CINEMATIC_NOT_SELECTED = new SimpleCommandExceptionType(Text.of("Cinematic not selected. Select with /cm select <name>"));
+    public static final SimpleCommandExceptionType INVALID_TIMELINE = new SimpleCommandExceptionType(Text.of("Timeline not found"));
+    public static final SimpleCommandExceptionType INVALID_COMPOSITION = new SimpleCommandExceptionType(Text.of("Compsositing not found"));
     public static final SimpleCommandExceptionType INVALID_UUID = new SimpleCommandExceptionType(Text.of("Invalid UUID"));
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
@@ -50,10 +54,10 @@ public class PolCinematicsCommand {
 
         // Creating aliases
         LiteralArgumentBuilder<ServerCommandSource>[] aliases = new LiteralArgumentBuilder[]{
-            CommandManager.literal("cp").redirect(playerNode),
-            CommandManager.literal("cmp").redirect(mediaPlayerNode),
-            CommandManager.literal("cm").redirect(managerNode),
-            CommandManager.literal("ce").redirect(editorNode)
+                BridagierUtils.goodRedirect("cp", playerNode),
+                BridagierUtils.goodRedirect("cmp", mediaPlayerNode),
+                BridagierUtils.goodRedirect("cm", managerNode),
+                BridagierUtils.goodRedirect("ce", editorNode),
         };
 
         // Registering main command and aliases
