@@ -1,7 +1,9 @@
 package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 
-public enum EOverlayType {
+import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
+
+public enum EOverlayType implements ICompositionType {
 
     SOLID_COLOR_OVERLAY("solid", SolidColorOverlay.class),
     BLACK_BARS_OVERLAY("black_bars", BlackBarsOverlay.class),
@@ -19,6 +21,7 @@ public enum EOverlayType {
         this.clazz = clazz;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -32,6 +35,7 @@ public enum EOverlayType {
         return null;
     }
 
+    @Override
     public Class<? extends OverlayComposition> getClazz() {
         return clazz;
     }

@@ -1,10 +1,10 @@
 package dev.polv.polcinematics.cinematic.compositions.camera;
 
-public enum ECameraType {
+import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
+
+public enum ECameraType implements ICompositionType {
 
     PLAYER("player", PlayerCameraComposition.class),
-    /*FIRST_PERSON("first_person"),
-    THIRD_PERSON("third_person"),*/
     FIXED("fixed", FixedCameraComposition.class),
     SLERP("slerp", SlerpCameraComposition.class),
     LERP("lerp", LerpCameraComposition.class),
@@ -18,10 +18,12 @@ public enum ECameraType {
         this.clazz = clazz;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public Class<? extends CameraComposition> getClazz() {
         return clazz;
     }
