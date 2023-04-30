@@ -11,17 +11,17 @@ import dev.polv.polcinematics.cinematic.manager.ServerCinematicManager;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
 import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
+import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 
 import java.util.HashMap;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 final public class ManagerSubcommand {
 
@@ -34,11 +34,18 @@ final public class ManagerSubcommand {
         managerArgumentBuilder.then(CommandManager.literal("load").then(CommandManager.argument("filename", StringArgumentType.string()).suggests(new CinematicFileSuggetion()).executes(ManagerSubcommand::load)));
         managerArgumentBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematicname", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::unload)));
         managerArgumentBuilder.then(CommandManager.literal("create").then(CommandManager.argument("cinematicname", StringArgumentType.word()).executes(ManagerSubcommand::create)));
-        managerArgumentBuilder.then(CommandManager.literal("save").executes(ManagerSubcommand::save));
+        managerArgumentBuilder.then(
+                CommandManager.literal("save")
+                        .then(
+                                CommandManager.argument("cinematicname", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::save)
+                        )
+                        .executes(ManagerSubcommand::save)
+        );
         managerArgumentBuilder.then(
                 CommandManager.literal("list")
                         .then(CommandManager.literal("loaded").executes(ManagerSubcommand::list))
                         .then(CommandManager.literal("files").executes(ManagerSubcommand::listfiles))
+                        .executes(ManagerSubcommand::listfiles)
         );
 
         return managerArgumentBuilder.build();
@@ -88,6 +95,9 @@ final public class ManagerSubcommand {
             context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + name + " §cnot found"));
             e.printStackTrace();
             return 1;
+        } catch (AlreadyLoadedCinematicException e) {
+            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + name + " §cis already loaded"));
+            return 1;
         }
 
         context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLoaded cinematic §6" + cinematic.getName()));
@@ -120,7 +130,15 @@ final public class ManagerSubcommand {
     }
 
     private static int save(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getSelectedCinematic(context.getSource().getPlayer());
+        Cinematic cinematic;
+
+        try {
+            String cinematicName = StringArgumentType.getString(context, "cinematicname");
+            cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinematicName);
+        } catch (Exception e) {
+            cinematic = getSelectedCinematic(context.getSource().getPlayer());
+        }
+
         if (cinematic == null) {
             context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou don't have any cinematic selected"));
             return 1;
@@ -133,12 +151,42 @@ final public class ManagerSubcommand {
     }
 
     private static int list(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCinematics: " + PolCinematics.CINEMATICS_MANAGER.getLoadedCinematics().stream().map(Cinematic::getName).collect(Collectors.joining(", "))));
+        MutableText msg = Text.literal(PolCinematicsCommand.PREFIX + "§7Cinematics: §f");
+
+        PolCinematics.CINEMATICS_MANAGER.getLoadedCinematics().forEach(c -> {
+            MutableText ctext = Text.literal(c.getName() + " ");
+
+            ctext.append(Text.literal("[UNLOAD] ").setStyle(Style.EMPTY.withColor(Formatting.RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm unload " + c.getName()))));
+            ctext.append(Text.literal("[SELECT] ").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm select " + c.getName()))));
+            ctext.append(Text.literal("[SAVE]").setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm save " + c.getName()))));
+
+            msg.append("\n").append(ctext);
+        });
+
+        context.getSource().sendMessage(msg);
         return 1;
     }
 
     private static int listfiles(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCinematics: §f" + Stream.of(PolCinematics.CINEMATICS_MANAGER.getCinematicFiles()).map(f -> PolCinematics.CINEMATICS_MANAGER.isCinematicLoaded(f) ? f + " (§aLOADED§f)" : f + " (§cUNLOADED§f)").collect(Collectors.joining(", "))));
+        MutableText msg = Text.literal(PolCinematicsCommand.PREFIX + "§7File Cinematics: §f");
+
+        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().forEach(sc -> {
+            boolean isLoaded = PolCinematics.CINEMATICS_MANAGER.isCinematicLoaded(sc.getUuid());
+
+            MutableText ctext = Text.literal("§f[" + (isLoaded ? "§aLOADED" : "§cUNLOADED") + "§f] " + sc.getName() + " ");
+
+            if (isLoaded) {
+                ctext.append(Text.literal("[UNLOAD] ").setStyle(Style.EMPTY.withColor(Formatting.RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm unload " + sc.getName()))));
+                ctext.append(Text.literal("[SELECT] ").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm select " + sc.getName()))));
+                ctext.append(Text.literal("[SAVE]").setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm save " + sc.getName()))));
+            } else {
+                ctext.append(Text.literal("[LOAD]").setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm load " + sc.getUuid()))));
+            }
+
+            msg.append("\n").append(ctext);
+        });
+
+        context.getSource().sendMessage(msg);
         return 1;
     }
 
