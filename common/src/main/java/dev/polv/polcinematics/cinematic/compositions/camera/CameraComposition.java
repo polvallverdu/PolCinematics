@@ -25,6 +25,7 @@ public abstract class CameraComposition extends Composition {
         }
 
         compo.init(name, duration, ECompositionType.CAMERA_COMPOSITION);
+        compo.cameraType = cameraType;
 
         return compo;
     }
@@ -37,8 +38,15 @@ public abstract class CameraComposition extends Composition {
     }
 
     @Override
+    public JsonObject toJson() {
+        JsonObject json = super.toJson();
+        json.addProperty("subtype", this.cameraType.getName());
+        return json;
+    }
+
+    @Override
     protected void configure(JsonObject json) {
-        this.cameraType = ECameraType.fromName(json.get("cameraType").getAsString());
+        this.cameraType = ECameraType.fromName(json.get("subtype").getAsString());
     }
 
 }

@@ -1,14 +1,19 @@
 package dev.polv.polcinematics.cinematic.compositions.core;
 
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.audio.AudioComposition;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
 import dev.polv.polcinematics.cinematic.compositions.core.helpers.CompositionInfo;
 import dev.polv.polcinematics.cinematic.compositions.core.value.CompositionProperties;
 import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
+import dev.polv.polcinematics.cinematic.compositions.overlay.EOverlayType;
 import dev.polv.polcinematics.exception.CompositionException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
+import dev.polv.polcinematics.utils.EnumUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -110,10 +115,6 @@ public abstract class Composition {
         return properties.createProperty(key, type, type.getDefaultValue());
     }
 
-    public List<Attribute> getAttributes() {
-        return new ArrayList<>(attributes.getAttributes());
-    }
-
     public Attribute getAttribute(String attributeName) {
         return attributes.getAttribute(attributeName);
     }
@@ -147,17 +148,34 @@ public abstract class Composition {
 
     public static Composition fromJson(JsonObject json) throws CompositionException {
         ECompositionType type = ECompositionType.getById(json.get("type").getAsInt());
-
+        Class<? extends Composition> clazz = type.getClazz();
         /*var compositionClass = type.getClazz();
         Method m = compositionClass.getMethod("fromJson", JsonObject.class);
         Composition compo = (Composition) m.invoke(null, json);*/
 
-        var compositionClass = type.getClazz();
+        /*switch (type) {
+            case CAMERA_COMPOSITION -> {
+                ECameraType subtype = ECameraType.fromName(json.get("subtype").getAsString());
+                clazz = subtype.getClazz();
+            }
+            case OVERLAY_COMPOSITION -> {
+                EOverlayType subtype = EOverlayType.fromName(json.get("subtype").getAsString());
+                clazz = subtype.getClazz();
+            }
+        }*/
+
+        if (type.hasSubtypes()) {
+            ICompositionType subtype = EnumUtils.findSubtype(type, json.get("subtype").getAsString());
+            if (subtype != null) {
+                clazz = subtype.getClazz();
+            }
+        }
+
         Composition compo;
         try {
-            compo = compositionClass.getConstructor().newInstance();
+            compo = clazz.getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new CompositionException("Could not create new instance of composition class " + compositionClass.getName());
+            throw new CompositionException("Could not create new instance of composition class " + clazz.getName(), e);
         }
 
         compo.readComposition(json);

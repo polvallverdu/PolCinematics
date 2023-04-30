@@ -28,6 +28,7 @@ public abstract class OverlayComposition extends Composition {
         }
 
         compo.init(name, duration, ECompositionType.OVERLAY_COMPOSITION);
+        compo.overlayType = overlayType;
 
         return compo;
     }
@@ -38,7 +39,14 @@ public abstract class OverlayComposition extends Composition {
 
     @Override
     protected void configure(JsonObject json) {
-        this.overlayType = EOverlayType.fromName(json.get("overlayType").getAsString());
+        this.overlayType = EOverlayType.fromName(json.get("subtype").getAsString());
+    }
+
+    @Override
+    public JsonObject toJson() {
+        JsonObject json = super.toJson();
+        json.addProperty("subtype", this.overlayType.getName());
+        return json;
     }
 
     public EOverlayType getOverlayType() {
