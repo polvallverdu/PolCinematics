@@ -9,11 +9,16 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.camera.CameraRot;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.helpers.CommandCooldown;
 import dev.polv.polcinematics.commands.suggetions.*;
+import dev.polv.polcinematics.exception.InvalidCommandValueException;
+import dev.polv.polcinematics.utils.ColorUtils;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.EnumArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -22,8 +27,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -213,13 +220,13 @@ public class EditorSubcommand {
                                                                                                 arg("easing", StringArgumentType.word())
                                                                                                         .suggests(new EasingSuggestion())
                                                                                                         .then(
+                                                                                                                arg("stringValue", StringArgumentType.greedyString())
+                                                                                                                        .executes(EditorSubcommand::attribute_set)
+                                                                                                        ).then(
                                                                                                                 arg("entityValue", EntityArgumentType.entity())
                                                                                                                         .executes(EditorSubcommand::attribute_set)
                                                                                                         ).then(
                                                                                                                 arg("entitiesValue", EntityArgumentType.entities())
-                                                                                                                        .executes(EditorSubcommand::attribute_set)
-                                                                                                        ).then(
-                                                                                                                arg("stringValue", StringArgumentType.greedyString())
                                                                                                                         .executes(EditorSubcommand::attribute_set)
                                                                                                         ).then(
                                                                                                                 arg("intValue", IntegerArgumentType.integer())
@@ -373,67 +380,52 @@ public class EditorSubcommand {
 
         return pair;
     }
-/*
-    private static class TimelineSubcommands {
 
-        public static LiteralArgumentBuilder<ServerCommandSource> build() {
-            RequiredArgumentBuilder<ServerCommandSource, String> timelineBuilder = CommandManager
-                    .argument("timeline", StringArgumentType.string())
-                    .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE));
+    private static Object getValue(CommandContext<ServerCommandSource> ctx, EValueType valueType) throws InvalidCommandValueException {
+        String value = StringArgumentType.getString(ctx, "value");
 
-            timelineBuilder.then(CommandManager.literal("list").executes(TimelineSubcommands::list));
-            timelineBuilder.then(CommandManager.literal("composition").then(
-                buildCompositionArgument().then(CommandManager.literal("info").executes(TimelineSubcommands::composition_info))
-            ));
+        try {
+            switch (valueType) {
+                case CAMERAPOS -> {
+                    Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "value");
+                    return new CameraPos(vec3d.x, vec3d.y, vec3d.z);
+                }
+                case CAMERAROT -> {
+                    // value should be three floats separated by spaces
+                    String[] values = value.split(" ");
+                    if (values.length != 3) {
+                        throw new InvalidCommandValueException("Invalid number of arguments for CameraRot");
+                    }
 
-            return CommandManager.literal("timeline").then(timelineBuilder.build());
-        }
-
-        private static RequiredArgumentBuilder<ServerCommandSource, String> buildCompositionArgument() {
-            return arg("composition", StringArgumentType.word())
-                    .suggests(new CompositionSuggestion());
-        }
-
-
-
-        private static int list(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-            var pair = getTimeline(context);
-            Cinematic cinematic = pair.getLeft();
-            Timeline timeline = pair.getRight();
-
-            timeline.getWrappedCompositions().forEach(wc -> {
-                String message = wc.toString();
-                context.getSource().sendMessage(Text.literal(message));
-            });
-
-            return 1;
-        }
-
-        private static int composition_info(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-            var pair = getComposition(context);
-            Timeline timeline = pair.getLeft();
-            Timeline.WrappedComposition composition = pair.getRight();
-
-            StringBuilder infoBuilder = new StringBuilder();
-
-            CompositionInfo info = new CompositionInfo();
-            info.addInfo("Start", composition.getStartTime(), "End", composition.getFinishTime(), "Duration", composition.getDuration(), "Type", composition.getComposition().getType().getFormalName());
-            composition.getComposition().onInfoRequest(info);
-
-            String[] infoArray = info.getInfo();
-
-            for (int i = 0; i < infoArray.length; i+=2) {
-                infoBuilder.append(infoArray[i]).append(": ").append(infoArray[i+1]).append("\n");
+                    return new CameraRot(Float.parseFloat(values[0]), Float.parseFloat(values[1]), Float.parseFloat(values[2]));
+                }
+                case DOUBLE -> {
+                    return Double.parseDouble(value);
+                }
+                case INTEGER -> {
+                    return Integer.parseInt(value);
+                }
+                case BOOLEAN -> {
+                    value = value.toLowerCase();
+                    if (value.equals("true") || value.equals("false")) {
+                        return Boolean.parseBoolean(value);
+                    } else {
+                        throw new InvalidCommandValueException("Invalid boolean value");
+                    }
+                }
+                case COLOR -> {
+                    return ColorUtils.getColor(Color.decode(value));
+                }
+                case STRING -> {
+                    return value;
+                }
+                default -> throw new InvalidCommandValueException("Invalid value type");
             }
-
-            String message = PolCinematicsCommand.PREFIX + "Composition %uuid% info: \n" + infoBuilder;
-            context.getSource().sendMessage(Text.literal(message));
-
-            return 1;
+        } catch (Exception e) {
+            throw new InvalidCommandValueException(e);
         }
-
     }
-*/
+
     private static boolean runDelete(UUID uuid) {
         if (deleteCooldown.isOnCooldown(uuid)) {
             deleteCooldown.removeCooldown(uuid);
