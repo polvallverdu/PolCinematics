@@ -18,6 +18,7 @@ import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.helpers.CommandCooldown;
 import dev.polv.polcinematics.commands.suggetions.*;
 import dev.polv.polcinematics.exception.InvalidCommandValueException;
+import dev.polv.polcinematics.utils.ChatUtils;
 import dev.polv.polcinematics.utils.ColorUtils;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.EnumArgumentType;
@@ -35,6 +36,16 @@ import java.time.Duration;
 import java.util.UUID;
 
 public class EditorSubcommand {
+
+    private static final String SUBCOMMANDS = ChatUtils.formatHelpMessage(
+            "create", "Create a new timeline or composition",
+            "delete", "Delete a timeline or composition",
+            "info", "Get information about a timeline or composition",
+            "duration", "Get or set the duration of a timeline or composition",
+            "property", "Get or set the value of a property of a timeline or composition",
+            "attribute", "Get or set the value of an attribute of a timeline or composition",
+            "help", "Display this help message"
+    );
 
     private static final CommandCooldown deleteCooldown = new CommandCooldown(Duration.ofSeconds(15));
 
@@ -250,6 +261,14 @@ public class EditorSubcommand {
                                                 .executes(EditorSubcommand::attribute_get)
                                 )
                         )
+        );
+
+        editorBuilder.then(
+                l("help")
+                        .executes(context -> {
+                            context.getSource().sendMessage(Text.of(SUBCOMMANDS));
+                            return 1;
+                        })
         );
 
         return editorBuilder.build();
