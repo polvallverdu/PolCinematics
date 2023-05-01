@@ -63,4 +63,8 @@ public enum ECompositionType implements ICompositionType {
         return subtypes != null;
     }
 
+    @Override
+    public ECompositionType getParent() {
+        return null;
+    }
 }

@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.cinematic.compositions.overlay;
 
 
+import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
 
 public enum EOverlayType implements ICompositionType {
@@ -38,6 +39,11 @@ public enum EOverlayType implements ICompositionType {
     @Override
     public Class<? extends OverlayComposition> getClazz() {
         return clazz;
+    }
+
+    @Override
+    public ECompositionType getParent() {
+        return ECompositionType.OVERLAY_COMPOSITION;
     }
 
 }

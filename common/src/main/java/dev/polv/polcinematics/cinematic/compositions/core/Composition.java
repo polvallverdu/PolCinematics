@@ -14,6 +14,7 @@ import dev.polv.polcinematics.cinematic.compositions.overlay.EOverlayType;
 import dev.polv.polcinematics.exception.CompositionException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import dev.polv.polcinematics.utils.EnumUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,6 +28,7 @@ public abstract class Composition {
     private String name;
     private long duration;
     private ECompositionType type;
+    @Nullable private ICompositionType subtype;
 
     private CompositionProperties properties;
     private AttributeList attributes;
@@ -35,15 +37,46 @@ public abstract class Composition {
     }
 
     protected void init(String name, long duration, ECompositionType type) {
+        init(name, duration, type, null);
+    }
+
+    protected void init(String name, long duration, ECompositionType type, @Nullable ICompositionType subtype) {
         this.uuid = UUID.randomUUID();
         this.name = name;
         this.duration = duration;
         this.type = type;
+        this.subtype = subtype;
 
         this.properties = new CompositionProperties();
         this.attributes = new AttributeList();
 
         this.declareVariables();
+    }
+
+    public static Composition create(String name, long duration, ICompositionType typeOrSubtype) {
+        Composition compo;
+        // Separate type from subtype.
+        ECompositionType type = typeOrSubtype.getParent();
+        ICompositionType subtype = typeOrSubtype;
+        if (type == null && ((ECompositionType) subtype).hasSubtypes()) {
+            throw new IllegalArgumentException("Type cannot be a CompositionType with subtypes");
+        }
+
+        // new Composition() from the class in typeOrSubtype. Constructor is empty.
+        try {
+            var compositionClass = typeOrSubtype.getClazz();
+            compo = compositionClass.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new CompositionException("Could not create composition", e);
+        }
+
+        if (type == null) {
+            compo.init(name, duration, (ECompositionType) subtype);
+        } else {
+            compo.init(name, duration, type, subtype);
+        }
+
+        return compo;
     }
 
     protected abstract void declareVariables();
@@ -54,6 +87,7 @@ public abstract class Composition {
         this.name = data.name();
         this.duration = data.duration();
         this.type = ECompositionType.getById(json.get("type").getAsInt());
+        this.subtype = this.type.hasSubtypes() ? EnumUtils.findSubtype(this.type, json.get("subtype").getAsString()) : null;
     }
 
     protected CompositionProperties readProperties(JsonObject json) {
@@ -84,6 +118,10 @@ public abstract class Composition {
 
     public ECompositionType getType() {
         return type;
+    }
+
+    public ICompositionType getSubtype() {
+        return subtype;
     }
 
     /*protected void setUuid(UUID uuid) {
@@ -139,6 +177,8 @@ public abstract class Composition {
         json.addProperty("name", this.getName());
         json.addProperty("duration", this.getDuration());
         json.addProperty("type", this.getType().getId());
+        if (this.getSubtype() != null)
+            json.addProperty("subtype", this.getSubtype().getName());
 
         json.add("properties", this.properties.toJson());
         json.add("attributes", this.getAttributesList().toJson());

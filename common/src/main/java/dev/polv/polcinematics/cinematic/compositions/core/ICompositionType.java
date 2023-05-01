@@ -6,4 +6,6 @@ public interface ICompositionType {
 
     Class<? extends Composition> getClazz();
 
+    ECompositionType getParent();
+
 }

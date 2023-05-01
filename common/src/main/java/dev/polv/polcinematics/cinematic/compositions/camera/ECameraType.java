@@ -1,5 +1,6 @@
 package dev.polv.polcinematics.cinematic.compositions.camera;
 
+import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
 
 public enum ECameraType implements ICompositionType {
@@ -37,4 +38,8 @@ public enum ECameraType implements ICompositionType {
         return null;
     }
 
+    @Override
+    public ECompositionType getParent() {
+        return ECompositionType.CAMERA_COMPOSITION;
+    }
 }
