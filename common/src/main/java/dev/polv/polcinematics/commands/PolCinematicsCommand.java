@@ -10,6 +10,7 @@ import dev.polv.polcinematics.commands.subcommands.MediaPlayerSubcommand;
 import dev.polv.polcinematics.commands.subcommands.PlayerSubcommand;
 import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
 import dev.polv.polcinematics.utils.BridagierUtils;
+import dev.polv.polcinematics.utils.ChatUtils;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -18,11 +19,12 @@ import net.minecraft.text.Text;
 public class PolCinematicsCommand {
 
     public final static String PREFIX = "§8[§3PolCinematics§8]§r ";
-    private static final String HELP_MESSAGE = PREFIX + "§bList of subcommands: \n\n"
-            + "§3/cp §8- §bPlayer for cinematics\n"
-            + "§3/cpm §8- §bCinematic media player\n"
-            + "§3/cm §8- §bCinematic manager\n"
-            ;
+    private static final String HELP_MESSAGE = ChatUtils.formatHelpMessage(
+            "cp", "Player for cinematics",
+            "ce", "Cinematic editor",
+            "cm", "Cinematic manager",
+            "cpm", "Cinematic media player"
+    );
 
     public static final SimpleCommandExceptionType CINEMATIC_NOT_FOUND = new SimpleCommandExceptionType(Text.of("Cinematic not found"));
     public static final SimpleCommandExceptionType CINEMATIC_NOT_SELECTED = new SimpleCommandExceptionType(Text.of("Cinematic not selected. Select with /cm select <name>"));
@@ -36,6 +38,24 @@ public class PolCinematicsCommand {
             ctx.getSource().sendMessage(Text.literal(HELP_MESSAGE));
             return 1;
         }));
+        var versionSubcommand = CommandManager.literal("version").executes(ctx -> {
+            ctx.getSource().sendMessage(Text.of(
+                    """
+                    §8=========================================
+                    
+                    §aThis server is using §3PolCinematics
+                    §aMade by: §6Pol Vallverdu (polv.dev)
+                    §aVersion: §3%version%
+                    §aWebsite: §3cinematics.polv.dev
+                    
+                    §8=========================================
+                    """.replaceAll("%version%", "ALPHA") // TODO: Set version
+            ));
+
+            return 1;
+        }).build();
+        mainBuilder.then(versionSubcommand);
+        mainBuilder.redirect(versionSubcommand);
 
         // Building nodes
         LiteralCommandNode<ServerCommandSource> playerNode = PlayerSubcommand.build();
