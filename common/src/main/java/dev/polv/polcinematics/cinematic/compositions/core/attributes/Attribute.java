@@ -232,6 +232,10 @@ public class Attribute {
         return new Pair<>(current, next);
     }
 
+    public int getKeyframeCount() {
+        return keyframes.size();
+    }
+
     public Object getValue(long time) {
         return this.getValue(time, true); // Easing is enabled by default. It is later checked if the attribute type supports easing.
     }

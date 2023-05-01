@@ -3,6 +3,7 @@ package dev.polv.polcinematics.cinematic.compositions.core;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.exception.OverlapException;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -117,7 +118,7 @@ public class Timeline {
         compositions.sort((a, b) -> (int) (a.getStartTime() - b.getStartTime()));
     }
 
-    public void add(Composition composition, long startTime) {
+    public void add(@NotNull Composition composition, long startTime) {
         WrappedComposition wc = new WrappedComposition(composition, startTime);
         for (WrappedComposition wc1 : compositions) {
             if (wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime() > wc1.getStartTime()) {
@@ -135,6 +136,10 @@ public class Timeline {
                 break;
             }
         }
+    }
+
+    public void remove(WrappedComposition composition) {
+        compositions.remove(composition);
     }
 
     public void changeDuration(UUID compositionUUID, long newDuration) {
