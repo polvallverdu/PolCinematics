@@ -60,7 +60,7 @@ public class CommandCooldown {
         this.cooldowns.remove(uuid);
     }
 
-    public void setCooldown(Duration newCooldown) {
+    public void setCooldownDuration(Duration newCooldown) {
         this.cooldown = newCooldown.toMillis();
     }
 }
