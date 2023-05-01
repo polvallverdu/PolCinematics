@@ -11,10 +11,9 @@ public class AudioComposition extends Composition {
     private AudioPlayer player;
     public static final String AUDIO_URL_KEY = "AUDIO_URL";
 
-    public static AudioComposition create(String name, long duration, String mediaPath) {
+    public static AudioComposition create(String name, long duration) {
         AudioComposition compo = new AudioComposition();
         compo.init(name, duration, ECompositionType.AUDIO_COMPOSITION);
-        compo.getProperty(AUDIO_URL_KEY).setValue(mediaPath);
         return compo;
     }
 
