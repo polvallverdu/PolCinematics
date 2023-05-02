@@ -54,7 +54,7 @@ public class Timeline {
             return composition.getUuid();
         }
 
-        public void setDuration(long duration) {
+        protected void setDuration(long duration) {
             composition.setDuration(duration);
         }
 
@@ -122,7 +122,7 @@ public class Timeline {
         WrappedComposition wc = new WrappedComposition(composition, startTime);
         for (WrappedComposition wc1 : compositions) {
             if (wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime() > wc1.getStartTime()) {
-                throw new OverlapException("Composition overlaps with another composition");
+                throw new OverlapException(wc, wc1);
             }
         }
 
@@ -142,22 +142,26 @@ public class Timeline {
         compositions.remove(composition);
     }
 
-    public void changeDuration(UUID compositionUUID, long newDuration) {
+    public void changeDuration(UUID compositionUUID, long newDuration) throws IllegalArgumentException, OverlapException {
         for (WrappedComposition wc : compositions) {
             if (wc.getUUID().equals(compositionUUID)) {
-                long timeDuration = newDuration - wc.getDuration();
-                for (WrappedComposition wc1 : compositions) {
-                    if (!wc.equals(wc1) && wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime(timeDuration) > wc1.getStartTime()) {
-                        throw new OverlapException("Composition overlaps with another composition");
-                    }
-                }
-                wc.setDuration(newDuration);
-                this.sort();
+                this.changeDuration(wc, newDuration);
                 return;
             }
         }
 
         throw new IllegalArgumentException("Composition not found");
+    }
+
+    public void changeDuration(WrappedComposition wc, long newDuration) throws OverlapException {
+        long timeDuration = newDuration - wc.getDuration();
+        for (WrappedComposition wc1 : compositions) {
+            if (!wc.equals(wc1) && wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime(timeDuration) > wc1.getStartTime()) {
+                throw new OverlapException(wc, wc1);
+            }
+        }
+        wc.setDuration(newDuration);
+        this.sort();
     }
 
     public void move(UUID compositionUUID, long startTimeDifference) {

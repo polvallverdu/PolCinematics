@@ -1,9 +1,11 @@
 package dev.polv.polcinematics.exception;
 
-public class OverlapException extends IllegalArgumentException {
+import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
 
-    public OverlapException(String message) {
-        super(message);
+public class OverlapException extends RuntimeException {
+
+    public OverlapException(Timeline.WrappedComposition wc, Timeline.WrappedComposition wcOverlapping) {
+        super("Composition " + wc.getComposition().getName() + " (" + wc.getUUID() + ") overlaps with " + wcOverlapping.getComposition().getName() + "(" + wcOverlapping.getUUID() + ")");
     }
 
 }

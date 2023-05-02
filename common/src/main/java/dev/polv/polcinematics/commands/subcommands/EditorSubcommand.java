@@ -1,5 +1,6 @@
 package dev.polv.polcinematics.commands.subcommands;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -9,11 +10,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.compositions.audio.AudioComposition;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraRot;
-import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
@@ -23,8 +21,6 @@ import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeLi
 import dev.polv.polcinematics.cinematic.compositions.core.value.CompositionProperties;
 import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
-import dev.polv.polcinematics.cinematic.compositions.overlay.EOverlayType;
-import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.helpers.CommandCooldownHash;
 import dev.polv.polcinematics.commands.suggetions.*;
@@ -33,21 +29,20 @@ import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.ChatUtils;
 import dev.polv.polcinematics.utils.ColorUtils;
 import dev.polv.polcinematics.utils.EnumUtils;
+import dev.polv.polcinematics.utils.math.Easing;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class EditorSubcommand {
@@ -61,6 +56,9 @@ public class EditorSubcommand {
             "attribute", "Get or set the value of an attribute of a timeline or composition",
             "help", "Display this help message"
     );
+
+    private static final String BOTTOM_LINE = "§8§l=====================================";
+
 
     private static final CommandCooldownHash DELETE_COOLDOWN = new CommandCooldownHash(Duration.ofSeconds(15));
 
@@ -174,7 +172,7 @@ public class EditorSubcommand {
                                         )
                                         .executes(EditorSubcommand::info_timeline_specific)
                 )
-                .executes(EditorSubcommand::info_timeline_all)
+                .executes(EditorSubcommand::info_cinematic)
         );
 
         editorBuilder.then(
@@ -182,9 +180,14 @@ public class EditorSubcommand {
                     .then(
                             l("cinematic")
                                     .then(
-                                            arg("duration", LongArgumentType.longArg(1))
-                                                    .executes(EditorSubcommand::duration_cinematic_set)
-
+                                            l("set")
+                                                    .then(
+                                                            arg("duration", LongArgumentType.longArg(1))
+                                                                    .executes(EditorSubcommand::duration_cinematic_set)
+                                                    )
+                                    )
+                                    .then(
+                                            l("get").executes(EditorSubcommand::duration_composition_get)
                                     )
                                     .executes(EditorSubcommand::duration_composition_get)
                     )
@@ -198,7 +201,7 @@ public class EditorSubcommand {
                                             )
                                     )
                     )
-                    .executes(EditorSubcommand::duration)
+                    .executes(EditorSubcommand::duration_composition_get)
         );
 
         editorBuilder.then(
@@ -348,7 +351,7 @@ public class EditorSubcommand {
         try {
             timeline.add(compo, startTime);
         } catch (OverlapException e) {
-            ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§cThis composition overlaps another one."));
+            ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
         }
 
         return 1;
@@ -392,6 +395,7 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairtc = getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
+        String timelineName = StringArgumentType.getString(ctx, "timeline");
         Timeline.WrappedComposition wrappedComposition = pairtc.getRight();
         Composition composition = wrappedComposition.getComposition();
 
@@ -407,8 +411,7 @@ public class EditorSubcommand {
 
         // Format message
         StringBuilder message = new StringBuilder();
-        String bot = "§8§l=====================================";
-        message.append(bot).append("\n\n");
+        message.append(BOTTOM_LINE).append("\n\n");
         message.append("§fName: §7").append(name).append("\n");
         message.append("§fUUID: §7").append(uuid).append("\n");
         message.append("§fDuration: §7").append(duration).append("\n");
@@ -437,9 +440,10 @@ public class EditorSubcommand {
                             Style.EMPTY
                                     .withBold(true)
                                     .withColor(Formatting.DARK_AQUA)
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/polcinematics info composition " + composition.getName() + " attribute " + key))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineName + " " + composition.getName() + " attribute " + key))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to see more info about this attribute.")))
                     );
+
             player.sendMessage(
                     Text
                             .literal("§7§o(" + attribute.getType().getName() + ") §r§7" + key + "§7- §6" + attribute.getKeyframeCount() + " §fkeyframes ")
@@ -447,35 +451,173 @@ public class EditorSubcommand {
             );
         }
 
-        player.sendMessage(Text.of("\n" + bot));
+        player.sendMessage(Text.of("\n" + BOTTOM_LINE));
         return 1;
     }
 
-    private static int info_attribute_specific(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
+    private static int info_attribute_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairtc = getComposition(ctx);
+        Timeline timeline = pairtc.getLeft();
+        Timeline.WrappedComposition wrappedComposition = pairtc.getRight();
+        Composition composition = wrappedComposition.getComposition();
+
+        String key = StringArgumentType.getString(ctx, "attribute");
+        Attribute attribute = composition.getAttributesList().getAttribute(key);
+
+        attribute.getAllKeyframes().forEach(keyframe -> {
+            MutableText change = Text.literal(" [MODIFY]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.DARK_AQUA)
+                            .withBold(true)
+                            //.withClickEvent() TODO: PUT CHANGE COMMAND
+            );
+            MutableText easing = Text.literal(" [EASING]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.GOLD)
+                            .withBold(true)
+                    //.withClickEvent() TODO: PUT CHANGE COMMAND
+            );
+            MutableText delete = Text.literal(" [DELETE]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.RED)
+                            .withBold(true)
+                    //.withClickEvent() TODO: PUT CHANGE COMMAND
+            );
+
+            player.sendMessage(
+                    Text
+                            .literal("§f" + keyframe.getTime() + " §7- §6" + keyframe.getValue() + " §8- " + Easing.getName(keyframe.getEasing()))
+                            .append(change)
+                            .append(easing)
+                            .append(delete)
+            );
+        });
+
         return 1;
     }
 
-    private static int info_timeline_specific(CommandContext<ServerCommandSource> ctx) {
+    private static int info_timeline_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairct = getTimeline(ctx);
+        Timeline timeline = pairct.getRight();
+        String timelineArg = StringArgumentType.getString(ctx, "timeline");
+
+        timeline.getWrappedCompositions().forEach(wc -> {
+            Composition composition = wc.getComposition();
+
+            MutableText info = Text.literal(" [INFO]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.DARK_AQUA)
+                            .withBold(true)
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineArg + " " + wc.getUUID().toString()))
+            );
+            MutableText duration = Text.literal(" [DURATION]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.GREEN)
+                            .withBold(true)
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce duration composition " + timelineArg + " " + wc.getUUID().toString() + " "))
+            );
+            MutableText delete = Text.literal(" [DELETE]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.RED)
+                            .withBold(true)
+                            .withStrikethrough(true)
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§cTo delete run the manual command")))
+            );
+
+            player.sendMessage(
+                    Text
+                            .literal("§f" + wc.getStartTime() + "/" + wc.getFinishTime() + " §7- §e" + composition.getName() + " §7- §6" + (composition.getSubtype() != null ? composition.getSubtype().getName() : composition.getType().getName()))
+                            .append(info)
+                            .append(duration)
+                            .append(delete)
+            );
+        });
+
         return 1;
     }
 
-    private static int info_timeline_all(CommandContext<ServerCommandSource> ctx) {
+    private static int info_cinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        Cinematic cinematic = getCinematic(player);
+
+        String cinematicName = cinematic.getName();
+        UUID cinematicUUID = cinematic.getUuid();
+        Duration duration = cinematic.getDuration();
+        ArrayList<String> timelines = Lists.newArrayList("camera");
+        for (int i = 0; i < cinematic.getTimelineCount(); i++) {
+            timelines.add(String.valueOf(i));
+        }
+
+        StringBuilder message = new StringBuilder(BOTTOM_LINE);
+        message.append("\n\n").append("§fName: §7").append(cinematicName).append("\n");
+        message.append("§fUUID: §7").append(cinematicUUID.toString()).append("\n");
+        message.append("§fDuration: §7").append(duration.toString()).append("\n");
+
+        player.sendMessage(Text.of(message.toString()));
+
+        timelines.forEach(timeline -> {
+            MutableText info = Text.literal(" [INFO]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.DARK_AQUA)
+                            .withBold(true)
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timeline))
+            );
+            MutableText delete = Text.literal(" [DELETE]").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.RED)
+                            .withBold(true)
+                            .withStrikethrough(true)
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§cTo delete run the manual command")))
+            );
+
+            player.sendMessage(
+                    Text
+                            .literal("§7-  §f" + timeline)
+                            .append(info)
+                            .append(delete)
+            );
+        });
+
+        player.sendMessage(Text.of("\n" + BOTTOM_LINE));
         return 1;
     }
 
-    private static int duration_cinematic_set(CommandContext<ServerCommandSource> ctx) {
+    private static int duration_cinematic_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        Cinematic cinematic = getCinematic(player);
+        
+        long newDuration = LongArgumentType.getLong(ctx, "duration");
+        cinematic.setDuration(newDuration);
+        
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCinematic duration has been updated to §f" + newDuration + " §amilliseconds."));
         return 1;
     }
 
-    private static int duration_composition_set(CommandContext<ServerCommandSource> ctx) {
+    private static int duration_composition_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairtc = getComposition(ctx);
+        Timeline timeline = pairtc.getLeft();
+        Timeline.WrappedComposition wc = pairtc.getRight();
+        long newDuration = LongArgumentType.getLong(ctx, "duration");
+
+        try {
+            timeline.changeDuration(wc, newDuration);
+        } catch (OverlapException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
+            return 1;
+        }
+
+        player.sendMessage(Text.of("§aComposition time has been updated to §f" + newDuration + " §amilliseconds."));
         return 1;
     }
 
-    private static int duration(CommandContext<ServerCommandSource> ctx) {
-        return 1;
-    }
+    private static int duration_composition_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairtc = getComposition(ctx);
 
-    private static int duration_composition_get(CommandContext<ServerCommandSource> ctx) {
+        player.sendMessage(Text.of("§aComposition time is §f" + pairtc.getRight().getDuration() + " §amilliseconds."));
         return 1;
     }
 

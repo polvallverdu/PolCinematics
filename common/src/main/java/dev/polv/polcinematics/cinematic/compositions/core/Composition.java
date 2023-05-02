@@ -132,7 +132,7 @@ public abstract class Composition {
         this.name = name;
     }*/
 
-    public void setDuration(long duration) {
+    protected void setDuration(long duration) {
         this.duration = duration;
     }
 

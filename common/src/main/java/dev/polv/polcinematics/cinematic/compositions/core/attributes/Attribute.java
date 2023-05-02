@@ -232,6 +232,10 @@ public class Attribute {
         return new Pair<>(current, next);
     }
 
+    public List<Keyframe> getAllKeyframes() {
+        return new ArrayList<>(keyframes);
+    }
+
     public int getKeyframeCount() {
         return keyframes.size();
     }

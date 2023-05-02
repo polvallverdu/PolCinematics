@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.utils.math;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 public class Easing {
@@ -40,8 +41,9 @@ public class Easing {
 
     public static Easing LINEAR = new Easing(t -> t, 21);
     public static Easing INSTANT = new Easing(t -> t == 1.0d ? 1d : 0d, 21);
+    private static final HashMap<String, Easing> values = createValues();
 
-    public static HashMap<String, Easing> getValues() {
+    private static HashMap<String, Easing> createValues() {
         HashMap<String, Easing> values = new HashMap<>();
 
         values.put("EASE_IN_SINE", EASE_IN_SINE);
@@ -76,6 +78,19 @@ public class Easing {
         values.put("INSTANT", INSTANT);
 
         return values;
+    }
+
+    public static HashMap<String, Easing> getValues() {
+        return values;
+    }
+
+    public static String getName(Easing easing) {
+        for (Map.Entry<String, Easing> entry : values.entrySet()) {
+            if (entry.getValue() == easing) {
+                return entry.getKey();
+            }
+        }
+        return "";
     }
 
     public Easing(Function<Double, Double> callable, int id) {
