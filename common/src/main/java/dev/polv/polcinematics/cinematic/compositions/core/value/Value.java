@@ -60,8 +60,11 @@ public class Value {
         return type;
     }
 
-    public void setValue(Object value) {
+    public void setValue(Object value) throws IllegalArgumentException {
         this.value = value;
+        if (value.getClass() != type.getType()) {
+            throw new IllegalArgumentException("Value is not of type " + type.getName());
+        }
     }
 
     public JsonObject toJson() {

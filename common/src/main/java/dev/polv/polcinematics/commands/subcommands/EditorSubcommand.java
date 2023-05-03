@@ -19,6 +19,7 @@ import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.core.attributes.AttributeList;
+import dev.polv.polcinematics.cinematic.compositions.core.attributes.Keyframe;
 import dev.polv.polcinematics.cinematic.compositions.core.value.CompositionProperties;
 import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
@@ -77,19 +78,19 @@ public class EditorSubcommand {
                 .then(
                         arg("stringValue", StringArgumentType.string())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 ).then(
                         arg("entityValue", EntityArgumentType.entity())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 ).then(
                         arg("entitiesValue", EntityArgumentType.entities())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 ).then(
                         arg("vec3Value", Vec3ArgumentType.vec3())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 )
                 .executes(executor);
     }
@@ -99,19 +100,19 @@ public class EditorSubcommand {
                 .then(
                         arg("stringValue", StringArgumentType.greedyString())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 ).then(
                         arg("entityValue", EntityArgumentType.entity())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 ).then(
                         arg("entitiesValue", EntityArgumentType.entities())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 ).then(
                         arg("vec3Value", Vec3ArgumentType.vec3())
                                 .suggests(suggestionProvider)
-                                .executes(EditorSubcommand::attribute_set)
+                                .executes(executor)
                 )
                 .executes(executor);
     }
@@ -214,6 +215,14 @@ public class EditorSubcommand {
                                                                                         .executes(EditorSubcommand::info_attribute_specific)
                                                                         )
                                                         )
+                                                        .then(
+                                                                l("property")
+                                                                        .then(
+                                                                                arg("property", StringArgumentType.word())
+                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.PROPERTY_KEYS))
+                                                                                        .executes(EditorSubcommand::property_get) // It's the same. Not doing the same thing two times
+                                                                        )
+                                                        )
                                                         .executes(EditorSubcommand::info_composition_specific)
                                         )
                                         .executes(EditorSubcommand::info_timeline_specific)
@@ -279,7 +288,7 @@ public class EditorSubcommand {
                                         arg("attribute", StringArgumentType.word())
                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_KEYS))
                                                 .then(
-                                                        l("set")
+                                                        l("set_easing")
                                                                 .then(
                                                                         arg("time", LongArgumentType.longArg(0)).then(
                                                                                 arg_value(
@@ -288,6 +297,16 @@ public class EditorSubcommand {
                                                                                         EditorSubcommand::attribute_set,
                                                                                         new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
                                                                                 )
+                                                                        )
+                                                                )
+                                                )
+                                                .then(
+                                                        l("set")
+                                                                .then(
+                                                                        arg_value(
+                                                                                arg("time", LongArgumentType.longArg(0)),
+                                                                                EditorSubcommand::attribute_set,
+                                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
                                                                         )
                                                                 )
                                                 )
@@ -319,7 +338,13 @@ public class EditorSubcommand {
                                                 )
                                                 .then(
                                                         l("get")
-                                                                .executes(EditorSubcommand::attribute_get)
+                                                                .then(
+                                                                        arg("time_position", LongArgumentType.longArg(0))
+                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION))
+                                                                                .executes(EditorSubcommand::attribute_get_specific)
+                                                                )
+                                                                //.executes(EditorSubcommand::attribute_get) Would be the same, not doing two times the same thing...
+                                                                .executes(EditorSubcommand::info_attribute_specific)
                                                 )
                                                 .executes(EditorSubcommand::attribute_get)
                                 )
@@ -427,7 +452,7 @@ public class EditorSubcommand {
 
             if (subtype == null) {
                 ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§cYou need to specify a valid subtype for this composition type."));
-                return 0;
+                return 1;
             }
         }
 
@@ -706,19 +731,73 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int property_set(CommandContext<ServerCommandSource> ctx) {
+    private static int property_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairkp = getProperty(ctx);
+
+        try {
+            Object value = getValue(ctx, pairkp.getRight().getType());
+            pairkp.getRight().setValue(value);
+        } catch (InvalidValueException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
+            return 1;
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cThere's an issue that shouldn't have happened. Open an issue with your server logs."));
+            e.printStackTrace();
+            return 1;
+        }
         return 1;
     }
 
-    private static int property_get(CommandContext<ServerCommandSource> ctx) {
+    private static int property_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairkp = getProperty(ctx);
+
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§a" + pairkp.getLeft() + " is §f" + pairkp.getRight().getValue() + "§a."));
         return 1;
     }
 
-    private static int attribute_set(CommandContext<ServerCommandSource> ctx) {
+    private static int attribute_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairkattr = getAttribute(ctx);
+        long time = LongArgumentType.getLong(ctx, "time");
+        Easing easing = Easing.EASE_INOUT_QUAD;
+
+        try {
+            String easingName = StringArgumentType.getString(ctx, "easing");
+            easing = Easing.fromName(easingName.toUpperCase());
+            if (easing == null)
+                throw new InvalidValueException("§cInvalid easing name. ");
+        } catch (InvalidValueException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
+            return 1;
+        } catch (Exception ignore) {}
+
+        try {
+            Object value = getValue(ctx, pairkattr.getRight().getType());
+            pairkattr.getRight().setKeyframe(time, value, easing);
+        } catch (InvalidValueException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
+            return 1;
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cThere's an issue that shouldn't have happened. Open an issue with your server logs."));
+            e.printStackTrace();
+            return 1;
+        }
         return 1;
     }
 
-    private static int attribute_get(CommandContext<ServerCommandSource> ctx) {
+    private static int attribute_get_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairkattr = getAttribute(ctx);
+
+        Keyframe keyframe = pairkattr.getRight().getExactKeyframe(LongArgumentType.getLong(ctx, "time"));
+        if (keyframe == null) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cThere's no keyframe at this time."));
+            return 1;
+        }
+
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7" + pairkattr.getLeft() + " is §f" + keyframe.getValue() + " §7with easing §e" + Easing.getName(keyframe.getEasing()) + "§7."));
         return 1;
     }
 
@@ -783,7 +862,7 @@ public class EditorSubcommand {
         return pair;
     }
 
-    private static Pair<Timeline.WrappedComposition, Value> getProperty(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static Pair<String, Value> getProperty(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var pairtc = getComposition(context);
         String propertyKey = StringArgumentType.getString(context, "property");
 
@@ -792,10 +871,10 @@ public class EditorSubcommand {
         if (value == null)
             throw PolCinematicsCommand.INVALID_PROPERTY.create();
 
-        return new Pair<>(pairtc.getRight(), value);
+        return new Pair<>(propertyKey, value);
     }
 
-    private static Pair<Timeline.WrappedComposition, Attribute> getAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static Pair<String, Attribute> getAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var pairtc = getComposition(context);
         String attributeKey = StringArgumentType.getString(context, "attribute");
 
@@ -804,7 +883,7 @@ public class EditorSubcommand {
         if (attr == null)
             throw PolCinematicsCommand.INVALID_ATTRIBUTE.create();
 
-        return new Pair<>(pairtc.getRight(), attr);
+        return new Pair<>(attributeKey, attr);
     }
 
     private static Object getValue(CommandContext<ServerCommandSource> ctx, EValueType valueType) throws InvalidValueException {

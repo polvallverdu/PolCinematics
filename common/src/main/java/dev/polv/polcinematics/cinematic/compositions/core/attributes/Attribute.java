@@ -12,6 +12,7 @@ import dev.polv.polcinematics.utils.ColorUtils;
 import dev.polv.polcinematics.utils.math.Easing;
 import dev.polv.polcinematics.utils.math.MathUtils;
 import net.minecraft.util.Pair;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
 import java.awt.*;
@@ -187,7 +188,7 @@ public class Attribute {
      * @param time
      * @return A {@code Keyframe} object, or null if there is no keyframe at the given time.
      */
-    public Keyframe getExactKeyframe(long time) {
+    public @Nullable Keyframe getExactKeyframe(long time) {
         for (Keyframe keyframe : keyframes) {
             if (keyframe.getTime() == time) {
                 return keyframe;

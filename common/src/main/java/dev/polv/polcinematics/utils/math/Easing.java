@@ -1,5 +1,7 @@
 package dev.polv.polcinematics.utils.math;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -106,10 +108,20 @@ public class Easing {
         return callable.apply(t);
     }
 
+    @Deprecated
     public int getId() {
         return id;
     }
 
+    /**
+     * @param name Name of the {@link Easing}
+     * @return The {@link Easing} or null if not found
+     */
+    public static @Nullable Easing fromName(String name) {
+        return values.get(name);
+    }
+
+    @Deprecated
     public static Easing fromId(int id) {
         switch (id) {
             case 0:
