@@ -315,7 +315,7 @@ public class EditorSubcommand {
                                                                 .then(
                                                                         l("easing")
                                                                                 .then(
-                                                                                        arg("time_position", LongArgumentType.longArg(0))
+                                                                                        arg("time", LongArgumentType.longArg(0))
                                                                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION))
                                                                                                 .then(
                                                                                                         arg("easing", StringArgumentType.word())
@@ -328,7 +328,7 @@ public class EditorSubcommand {
                                                                         l("value")
                                                                                 .then(
                                                                                         arg_value(
-                                                                                                arg("time_position", LongArgumentType.longArg(0))
+                                                                                                arg("time", LongArgumentType.longArg(0))
                                                                                                         .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION)),
                                                                                                 EditorSubcommand::attribute_change_value,
                                                                                                 new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
@@ -339,14 +339,15 @@ public class EditorSubcommand {
                                                 .then(
                                                         l("get")
                                                                 .then(
-                                                                        arg("time_position", LongArgumentType.longArg(0))
+                                                                        arg("time", LongArgumentType.longArg(0))
                                                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION))
                                                                                 .executes(EditorSubcommand::attribute_get_specific)
                                                                 )
                                                                 //.executes(EditorSubcommand::attribute_get) Would be the same, not doing two times the same thing...
                                                                 .executes(EditorSubcommand::info_attribute_specific)
                                                 )
-                                                .executes(EditorSubcommand::attribute_get)
+                                                //.executes(EditorSubcommand::attribute_get)
+                                                .executes(EditorSubcommand::info_attribute_specific)
                                 )
                         )
         );
@@ -789,24 +790,41 @@ public class EditorSubcommand {
 
     private static int attribute_get_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairkattr = getAttribute(ctx);
+        var pairattrk = getKeyframe(ctx);
 
-        Keyframe keyframe = pairkattr.getRight().getExactKeyframe(LongArgumentType.getLong(ctx, "time"));
-        if (keyframe == null) {
-            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cThere's no keyframe at this time."));
-            return 1;
-        }
-
-        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7" + pairkattr.getLeft() + " is §f" + keyframe.getValue() + " §7with easing §e" + Easing.getName(keyframe.getEasing()) + "§7."));
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7" + pairattrk.getLeft() + " is §f" + pairattrk.getRight().getValue() + " §7with easing §e" + Easing.getName(pairattrk.getRight().getEasing()) + "§7."));
         return 1;
     }
 
-    private static int attribute_change_easing(CommandContext<ServerCommandSource> ctx) {
-        return 0;
+    private static int attribute_change_easing(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairattrk = getKeyframe(ctx); // Maybe catch and send PolCinematicsCommand.PREFIX + "§cThere's no keyframe at this time." if null?
+        Easing easing = Easing.fromName(StringArgumentType.getString(ctx, "easing").toUpperCase());
+
+        pairattrk.getRight().setEasing(easing);
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aEasing has been updated to §f" + Easing.getName(easing) + "§a."));
+        return 1;
     }
 
-    private static int attribute_change_value(CommandContext<ServerCommandSource> ctx) {
-        return 0;
+    private static int attribute_change_value(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairattrk = getKeyframe(ctx);
+
+        Object value;
+        try {
+            value = getValue(ctx, pairattrk.getRight().getType());
+        } catch (InvalidValueException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
+            return 1;
+        } catch (IllegalArgumentException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cThere's an issue that shouldn't have happened. Open an issue with your server logs."));
+            e.printStackTrace();
+            return 1;
+        }
+
+        pairattrk.getRight().getValue().setValue(value);
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aValue has been updated to §f" + value + "§a."));
+        return 1;
     }
 
     private static int move_composition_timeline_time(CommandContext<ServerCommandSource> ctx) {
@@ -884,6 +902,18 @@ public class EditorSubcommand {
             throw PolCinematicsCommand.INVALID_ATTRIBUTE.create();
 
         return new Pair<>(attributeKey, attr);
+    }
+
+    private static Pair<Long, Keyframe> getKeyframe(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var pairkattr = getAttribute(context);
+        long time = LongArgumentType.getLong(context, "time");
+
+        Keyframe keyframe = pairkattr.getRight().getExactKeyframe(LongArgumentType.getLong(context, "time"));
+
+        if (keyframe == null)
+            throw PolCinematicsCommand.INVALID_KEYFRAME.create();
+
+        return new Pair<>(time, keyframe);
     }
 
     private static Object getValue(CommandContext<ServerCommandSource> ctx, EValueType valueType) throws InvalidValueException {
