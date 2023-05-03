@@ -103,7 +103,7 @@ public class Timeline {
 
     public WrappedComposition findWrappedComposition(String name) {
         for (WrappedComposition wc : compositions) {
-            if (wc.getComposition().getName().equals(name)) {
+            if (wc.getComposition().getName().equals(name) || wc.getComposition().getUuid().toString().equals(name)) {
                 return wc;
             }
         }

@@ -1,5 +1,6 @@
 package dev.polv.polcinematics.commands.suggetions;
 
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -9,9 +10,14 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
+import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
+import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
 import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
+import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -26,6 +32,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         PROPERTY_VALUE,
         ATTRIBUTE_KEYS,
         ATTRIBUTE_VALUE,
+        ATTRIBUTE_POSITION,
     }
 
     private final SuggestionType type;
@@ -65,8 +72,10 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         }
 
         if (type == SuggestionType.COMPOSITION) {
-            getCompositionNames(timeline).forEach(builder::suggest);
-            getCompositionUuids(timeline).forEach(builder::suggest);
+            timeline.getWrappedCompositions().forEach(wc -> {
+                builder.suggest(wc.getUUID().toString(), Text.of(wc.getComposition().getName()));
+                builder.suggest(wc.getComposition().getName());
+            });
 
             return builder.buildFuture();
         }
@@ -90,14 +99,53 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return builder.buildFuture();
         }
 
-        return builder.buildFuture();
+        if (type == SuggestionType.ATTRIBUTE_POSITION) {
+            composition.getAttributesList().getAttributes().forEach(attribute -> {
+                attribute.getAllKeyframes().forEach(kf -> builder.suggest(String.valueOf(kf.getTime())));
+            });
+            return builder.buildFuture();
+        }
+
+        if (type == SuggestionType.PROPERTY_VALUE || type == SuggestionType.ATTRIBUTE_VALUE) {
+            EValueType valueType = null;
+
+            if (type == SuggestionType.PROPERTY_VALUE) {
+                String propertyValue = StringArgumentType.getString(context, "property");
+                Value val = composition.getProperty(propertyValue);
+                if (val == null) {
+                    return Suggestions.empty();
+                }
+
+                valueType = val.getType();
+            }
+
+            if (type == SuggestionType.ATTRIBUTE_VALUE) {
+                String attributeKey = StringArgumentType.getString(context, "attribute");
+                Attribute attr = composition.getAttribute(attributeKey);
+                if (attr == null) {
+                    return Suggestions.empty();
+                }
+
+                valueType = attr.getType();
+            }
+
+            switch (valueType) {
+                case CAMERAROT, COLOR, DOUBLE, STRING, INTEGER -> {
+                    return Suggestions.empty();
+                }
+                case CAMERAPOS -> {
+                    return Vec3ArgumentType.vec3().listSuggestions(context, builder);
+                }
+                case BOOLEAN -> {
+                    builder.suggest("true");
+                    builder.suggest("false");
+                }
+            }
+
+            return builder.buildFuture();
+        }
+
+        return Suggestions.empty();
     }
 
-    private static List<String> getCompositionNames(Timeline timeline) {
-        return timeline.getWrappedCompositions().stream().map(wc -> wc.getComposition().getName()).collect(Collectors.toList());
-    }
-
-    private static List<String> getCompositionUuids(Timeline timeline) {
-        return timeline.getWrappedCompositions().stream().map(wc -> wc.getComposition().getUuid().toString()).collect(Collectors.toList());
-    }
 }

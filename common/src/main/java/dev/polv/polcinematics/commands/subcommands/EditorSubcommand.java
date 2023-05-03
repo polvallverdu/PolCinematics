@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
@@ -39,6 +40,7 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.time.Duration;
@@ -68,6 +70,50 @@ public class EditorSubcommand {
 
     private static <T> RequiredArgumentBuilder<ServerCommandSource, T> arg(String name, ArgumentType<T> argumentType) {
         return CommandManager.argument(name, argumentType);
+    }
+
+    private static LiteralArgumentBuilder<ServerCommandSource> arg_value(LiteralArgumentBuilder<ServerCommandSource> l, Command<ServerCommandSource> executor, @Nullable SuggestionProvider<ServerCommandSource> suggestionProvider) {
+        return l
+                .then(
+                        arg("stringValue", StringArgumentType.string())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                ).then(
+                        arg("entityValue", EntityArgumentType.entity())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                ).then(
+                        arg("entitiesValue", EntityArgumentType.entities())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                ).then(
+                        arg("vec3Value", Vec3ArgumentType.vec3())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                )
+                .executes(executor);
+    }
+
+    private static <T> RequiredArgumentBuilder<ServerCommandSource, T> arg_value(RequiredArgumentBuilder<ServerCommandSource, T> arg, Command<ServerCommandSource> executor, @Nullable SuggestionProvider<ServerCommandSource> suggestionProvider) {
+        return arg
+                .then(
+                        arg("stringValue", StringArgumentType.greedyString())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                ).then(
+                        arg("entityValue", EntityArgumentType.entity())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                ).then(
+                        arg("entitiesValue", EntityArgumentType.entities())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                ).then(
+                        arg("vec3Value", Vec3ArgumentType.vec3())
+                                .suggests(suggestionProvider)
+                                .executes(EditorSubcommand::attribute_set)
+                )
+                .executes(executor);
     }
 
     private static RequiredArgumentBuilder<ServerCommandSource, String> arg_timeline_composition(Command<ServerCommandSource> executor) {
@@ -211,27 +257,11 @@ public class EditorSubcommand {
                                         arg("property", StringArgumentType.word())
                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.PROPERTY_KEYS))
                                                 .then(
-                                                        l("set")
-                                                                .then(
-                                                                        arg("entityValue", EntityArgumentType.entity())
-                                                                                .executes(EditorSubcommand::property_set)
-                                                                ).then(
-                                                                        arg("entitiesValue", EntityArgumentType.entities())
-                                                                                .executes(EditorSubcommand::property_set)
-                                                                ).then(
-                                                                        arg("stringValue", StringArgumentType.greedyString())
-                                                                                .executes(EditorSubcommand::property_set)
-                                                                ).then(
-                                                                        arg("intValue", IntegerArgumentType.integer())
-                                                                                .executes(EditorSubcommand::property_set)
-                                                                ).then(
-                                                                        arg("floatValue", DoubleArgumentType.doubleArg())
-                                                                                .executes(EditorSubcommand::property_set)
-                                                                ).then(
-                                                                        arg("vec3Value", Vec3ArgumentType.vec3())
-                                                                                .executes(EditorSubcommand::property_set)
-                                                                )
-                                                                .executes(EditorSubcommand::property_set)
+                                                        arg_value(
+                                                                l("set"),
+                                                                EditorSubcommand::property_set,
+                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.PROPERTY_VALUE)
+                                                        )
                                                 )
                                                 .then(
                                                         l("get")
@@ -251,31 +281,38 @@ public class EditorSubcommand {
                                                 .then(
                                                         l("set")
                                                                 .then(
-                                                                        arg("entityValue", EntityArgumentType.entity())
+                                                                        arg("time", LongArgumentType.longArg(0)).then(
+                                                                                arg_value(
+                                                                                        arg("easing", StringArgumentType.word())
+                                                                                                .suggests(new EasingSuggestion()),
+                                                                                        EditorSubcommand::attribute_set,
+                                                                                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
+                                                                                )
+                                                                        )
+                                                                )
+                                                )
+                                                .then(
+                                                        l("change")
+                                                                .then(
+                                                                        l("easing")
                                                                                 .then(
-                                                                                        arg("time", LongArgumentType.longArg(0)).then(
-                                                                                                arg("easing", StringArgumentType.word())
-                                                                                                        .suggests(new EasingSuggestion())
-                                                                                                        .then(
-                                                                                                                arg("stringValue", StringArgumentType.greedyString())
-                                                                                                                        .executes(EditorSubcommand::attribute_set)
-                                                                                                        ).then(
-                                                                                                                arg("entityValue", EntityArgumentType.entity())
-                                                                                                                        .executes(EditorSubcommand::attribute_set)
-                                                                                                        ).then(
-                                                                                                                arg("entitiesValue", EntityArgumentType.entities())
-                                                                                                                        .executes(EditorSubcommand::attribute_set)
-                                                                                                        ).then(
-                                                                                                                arg("intValue", IntegerArgumentType.integer())
-                                                                                                                        .executes(EditorSubcommand::attribute_set)
-                                                                                                        ).then(
-                                                                                                                arg("floatValue", DoubleArgumentType.doubleArg())
-                                                                                                                        .executes(EditorSubcommand::attribute_set)
-                                                                                                        ).then(
-                                                                                                                arg("vec3Value", Vec3ArgumentType.vec3())
-                                                                                                                        .executes(EditorSubcommand::attribute_set)
-                                                                                                        )
-                                                                                                        .executes(EditorSubcommand::attribute_set)
+                                                                                        arg("time_position", LongArgumentType.longArg(0))
+                                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION))
+                                                                                                .then(
+                                                                                                        arg("easing", StringArgumentType.word())
+                                                                                                                .suggests(new EasingSuggestion())
+                                                                                                                .executes(EditorSubcommand::attribute_change_easing)
+                                                                                                )
+                                                                                )
+                                                                )
+                                                                .then(
+                                                                        l("value")
+                                                                                .then(
+                                                                                        arg_value(
+                                                                                                arg("time_position", LongArgumentType.longArg(0))
+                                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION)),
+                                                                                                EditorSubcommand::attribute_change_value,
+                                                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
                                                                                         )
                                                                                 )
                                                                 )
@@ -286,6 +323,54 @@ public class EditorSubcommand {
                                                 )
                                                 .executes(EditorSubcommand::attribute_get)
                                 )
+                        )
+        );
+
+        editorBuilder.then(
+                l("move")
+                        .then(
+                                l("composition")
+                                        .then(
+                                                arg_timeline_composition(
+                                                        arg("timeline", StringArgumentType.word())
+                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+                                                                .then(
+                                                                        l("timeline")
+                                                                                .then(
+                                                                                        arg("newtimeline", StringArgumentType.word())
+                                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+                                                                                                .then(
+                                                                                                        arg("newtime", LongArgumentType.longArg(0))
+                                                                                                                .executes(EditorSubcommand::move_composition_timeline_time)
+                                                                                                )
+                                                                                                .executes(EditorSubcommand::move_composition_timeline)
+                                                                                )
+                                                                )
+                                                                .then(
+                                                                        l("startTime").then(
+                                                                                arg("newtime", LongArgumentType.longArg(0))
+                                                                                        .executes(EditorSubcommand::move_composition_time)
+                                                                        )
+                                                                )
+                                                )
+                                        )
+                        )
+                        .then(
+                                l("timeline")
+                                        .then(
+                                                l("up")
+                                                        .then(
+                                                                arg("positions", IntegerArgumentType.integer(1))
+                                                                        .executes((ctx) -> EditorSubcommand.move_timeline(ctx, true))
+                                                        )
+                                        )
+                                        .then(
+                                                l("down")
+                                                        .then(
+                                                                arg("positions", IntegerArgumentType.integer(1))
+                                                                        .executes((ctx) -> EditorSubcommand.move_timeline(ctx, false))
+                                                        )
+                                        )
                         )
         );
 
@@ -419,7 +504,7 @@ public class EditorSubcommand {
         message.append("§fEnd time: §7").append(endTime).append("\n\n");
 
         message.append("§fType: §7").append(ctype.getName()).append("\n");
-        message.append("§fSubtype: §7").append(subtype == null ? "None" : subtype.getName()).append("\n");
+        message.append("§fSubtype: §7").append(subtype == null ? "None" : subtype.getName()).append("\n\n");
 
 
         message.append("§a§lProperties").append("\n");
@@ -512,13 +597,13 @@ public class EditorSubcommand {
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineArg + " " + wc.getUUID().toString()))
             );
-            MutableText duration = Text.literal(" [DURATION]").setStyle(
+            MutableText duration = Text.literal(" [DURATION] ").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GREEN)
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce duration composition " + timelineArg + " " + wc.getUUID().toString() + " "))
             );
-            MutableText delete = Text.literal(" [DELETE]").setStyle(
+            MutableText delete = Text.literal("[DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
@@ -528,7 +613,7 @@ public class EditorSubcommand {
 
             player.sendMessage(
                     Text
-                            .literal("§f" + wc.getStartTime() + "/" + wc.getFinishTime() + " §7- §e" + composition.getName() + " §7- §6" + (composition.getSubtype() != null ? composition.getSubtype().getName() : composition.getType().getName()))
+                            .literal("§f" + wc.getStartTime() + "ms -> " + wc.getFinishTime() + "ms §7- §e" + composition.getName() + " §7- §6" + (composition.getSubtype() != null ? composition.getSubtype().getName() : composition.getType().getName()))
                             .append(info)
                             .append(duration)
                             .append(delete)
@@ -558,13 +643,13 @@ public class EditorSubcommand {
         player.sendMessage(Text.of(message.toString()));
 
         timelines.forEach(timeline -> {
-            MutableText info = Text.literal(" [INFO]").setStyle(
+            MutableText info = Text.literal(" [INFO] ").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timeline))
             );
-            MutableText delete = Text.literal(" [DELETE]").setStyle(
+            MutableText delete = Text.literal("[DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
@@ -609,7 +694,7 @@ public class EditorSubcommand {
             return 1;
         }
 
-        player.sendMessage(Text.of("§aComposition time has been updated to §f" + newDuration + " §amilliseconds."));
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition time has been updated to §f" + newDuration + " §amilliseconds."));
         return 1;
     }
 
@@ -617,7 +702,7 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairtc = getComposition(ctx);
 
-        player.sendMessage(Text.of("§aComposition time is §f" + pairtc.getRight().getDuration() + " §amilliseconds."));
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition time is §f" + pairtc.getRight().getDuration() + " §amilliseconds."));
         return 1;
     }
 
@@ -629,11 +714,35 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int attribute_set(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
+    private static int attribute_set(CommandContext<ServerCommandSource> ctx) {
         return 1;
     }
 
-    private static int attribute_get(CommandContext<ServerCommandSource> serverCommandSourceCommandContext) {
+    private static int attribute_get(CommandContext<ServerCommandSource> ctx) {
+        return 1;
+    }
+
+    private static int attribute_change_easing(CommandContext<ServerCommandSource> ctx) {
+        return 0;
+    }
+
+    private static int attribute_change_value(CommandContext<ServerCommandSource> ctx) {
+        return 0;
+    }
+
+    private static int move_composition_timeline_time(CommandContext<ServerCommandSource> ctx) {
+        return 1;
+    }
+
+    private static int move_composition_timeline(CommandContext<ServerCommandSource> ctx) {
+        return 1;
+    }
+
+    private static int move_composition_time(CommandContext<ServerCommandSource> ctx) {
+        return 1;
+    }
+
+    private static int move_timeline(CommandContext<ServerCommandSource> ctx, boolean isUp) {
         return 1;
     }
 
@@ -665,17 +774,8 @@ public class EditorSubcommand {
     private static Pair<Timeline, Timeline.WrappedComposition> getComposition(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Cinematic cinematic = getCinematic(context.getSource().getPlayerOrThrow());
 
-        String stringUUID = StringArgumentType.getString(context, "composition");
-        stringUUID = stringUUID.substring(stringUUID.length() - 37, stringUUID.length() - 1);
-
-        UUID compoUUID;
-        try {
-            compoUUID = UUID.fromString(stringUUID);
-        } catch (IllegalArgumentException e) {
-            throw PolCinematicsCommand.INVALID_UUID.create();
-        }
-
-        var pair = cinematic.getTimelineAndWrappedComposition(compoUUID);
+        String compoQuery = StringArgumentType.getString(context, "composition");
+        var pair = cinematic.getTimelineAndWrappedComposition(compoQuery);
 
         if (pair == null)
             throw PolCinematicsCommand.INVALID_COMPOSITION.create();
@@ -683,43 +783,130 @@ public class EditorSubcommand {
         return pair;
     }
 
-    private static Object getValue(CommandContext<ServerCommandSource> ctx, EValueType valueType) throws InvalidCommandValueException {
-        String value = StringArgumentType.getString(ctx, "value");
+    private static Pair<Timeline.WrappedComposition, Value> getProperty(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var pairtc = getComposition(context);
+        String propertyKey = StringArgumentType.getString(context, "property");
+
+        Value value = pairtc.getRight().getComposition().getProperty(propertyKey);
+
+        if (value == null)
+            throw PolCinematicsCommand.INVALID_PROPERTY.create();
+
+        return new Pair<>(pairtc.getRight(), value);
+    }
+
+    private static Pair<Timeline.WrappedComposition, Attribute> getAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var pairtc = getComposition(context);
+        String attributeKey = StringArgumentType.getString(context, "attribute");
+
+        Attribute attr = pairtc.getRight().getComposition().getAttribute(attributeKey);
+
+        if (attr == null)
+            throw PolCinematicsCommand.INVALID_ATTRIBUTE.create();
+
+        return new Pair<>(pairtc.getRight(), attr);
+    }
+
+    private static Object getValue(CommandContext<ServerCommandSource> ctx, EValueType valueType) throws InvalidValueException {
+        /*
+        stringValue
+        entityValue
+        entitiesValue
+        vec3Value
+         */
 
         try {
             switch (valueType) {
                 case CAMERAPOS -> {
-                    Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "value");
-                    return new CameraPos(vec3d.x, vec3d.y, vec3d.z);
+                    try {
+                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "value");
+                        return new CameraPos(vec3d.x, vec3d.y, vec3d.z);
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidValueException("Invalid position");
+                    }
                 }
                 case CAMERAROT -> {
-                    // value should be three floats separated by spaces
-                    String[] values = value.split(" ");
-                    if (values.length != 3) {
-                        throw new InvalidCommandValueException("Invalid number of arguments for CameraRot");
+                    try {
+                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "value");
+                        return new CameraRot((float) vec3d.x, (float) vec3d.y, (float) vec3d.z);
+                    } catch (IllegalArgumentException ignore) {}
+
+                    String value;
+                    try {
+                        value = StringArgumentType.getString(ctx, "value");
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidValueException("Invalid rotation");
                     }
 
-                    return new CameraRot(Float.parseFloat(values[0]), Float.parseFloat(values[1]), Float.parseFloat(values[2]));
+                    String[] values = value.split(" ");
+                    if (values.length != 3) {
+                        throw new InvalidValueException("Invalid rotation. There's only three rotations: pitch, yaw, roll");
+                    }
+
+                    float[] rotations;
+                    try {
+                        rotations = new float[]{
+                                Float.parseFloat(values[0]),
+                                Float.parseFloat(values[1]),
+                                Float.parseFloat(values[2])
+                        };
+                    } catch (NumberFormatException e) {
+                        throw new InvalidValueException("Invalid number format.");
+                    }
+
+                    return new CameraRot(rotations[0], rotations[1], rotations[2]);
                 }
                 case DOUBLE -> {
-                    return Double.parseDouble(value);
+                    try {
+                        return Double.parseDouble(StringArgumentType.getString(ctx, "value"));
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidValueException("Invalid double value");
+                    }
                 }
                 case INTEGER -> {
-                    return Integer.parseInt(value);
+                    try {
+                        return Integer.parseInt(StringArgumentType.getString(ctx, "value"));
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidValueException("Invalid integer value");
+                    }
                 }
                 case BOOLEAN -> {
-                    value = value.toLowerCase();
-                    if (value.equals("true") || value.equals("false")) {
-                        return Boolean.parseBoolean(value);
-                    } else {
-                        throw new InvalidCommandValueException("Invalid boolean value");
+                    try {
+                        String value = StringArgumentType.getString(ctx, "value");
+                        if (value.equals("true") || value.equals("false")) {
+                            return Boolean.parseBoolean(value);
+                        } else {
+                            throw new IllegalArgumentException("Invalid boolean value");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidValueException("Invalid boolean value");
                     }
                 }
                 case COLOR -> {
-                    return ColorUtils.getColor(Color.decode(value));
+                    String colorHex;
+                    try {
+                        colorHex = StringArgumentType.getString(ctx, "value");
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidValueException("Invalid color");
+                    }
+
+                    if (!colorHex.startsWith("#")) {
+                        throw new InvalidValueException("Invalid color. Color must start with #");
+                    }
+
+                    try {
+                        Color color = Color.decode(colorHex);
+                        return ColorUtils.getColor(color);
+                    } catch (NumberFormatException e) {
+                        throw new InvalidValueException("Invalid color. Color must be in hex format");
+                    }
                 }
                 case STRING -> {
-                    return value;
+                    try {
+                        return StringArgumentType.getString(ctx, "value");
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidValueException("Invalid string value. If you think it is still a string, wrap it with \"<your string>\"");
+                    }
                 }
                 default -> throw new InvalidCommandValueException("Invalid value type");
             }
