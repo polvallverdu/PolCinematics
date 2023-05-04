@@ -164,25 +164,35 @@ public class Timeline {
         this.sort();
     }
 
-    public void move(UUID compositionUUID, long startTimeDifference) {
+    public boolean canMove(WrappedComposition composition, long starttime) {
+        for (WrappedComposition wc : compositions) {
+            if (!wc.equals(composition) && starttime < wc.getFinishTime() && starttime + composition.getDuration() > wc.getStartTime()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void canMoveThrows(WrappedComposition composition, long starttime) throws OverlapException {
+        for (WrappedComposition wc : compositions) {
+            if (!wc.equals(composition) && starttime < wc.getFinishTime() && starttime + composition.getDuration() > wc.getStartTime()) {
+                throw new OverlapException(composition, wc);
+            }
+        }
+    }
+
+    public void move(UUID compositionUUID, long startTimeDifference) throws OverlapException {
         this.move(List.of(compositionUUID), startTimeDifference);
     }
 
-    public void move(List<UUID> compositions, long startTimeDifference) {
+    public void move(List<UUID> compositions, long startTimeDifference) throws OverlapException {
         // Check if composition could be overlapping another one, if not, change start time
         for (WrappedComposition wc : this.compositions) {
             for (UUID uuid : compositions) {
                 if (wc.getUUID().equals(uuid)) {
                     long newStartTime = wc.getStartTime() + startTimeDifference;
-                    boolean change = true;
-                    for (WrappedComposition wc1 : this.compositions) {
-                        if (!wc1.getUUID().equals(uuid) && newStartTime < wc1.getFinishTime() && newStartTime + wc.getDuration() > wc1.getStartTime()) {
-                            change = false;
-                        }
-                    }
-                    if (change) {
-                        wc.setStartTime(newStartTime);
-                    }
+                    canMoveThrows(wc, newStartTime);
+                    wc.setStartTime(newStartTime);
                 }
             }
         }

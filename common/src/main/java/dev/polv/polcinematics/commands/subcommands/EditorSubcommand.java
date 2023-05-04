@@ -367,7 +367,7 @@ public class EditorSubcommand {
                                                                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
                                                                                                 .then(
                                                                                                         arg("newtime", LongArgumentType.longArg(0))
-                                                                                                                .executes(EditorSubcommand::move_composition_timeline_time)
+                                                                                                                .executes(EditorSubcommand::move_composition_timeline)
                                                                                                 )
                                                                                                 .executes(EditorSubcommand::move_composition_timeline)
                                                                                 )
@@ -827,19 +827,60 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int move_composition_timeline_time(CommandContext<ServerCommandSource> ctx) {
+    private static int move_composition_timeline(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        Cinematic cinematic = getCinematic(player);
+        var pairtc = getComposition(ctx);
+        Timeline newtimeline = cinematic.resolveTimeline(StringArgumentType.getString(ctx, "newtimeline"));
+        long newtime = pairtc.getRight().getStartTime();
+
+        try {
+            newtime = LongArgumentType.getLong(ctx, "newtime");
+        } catch (Exception ignore) {}
+
+        if (newtimeline == null)
+            throw PolCinematicsCommand.INVALID_TIMELINE.create();
+
+        try {
+            cinematic.moveComposition(pairtc.getRight(), pairtc.getLeft(), newtimeline, newtime);
+        } catch (OverlapException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
+            return 1;
+        }
+
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline has been moved."));
         return 1;
     }
 
-    private static int move_composition_timeline(CommandContext<ServerCommandSource> ctx) {
+    private static int move_composition_time(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairtc = getComposition(ctx);
+        Timeline timeline = pairtc.getLeft();
+        long newtime = LongArgumentType.getLong(ctx, "newtime");
+
+        try {
+            timeline.move(pairtc.getRight().getUUID(), newtime);
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline has been moved."));
+        } catch (OverlapException e) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
+        }
+
         return 1;
     }
 
-    private static int move_composition_time(CommandContext<ServerCommandSource> ctx) {
-        return 1;
-    }
+    private static int move_timeline(CommandContext<ServerCommandSource> ctx, boolean isUp) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        var pairct = getTimeline(ctx);
+        int positions = IntegerArgumentType.getInteger(ctx, "positions");
 
-    private static int move_timeline(CommandContext<ServerCommandSource> ctx, boolean isUp) {
+        Cinematic cinematic = pairct.getLeft();
+        if (!cinematic.canMove(pairct.getRight(), positions, isUp)) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't move this timeline here."));
+        } else {
+            cinematic.moveTimeline(pairct.getRight(), positions, isUp);
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline has been moved."));
+        }
+
         return 1;
     }
 

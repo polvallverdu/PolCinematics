@@ -9,6 +9,7 @@ import dev.polv.polcinematics.cinematic.compositions.core.CameraTimeline;
 import dev.polv.polcinematics.cinematic.compositions.core.Composition;
 import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
+import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Pair;
@@ -62,6 +63,42 @@ public class Cinematic {
      */
     public void removeTimeline(Timeline timeline) {
         this.timelines.remove(timeline);
+    }
+
+    public boolean canMove(Timeline timeline, int positions, boolean isUp) {
+        int index = this.timelines.indexOf(timeline);
+        if (isUp) {
+            index -= positions;
+        } else {
+            index += positions;
+        }
+        return index >= 0 && index < this.timelines.size();
+    }
+
+    public void moveTimeline(Timeline timeline, int positions, boolean isUp) {
+        int index = this.timelines.indexOf(timeline);
+        if (isUp) {
+            index -= positions;
+        } else {
+            index += positions;
+        }
+        this.timelines.remove(timeline);
+        this.timelines.add(index, timeline);
+    }
+
+    /**
+     * Moves a composition from one timeline to another, and changes its start time
+     *
+     * @param composition The {@link dev.polv.polcinematics.cinematic.compositions.core.Timeline.WrappedComposition} to move
+     * @param oldTimeline The {@link Timeline} the composition is currently in
+     * @param newTimeline The {@link Timeline} to move the composition to
+     * @param newtime The new start time of the composition
+     * @throws OverlapException If the composition overlaps with another composition in the new timeline
+     */
+    public void moveComposition(Timeline.WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException {
+        newTimeline.canMoveThrows(composition, newtime);
+        oldTimeline.remove(composition);
+        newTimeline.add(composition.getComposition(), newtime);
     }
 
     /**
