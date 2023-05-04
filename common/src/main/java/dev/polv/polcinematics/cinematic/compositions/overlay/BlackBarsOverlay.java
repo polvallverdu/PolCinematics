@@ -23,7 +23,8 @@ public class BlackBarsOverlay extends OverlayComposition {
     @Override
     public void tick(MatrixStack MatrixStack, long time) {
         int maxHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
-        int sizeMultiplier = (int) this.getAttribute("SIZE").getValue(time);
+        double sizeMultiplier = (double) this.getAttribute("SIZE").getValue(time);
+        sizeMultiplier = Math.max(0.0, Math.min(1.0, sizeMultiplier));
         int barHeight = (int) (maxHeight*0.5*sizeMultiplier);
 
         int color = ColorUtils.getColor((Color) this.getAttribute("COLOR").getValue(time));

@@ -130,14 +130,14 @@ public class Cinematic {
     }
 
     /**
-     * @return The {@link Timeline} at the given index
+     * @return The {@link Timeline} at the given index (starts at 1)
      */
     public Timeline resolveTimeline(String index) {
         if (index.equals("camera")) {
             return this.cameraTimeline;
         }
         try {
-            return this.timelines.get(Integer.parseInt(index));
+            return this.timelines.get(Integer.parseInt(index)-1);
         } catch (NumberFormatException e) {
             return null;
         }

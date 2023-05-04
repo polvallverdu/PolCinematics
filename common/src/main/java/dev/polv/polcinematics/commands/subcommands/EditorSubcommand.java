@@ -242,9 +242,9 @@ public class EditorSubcommand {
                                                     )
                                     )
                                     .then(
-                                            l("get").executes(EditorSubcommand::duration_composition_get)
+                                            l("get").executes(EditorSubcommand::duration_cinematic_get)
                                     )
-                                    .executes(EditorSubcommand::duration_composition_get)
+                                    .executes(EditorSubcommand::duration_cinematic_get)
                     )
                     .then(
                             l("composition")
@@ -281,6 +281,23 @@ public class EditorSubcommand {
                         )
         );
 
+        var set_with_easing = l("easing").then(
+                arg("easing", StringArgumentType.word())
+                        .suggests(new EasingSuggestion()).then(
+                                arg_value(
+                                        arg("time", LongArgumentType.longArg(0)),
+                                        EditorSubcommand::attribute_set,
+                                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
+                                )
+                        )
+        );
+        var set_normal = l("not_easing").then(
+                arg_value(
+                        arg("time", LongArgumentType.longArg(0)),
+                        EditorSubcommand::attribute_set,
+                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
+                )
+        );
         editorBuilder.then(
                 l("attribute")
                         .then(
@@ -288,30 +305,25 @@ public class EditorSubcommand {
                                         arg("attribute", StringArgumentType.word())
                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_KEYS))
                                                 .then(
-                                                        l("set_easing")
-                                                                .then(
-                                                                        arg("time", LongArgumentType.longArg(0)).then(
-                                                                                arg_value(
-                                                                                        arg("easing", StringArgumentType.word())
-                                                                                                .suggests(new EasingSuggestion()),
-                                                                                        EditorSubcommand::attribute_set,
-                                                                                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
-                                                                                )
-                                                                        )
-                                                                )
-                                                )
-                                                .then(
                                                         l("set")
                                                                 .then(
-                                                                        arg_value(
-                                                                                arg("time", LongArgumentType.longArg(0)),
-                                                                                EditorSubcommand::attribute_set,
-                                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
-                                                                        )
+                                                                        set_with_easing
+                                                                )
+                                                                .then(
+                                                                        set_normal
                                                                 )
                                                 )
                                                 .then(
-                                                        l("change")
+                                                        l("add")
+                                                                .then(
+                                                                        set_with_easing
+                                                                )
+                                                                .then(
+                                                                        set_normal
+                                                                )
+                                                )
+                                                .then(
+                                                        l("modify")
                                                                 .then(
                                                                         l("easing")
                                                                                 .then(
@@ -320,7 +332,7 @@ public class EditorSubcommand {
                                                                                                 .then(
                                                                                                         arg("easing", StringArgumentType.word())
                                                                                                                 .suggests(new EasingSuggestion())
-                                                                                                                .executes(EditorSubcommand::attribute_change_easing)
+                                                                                                                .executes(EditorSubcommand::attribute_modify_easing)
                                                                                                 )
                                                                                 )
                                                                 )
@@ -330,7 +342,7 @@ public class EditorSubcommand {
                                                                                         arg_value(
                                                                                                 arg("time", LongArgumentType.longArg(0))
                                                                                                         .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION)),
-                                                                                                EditorSubcommand::attribute_change_value,
+                                                                                                EditorSubcommand::attribute_modify_value,
                                                                                                 new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
                                                                                         )
                                                                                 )
@@ -573,6 +585,8 @@ public class EditorSubcommand {
         Timeline.WrappedComposition wrappedComposition = pairtc.getRight();
         Composition composition = wrappedComposition.getComposition();
 
+        String timelineName = StringArgumentType.getString(ctx, "timeline");
+
         String key = StringArgumentType.getString(ctx, "attribute");
         Attribute attribute = composition.getAttributesList().getAttribute(key);
 
@@ -581,24 +595,24 @@ public class EditorSubcommand {
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            //.withClickEvent() TODO: PUT CHANGE COMMAND
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce attribute " + timelineName + " " + composition.getUuid() + " " + attribute.getName() + " modify value " + keyframe.getTime() + " "))
             );
             MutableText easing = Text.literal(" [EASING]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GOLD)
                             .withBold(true)
-                    //.withClickEvent() TODO: PUT CHANGE COMMAND
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce attribute " + timelineName + " " + composition.getUuid() + " " + attribute.getName() + " modify easing " + keyframe.getTime() + " "))
             );
             MutableText delete = Text.literal(" [DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                    //.withClickEvent() TODO: PUT CHANGE COMMAND
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce attribute " + timelineName + " " + composition.getUuid() + " " + attribute.getName() + " delete " + keyframe.getTime()))
             );
 
             player.sendMessage(
                     Text
-                            .literal("§f" + keyframe.getTime() + " §7- §6" + keyframe.getValue() + " §8- " + Easing.getName(keyframe.getEasing()))
+                            .literal("§f" + keyframe.getTime() + " §7- §6" + keyframe.getValue().getValue() + " §8- " + Easing.getName(keyframe.getEasing()))
                             .append(change)
                             .append(easing)
                             .append(delete)
@@ -706,6 +720,14 @@ public class EditorSubcommand {
         return 1;
     }
 
+    private static int duration_cinematic_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        Cinematic cinematic = getCinematic(player);
+
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Cinematic duration is §f" + cinematic.getDuration().toMillis() + " §7milliseconds."));
+        return 1;
+    }
+
     private static int duration_composition_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairtc = getComposition(ctx);
@@ -796,7 +818,7 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int attribute_change_easing(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int attribute_modify_easing(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairattrk = getKeyframe(ctx); // Maybe catch and send PolCinematicsCommand.PREFIX + "§cThere's no keyframe at this time." if null?
         Easing easing = Easing.fromName(StringArgumentType.getString(ctx, "easing").toUpperCase());
@@ -806,7 +828,7 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int attribute_change_value(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int attribute_modify_value(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairattrk = getKeyframe(ctx);
 
@@ -900,7 +922,7 @@ public class EditorSubcommand {
         Cinematic cinematic = getCinematic(context.getSource().getPlayerOrThrow());
 
         String timelineName = StringArgumentType.getString(context, "timeline");
-        Timeline timeline = timelineName.equals("camera") ? cinematic.getCameraTimeline() : cinematic.getTimeline(Integer.parseInt(timelineName));
+        Timeline timeline = cinematic.resolveTimeline(timelineName);
 
         if (timeline == null) {
             throw PolCinematicsCommand.INVALID_TIMELINE.create();
@@ -969,7 +991,7 @@ public class EditorSubcommand {
             switch (valueType) {
                 case CAMERAPOS -> {
                     try {
-                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "value");
+                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "vec3Value");
                         return new CameraPos(vec3d.x, vec3d.y, vec3d.z);
                     } catch (IllegalArgumentException e) {
                         throw new InvalidValueException("Invalid position");
@@ -977,13 +999,13 @@ public class EditorSubcommand {
                 }
                 case CAMERAROT -> {
                     try {
-                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "value");
+                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "vec3Value");
                         return new CameraRot((float) vec3d.x, (float) vec3d.y, (float) vec3d.z);
                     } catch (IllegalArgumentException ignore) {}
 
                     String value;
                     try {
-                        value = StringArgumentType.getString(ctx, "value");
+                        value = StringArgumentType.getString(ctx, "stringValue");
                     } catch (IllegalArgumentException e) {
                         throw new InvalidValueException("Invalid rotation");
                     }
@@ -1008,21 +1030,21 @@ public class EditorSubcommand {
                 }
                 case DOUBLE -> {
                     try {
-                        return Double.parseDouble(StringArgumentType.getString(ctx, "value"));
+                        return Double.parseDouble(StringArgumentType.getString(ctx, "stringValue"));
                     } catch (IllegalArgumentException e) {
                         throw new InvalidValueException("Invalid double value");
                     }
                 }
                 case INTEGER -> {
                     try {
-                        return Integer.parseInt(StringArgumentType.getString(ctx, "value"));
+                        return Integer.parseInt(StringArgumentType.getString(ctx, "stringValue"));
                     } catch (IllegalArgumentException e) {
                         throw new InvalidValueException("Invalid integer value");
                     }
                 }
                 case BOOLEAN -> {
                     try {
-                        String value = StringArgumentType.getString(ctx, "value");
+                        String value = StringArgumentType.getString(ctx, "stringValue");
                         if (value.equals("true") || value.equals("false")) {
                             return Boolean.parseBoolean(value);
                         } else {
@@ -1035,7 +1057,7 @@ public class EditorSubcommand {
                 case COLOR -> {
                     String colorHex;
                     try {
-                        colorHex = StringArgumentType.getString(ctx, "value");
+                        colorHex = StringArgumentType.getString(ctx, "stringValue");
                     } catch (IllegalArgumentException e) {
                         throw new InvalidValueException("Invalid color");
                     }
@@ -1053,7 +1075,7 @@ public class EditorSubcommand {
                 }
                 case STRING -> {
                     try {
-                        return StringArgumentType.getString(ctx, "value");
+                        return StringArgumentType.getString(ctx, "stringValue");
                     } catch (IllegalArgumentException e) {
                         throw new InvalidValueException("Invalid string value. If you think it is still a string, wrap it with \"<your string>\"");
                     }
