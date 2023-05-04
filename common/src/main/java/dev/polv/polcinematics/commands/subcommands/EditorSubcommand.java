@@ -658,7 +658,7 @@ public class EditorSubcommand {
         Duration duration = cinematic.getDuration();
         ArrayList<String> timelines = Lists.newArrayList("camera");
         for (int i = 0; i < cinematic.getTimelineCount(); i++) {
-            timelines.add(String.valueOf(i));
+            timelines.add(String.valueOf(i+1));
         }
 
         StringBuilder message = new StringBuilder(BOTTOM_LINE);
