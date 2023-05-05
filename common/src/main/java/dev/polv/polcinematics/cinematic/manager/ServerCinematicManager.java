@@ -1,6 +1,8 @@
 package dev.polv.polcinematics.cinematic.manager;
 
 import com.google.gson.JsonObject;
+import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.platform.Platform;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
@@ -37,6 +39,14 @@ public class ServerCinematicManager {
 
         this.loadedCinematics = new ArrayList<>();
         this.fileCinematicsCache = new ArrayList<>();
+
+        LifecycleEvent.SERVER_STOPPING.register(server -> {
+            this.running = false;
+            new ArrayList<>(this.loadedCinematics).forEach((c) -> unloadCinematic(c.getUuid()));
+        });
+        PlayerEvent.PLAYER_JOIN.register(player -> {
+            // TODO: SEND CINEMATICS TO PLAYER
+        });
 
         new ServerPacketHandler();
     }
