@@ -2,6 +2,8 @@ package dev.polv.polcinematics.client;
 
 import com.google.gson.JsonObject;
 import dev.architectury.event.events.client.ClientGuiEvent;
+import dev.architectury.event.events.client.ClientLifecycleEvent;
+import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
@@ -24,6 +26,12 @@ public class ClientCinematicManager {
     public ClientCinematicManager() {
         ClientTickEvent.CLIENT_PRE.register((Minecraft) -> this.tick());
         ClientGuiEvent.RENDER_HUD.register((MatrixStack, tickDelta) -> this.tickOverlay(MatrixStack));
+
+        ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {
+            this.stop();
+            this.loadedCinematic = null;
+        });
+
         new ClientPacketHandler();
     }
 
