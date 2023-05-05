@@ -20,24 +20,6 @@ import java.util.UUID;
 
 public class ServerCinematicManager {
 
-    public static class SimpleCinematic {
-        private final UUID uuid;
-        private final String name;
-
-        public SimpleCinematic(UUID uuid, String name) {
-            this.uuid = uuid;
-            this.name = name;
-        }
-
-        public UUID getUuid() {
-            return uuid;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
     private final File cinematicFolder;
     private final List<Cinematic> loadedCinematics;
     private final List<SimpleCinematic> fileCinematicsCache;
@@ -248,7 +230,7 @@ public class ServerCinematicManager {
      */
     public SimpleCinematic getSimpleCinematic(UUID uuid) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
-            if (cinematic.getUuid().equals(uuid)) {
+            if (cinematic.uuid().equals(uuid)) {
                 return cinematic;
             }
         }
@@ -265,8 +247,8 @@ public class ServerCinematicManager {
      */
     public SimpleCinematic getSimpleCinematic(String nameOrUUID) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
-            if (cinematic.getName().equalsIgnoreCase(nameOrUUID) ||
-                    cinematic.getUuid().toString().replaceAll("-", "").equalsIgnoreCase(nameOrUUID.replace("-", ""))) {
+            if (cinematic.name().equalsIgnoreCase(nameOrUUID) ||
+                    cinematic.uuid().toString().replaceAll("-", "").equalsIgnoreCase(nameOrUUID.replace("-", ""))) {
                 return cinematic;
             }
         }

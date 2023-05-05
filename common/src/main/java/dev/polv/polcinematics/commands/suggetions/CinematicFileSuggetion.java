@@ -20,8 +20,8 @@ public class CinematicFileSuggetion implements SuggestionProvider<ServerCommandS
 
         final String filename = tfilename;
 
-        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().stream().filter(cinematic -> cinematic.getName().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getName()));
-        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().stream().filter(cinematic -> cinematic.getUuid().toString().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getUuid().toString()));
+        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().stream().filter(cinematic -> cinematic.name().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.name()));
+        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().stream().filter(cinematic -> cinematic.uuid().toString().toLowerCase().startsWith(filename.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.uuid().toString()));
 
         return builder.buildFuture();
     }

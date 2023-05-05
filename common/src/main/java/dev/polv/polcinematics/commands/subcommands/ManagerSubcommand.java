@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.manager.ServerCinematicManager;
+import dev.polv.polcinematics.cinematic.manager.SimpleCinematic;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
 import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
@@ -86,11 +86,11 @@ final public class ManagerSubcommand {
     private static int load(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String name = context.getArgument("filename", String.class);
 
-        ServerCinematicManager.SimpleCinematic filename = PolCinematics.CINEMATICS_MANAGER.getSimpleCinematic(name);
+        SimpleCinematic filename = PolCinematics.CINEMATICS_MANAGER.getSimpleCinematic(name);
 
         Cinematic cinematic;
         try {
-            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(filename.getUuid() + ".json");
+            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(filename.uuid() + ".json");
         } catch (InvalidCinematicException e) {
             context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + name + " §cnot found"));
             e.printStackTrace();
@@ -171,16 +171,16 @@ final public class ManagerSubcommand {
         MutableText msg = Text.literal(PolCinematicsCommand.PREFIX + "§7File Cinematics: §f");
 
         PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().forEach(sc -> {
-            boolean isLoaded = PolCinematics.CINEMATICS_MANAGER.isCinematicLoaded(sc.getUuid());
+            boolean isLoaded = PolCinematics.CINEMATICS_MANAGER.isCinematicLoaded(sc.uuid());
 
-            MutableText ctext = Text.literal("§f[" + (isLoaded ? "§aLOADED" : "§cUNLOADED") + "§f] " + sc.getName() + " ");
+            MutableText ctext = Text.literal("§f[" + (isLoaded ? "§aLOADED" : "§cUNLOADED") + "§f] " + sc.name() + " ");
 
             if (isLoaded) {
-                ctext.append(Text.literal("[UNLOAD] ").setStyle(Style.EMPTY.withColor(Formatting.RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm unload " + sc.getName()))));
-                ctext.append(Text.literal("[SELECT] ").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm select " + sc.getName()))));
-                ctext.append(Text.literal("[SAVE]").setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm save " + sc.getName()))));
+                ctext.append(Text.literal("[UNLOAD] ").setStyle(Style.EMPTY.withColor(Formatting.RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm unload " + sc.name()))));
+                ctext.append(Text.literal("[SELECT] ").setStyle(Style.EMPTY.withColor(Formatting.GOLD).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm select " + sc.name()))));
+                ctext.append(Text.literal("[SAVE]").setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm save " + sc.name()))));
             } else {
-                ctext.append(Text.literal("[LOAD]").setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm load " + sc.getUuid()))));
+                ctext.append(Text.literal("[LOAD]").setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cm load " + sc.uuid()))));
             }
 
             msg.append("\n").append(ctext);
