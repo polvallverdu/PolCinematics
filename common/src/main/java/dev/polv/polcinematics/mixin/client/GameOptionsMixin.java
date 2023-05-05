@@ -12,22 +12,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(GameOptions.class)
 public class GameOptionsMixin {
 
-    @Inject(at = @At("HEAD"), method = "getPerspective", cancellable = true)
+    /*@Inject(at = @At("HEAD"), method = "getPerspective", cancellable = true)
     public void injectPerspective(CallbackInfoReturnable<Perspective> cir) {
         if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
 
         var cameracompo = PolCinematicsClient.getCCM().getCameraComposition();
         if (cameracompo == null) return;
 
-            /*switch (camera.getCameraType()) {
+            switch (camera.getCameraType()) {
                 case PLAYER -> {
                     return;
                 }
-            }*/
+            }
 
         if (!(cameracompo instanceof PlayerCameraComposition)) {
             cir.setReturnValue(Perspective.THIRD_PERSON_BACK);
         }
-    }
+    }*/
 
 }

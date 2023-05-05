@@ -2,7 +2,7 @@ package dev.polv.polcinematics.client.players;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import dev.architectury.platform.Platform;
-import dev.polv.polcinematics.client.ClientModules;
+import dev.polv.polcinematics.client.EClientModules;
 import dev.polv.polcinematics.exception.MissingModuleException;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,7 +20,7 @@ public class BrowserView {
 
     private String url;
     private String customCSS = "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }";
-    public static MissingModuleException MISSING_MODULE_EXCEPTION = new MissingModuleException(ClientModules.BROWSER);
+    public static MissingModuleException MISSING_MODULE_EXCEPTION = new MissingModuleException(EClientModules.BROWSER);
 
     public BrowserView(String url) {
         this(url, "");

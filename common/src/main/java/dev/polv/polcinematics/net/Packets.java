@@ -15,6 +15,7 @@ import java.util.UUID;
 public class Packets {
 
     public static Identifier CINEMATIC_BROADCAST_PACKET = generatePacketId("cinematic_broadcast");
+    public static Identifier CINEMATIC_UNBROADCAST_PACKET = generatePacketId("cinematic_unbroadcast");
     public static Identifier CLIENT_READY_CINEMATIC_PACKET = generatePacketId("cinematic_ready");
 
 
@@ -32,9 +33,6 @@ public class Packets {
     public static Identifier MEDIAPLAYER_SET_VOLUME = generatePacketId("mediaplayer_set_volume");
     public static Identifier MEDIAPLAYER_SET_TIME = generatePacketId("mediaplayer_set_time");
 
-
-    public static Identifier CLIENT_EDITOR_OPEN = generatePacketId("editor_open");
-
     private static Identifier generatePacketId(String name) {
         return new Identifier("polcinematics", name);
     }
@@ -46,40 +44,49 @@ public class Packets {
     }
 
     @Environment(EnvType.CLIENT)
-    public static void sendCinematicReady() {
-        NetworkManager.sendToServer(CLIENT_READY_CINEMATIC_PACKET, NetworkUtils.EMPTY_BUFFER);
+    public static void sendCinematicReady(UUID cinematicUuid) {
+        PacketByteBuf buf = NetworkUtils.createBuffer();
+        buf.writeUuid(cinematicUuid);
+        NetworkManager.sendToServer(CLIENT_READY_CINEMATIC_PACKET, buf);
     }
 
-    public static void sendCinematicPlay(List<ServerPlayerEntity> players, boolean paused, long from) {
+    public static void unbroadcastCinematic(UUID cinematicUuid, List<ServerPlayerEntity> players) {
         PacketByteBuf buf = NetworkUtils.createBuffer();
+        buf.writeUuid(cinematicUuid);
+        NetworkManager.sendToPlayers(players, CINEMATIC_UNBROADCAST_PACKET, buf);
+    }
+
+    public static void sendCinematicPlay(List<ServerPlayerEntity> players, UUID cinematicUuid, boolean paused, long from) {
+        PacketByteBuf buf = NetworkUtils.createBuffer();
+        buf.writeUuid(cinematicUuid);
         buf.writeBoolean(paused);
         buf.writeLong(from);
         NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_PLAY_PACKET, buf);
     }
 
-    public static void sendCinematicPause(List<ServerPlayerEntity> players) {
-        NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_PAUSE_PACKET, NetworkUtils.EMPTY_BUFFER);
-    }
-
-    public static void sendCinematicResume(List<ServerPlayerEntity> players) {
-        NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_RESUME_PACKET, NetworkUtils.EMPTY_BUFFER);
-    }
-
-    public static void sendCinematicStop(List<ServerPlayerEntity> players) {
-        NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_STOP_PACKET, NetworkUtils.EMPTY_BUFFER);
-    }
-
-    public static void sendCinematicGoto(List<ServerPlayerEntity> players, long to) {
+    public static void sendCinematicPause(List<ServerPlayerEntity> players, UUID cinematicUuid) {
         PacketByteBuf buf = NetworkUtils.createBuffer();
+        buf.writeUuid(cinematicUuid);
+        NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_PAUSE_PACKET, buf);
+    }
+
+    public static void sendCinematicResume(List<ServerPlayerEntity> players, UUID cinematicUuid) {
+        PacketByteBuf buf = NetworkUtils.createBuffer();
+        buf.writeUuid(cinematicUuid);
+        NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_RESUME_PACKET, buf);
+    }
+
+    public static void sendCinematicStop(List<ServerPlayerEntity> players, UUID cinematicUuid) {
+        PacketByteBuf buf = NetworkUtils.createBuffer();
+        buf.writeUuid(cinematicUuid);
+        NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_STOP_PACKET, buf);
+    }
+
+    public static void sendCinematicGoto(List<ServerPlayerEntity> players, UUID cinematicUuid, long to) {
+        PacketByteBuf buf = NetworkUtils.createBuffer();
+        buf.writeUuid(cinematicUuid);
         buf.writeLong(to);
         NetworkManager.sendToPlayers(players, CLIENT_CINEMATIC_GOTO_PACKET, buf);
-    }
-
-    public static void sendOpenServer(ServerPlayerEntity player) {
-        PacketByteBuf buf = NetworkUtils.createBuffer();
-        String password = UUID.randomUUID().toString().replaceAll("-", "");
-        buf.writeString(password);
-        NetworkManager.sendToPlayer(player, CLIENT_EDITOR_OPEN, buf);
     }
 
     public static void sendMediaPlayerCreate(List<ServerPlayerEntity> players, String url, boolean paused, boolean audioOnly) {

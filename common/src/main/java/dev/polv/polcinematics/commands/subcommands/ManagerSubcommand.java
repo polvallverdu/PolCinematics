@@ -30,14 +30,14 @@ final public class ManagerSubcommand {
     public static LiteralCommandNode<ServerCommandSource> build() {
         LiteralArgumentBuilder<ServerCommandSource> managerArgumentBuilder = CommandManager.literal("manager");
 
-        managerArgumentBuilder.then(CommandManager.literal("select").then(CommandManager.argument("cinematicname", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::select)));
+        managerArgumentBuilder.then(CommandManager.literal("select").then(CommandManager.argument("cinematic", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::select)));
         managerArgumentBuilder.then(CommandManager.literal("load").then(CommandManager.argument("filename", StringArgumentType.string()).suggests(new CinematicFileSuggetion()).executes(ManagerSubcommand::load)));
-        managerArgumentBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematicname", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::unload)));
-        managerArgumentBuilder.then(CommandManager.literal("create").then(CommandManager.argument("cinematicname", StringArgumentType.word()).executes(ManagerSubcommand::create)));
+        managerArgumentBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematic", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::unload)));
+        managerArgumentBuilder.then(CommandManager.literal("create").then(CommandManager.argument("cinematic", StringArgumentType.word()).executes(ManagerSubcommand::create)));
         managerArgumentBuilder.then(
                 CommandManager.literal("save")
                         .then(
-                                CommandManager.argument("cinematicname", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::save)
+                                CommandManager.argument("cinematic", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::save)
                         )
                         .executes(ManagerSubcommand::save)
         );
@@ -53,7 +53,7 @@ final public class ManagerSubcommand {
 
     private static int select(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         UUID uuid = context.getSource().getPlayer().getUuid();
-        String cinameticName = StringArgumentType.getString(context, "cinematicname");
+        String cinameticName = StringArgumentType.getString(context, "cinematic");
         Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinameticName);
 
         if (cinematic == null) {
@@ -69,9 +69,9 @@ final public class ManagerSubcommand {
     private static int create(CommandContext<ServerCommandSource> context) {
         Cinematic cinematic;
         try {
-            cinematic = PolCinematics.CINEMATICS_MANAGER.createCinematic(context.getArgument("cinematicname", String.class), 10000);
+            cinematic = PolCinematics.CINEMATICS_MANAGER.createCinematic(context.getArgument("cinematic", String.class), 10000);
         } catch (NameException e) {
-            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic name §6" + context.getArgument("cinematicname", String.class) + " §cis already taken"));
+            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic name §6" + context.getArgument("cinematic", String.class) + " §cis already taken"));
             return 1;
         }
 
@@ -109,7 +109,7 @@ final public class ManagerSubcommand {
     }
 
     private static int unload(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        String cinameticName = StringArgumentType.getString(context, "cinematicname");
+        String cinameticName = StringArgumentType.getString(context, "cinematic");
         Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinameticName);
 
         if (cinematic == null) {
@@ -133,7 +133,7 @@ final public class ManagerSubcommand {
         Cinematic cinematic;
 
         try {
-            String cinematicName = StringArgumentType.getString(context, "cinematicname");
+            String cinematicName = StringArgumentType.getString(context, "cinematic");
             cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinematicName);
         } catch (Exception e) {
             cinematic = getSelectedCinematic(context.getSource().getPlayer());

@@ -38,18 +38,18 @@ public class GameRendererMixin {
     }*/
 
 
-    @Inject(at = @At("HEAD"), method = "renderHand", cancellable = true)
+    /*@Inject(at = @At("HEAD"), method = "renderHand", cancellable = true)
     public void renderHand(MatrixStack matrices, Camera camera, float tickDelta, CallbackInfo ci) {
         if (!PolCinematicsClient.getCCM().isCinematicRunning()) return;
 
         var cameracompo = PolCinematicsClient.getCCM().getCameraComposition();
         if (cameracompo == null) return;
 
-            /*switch (camera.getCameraType()) {
+            switch (camera.getCameraType()) {
                 case PLAYER -> {
                     return;
                 }
-            }*/
+            }
         if (!(cameracompo instanceof PlayerCameraComposition)) {
             ci.cancel();
         }
@@ -69,16 +69,16 @@ public class GameRendererMixin {
         var cameracompo = PolCinematicsClient.getCCM().getCameraComposition();
         if (cameracompo == null) return;
 
-            /*switch (camera.getCameraType()) {
+            switch (camera.getCameraType()) {
                 case PLAYER -> {
                     return;
                 }
-            }*/
+            }
         if (cameracompo instanceof PlayerCameraComposition) return;
 
         CameraRot cameraRot = cameracompo.getCameraRot(PolCinematicsClient.getCCM().getElapsedTime());
         MatrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(cameraRot.getRoll()));
-    }
+    }*/
 
     /*@Inject(at = @At("HEAD"), method = "renderWorld")
     public void beforeRenderWorld(float tickDelta, long limitTime, MatrixStack matrices, CallbackInfo ci) {
@@ -86,11 +86,11 @@ public class GameRendererMixin {
 
     }*/
 
-    @Inject(at = @At("HEAD"), method = "bobView", cancellable = true)
+    /*@Inject(at = @At("HEAD"), method = "bobView", cancellable = true)
     private void bobView(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
         if (PolCinematicsClient.getCCM().isCinematicRunning()) {
             ci.cancel();
         }
-    }
+    }*/
 
 }

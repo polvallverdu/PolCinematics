@@ -1,12 +1,17 @@
 package dev.polv.polcinematics.client;
 
+import dev.polv.polcinematics.PolCinematics;
+import dev.polv.polcinematics.client.cinematic.ClientCinematicManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Environment(EnvType.CLIENT)
 public class PolCinematicsClient {
 
     private static PolCinematicsClient INSTANCE;
+    public static final Logger LOGGER = LoggerFactory.getLogger(PolCinematics.MOD_ID + "-client");
 
     private ClientCinematicManager clientCinematicManager;
 

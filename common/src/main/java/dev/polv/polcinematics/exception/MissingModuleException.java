@@ -1,12 +1,12 @@
 package dev.polv.polcinematics.exception;
 
-import dev.polv.polcinematics.client.ClientModules;
+import dev.polv.polcinematics.client.EClientModules;
 
 public class MissingModuleException extends RuntimeException {
 
-    public final ClientModules missingModule;
+    public final EClientModules missingModule;
 
-    public MissingModuleException(ClientModules missingModule) {
+    public MissingModuleException(EClientModules missingModule) {
         super("Module " + missingModule.name + " is not installed. Please install it from " + missingModule.url + " and try again.");
 
         this.missingModule = missingModule;

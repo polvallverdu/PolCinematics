@@ -9,8 +9,11 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
+import dev.polv.polcinematics.net.Packets;
 import dev.polv.polcinematics.net.ServerPacketHandler;
 import dev.polv.polcinematics.utils.GsonUtils;
+import net.minecraft.server.MinecraftServer;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,15 +22,22 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerCinematicManager {
+
+    public enum ECinematicState {
+        STOPPED,
+        PLAYING,
+        PAUSED
+    }
 
     private final File cinematicFolder;
     private final List<Cinematic> loadedCinematics;
     private final List<SimpleCinematic> fileCinematicsCache;
     private long lastCacheRefresh;
 
-    private boolean running;
+    private final List<UUID> broadcastedCinematics;
 
     public ServerCinematicManager() {
         Path cinematicsPath = Platform.getConfigFolder().resolve("polcinematics/cinematics/v" + PolCinematics.MOD_VERSION);
@@ -40,12 +50,19 @@ public class ServerCinematicManager {
         this.loadedCinematics = new ArrayList<>();
         this.fileCinematicsCache = new ArrayList<>();
 
+        this.broadcastedCinematics = new ArrayList<>();
+
         LifecycleEvent.SERVER_STOPPING.register(server -> {
-            this.running = false;
             new ArrayList<>(this.loadedCinematics).forEach((c) -> unloadCinematic(c.getUuid()));
+            this.broadcastedCinematics.clear();
         });
         PlayerEvent.PLAYER_JOIN.register(player -> {
-            // TODO: SEND CINEMATICS TO PLAYER
+            this.broadcastedCinematics.forEach((uuid) -> {
+                Cinematic cinematic = this.getCinematic(uuid);
+                if (cinematic != null) {
+                    Packets.broadcastCinematic(cinematic, List.of(player));
+                }
+            });
         });
 
         new ServerPacketHandler();
@@ -130,11 +147,9 @@ public class ServerCinematicManager {
             throw new InvalidCinematicException("Cinematic is not loaded");
         }
 
-        if (this.running) {
-            throw new RuntimeException("Cannot unload when a cinematic is running.");
-        }
-
         this.loadedCinematics.remove(cinematic);
+        Packets.unbroadcastCinematic(cinematic.getUuid(), PolCinematics.SERVER.getPlayerManager().getPlayerList());
+        this.broadcastedCinematics.remove(cinematic.getUuid());
     }
 
     /**
@@ -146,10 +161,6 @@ public class ServerCinematicManager {
         Cinematic cinematic = getCinematic(cinematicUUID);
         if (cinematic == null) {
             throw new InvalidCinematicException("Cinematic is not loaded");
-        }
-
-        if (this.running) {
-            throw new RuntimeException("Cannot save when a cinematic is running.");
         }
 
         File cinematicFile = new File(cinematicFolder, cinematic.getUuid().toString() + ".json");
@@ -178,7 +189,7 @@ public class ServerCinematicManager {
      * @param name The name of the cinematic
      * @return The cinematic, or null if not found
      */
-    public Cinematic getCinematic(String name) {
+    public @Nullable Cinematic getCinematic(String name) {
         for (Cinematic cinematic : loadedCinematics) {
             if (cinematic.getName().equalsIgnoreCase(name)) {
                 return cinematic;
@@ -193,13 +204,30 @@ public class ServerCinematicManager {
      * @param uuid The {@link UUID} of the cinematic
      * @return The cinematic, or null if not found
      */
-    public Cinematic getCinematic(UUID uuid) {
+    public @Nullable Cinematic getCinematic(UUID uuid) {
         for (Cinematic cinematic : loadedCinematics) {
             if (cinematic.getUuid().equals(uuid)) {
                 return cinematic;
             }
         }
         return null;
+    }
+
+    /**
+     * Get a loaded {@link Cinematic} by name or {@link UUID}
+     *
+     * @param nameOrUuid The name or {@link UUID} of the cinematic
+     * @return The cinematic, or null if not found
+     */
+    public @Nullable Cinematic resolveCinematic(String nameOrUuid) {
+        Cinematic cinematic = getCinematic(nameOrUuid);
+        if (cinematic == null) {
+            try {
+                cinematic = getCinematic(UUID.fromString(nameOrUuid));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return cinematic;
     }
 
     /**
@@ -282,13 +310,16 @@ public class ServerCinematicManager {
         return this.getSimpleCinematic(name) != null;
     }
 
-    public String[] getCinematicFiles() {
-        File[] files = cinematicFolder.listFiles();
-        String[] fileNames = new String[files.length];
-        for (int i = 0; i < files.length; i++) {
-            fileNames[i] = files[i].getName();
-        }
-        return fileNames;
+    public boolean isCinematicBroadcasted(Cinematic cinematic) {
+        return this.broadcastedCinematics.contains(cinematic.getUuid());
+    }
+
+    public void addBroadcastedCinematic(Cinematic cinematic) {
+        this.broadcastedCinematics.add(cinematic.getUuid());
+    }
+
+    public void removeBroadcastedCinematic(Cinematic cinematic) {
+        this.broadcastedCinematics.remove(cinematic.getUuid());
     }
 
 }

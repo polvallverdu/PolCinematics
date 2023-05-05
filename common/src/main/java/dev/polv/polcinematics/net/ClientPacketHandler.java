@@ -13,6 +13,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
 public class ClientPacketHandler {
@@ -37,55 +38,63 @@ public class ClientPacketHandler {
 
         NetworkManager.registerReceiver(
                 NetworkManager.s2c(),
+                Packets.CINEMATIC_UNBROADCAST_PACKET,
+                (buf, context) -> {
+                    UUID cinematicUuid = buf.readUuid();
+                    PolCinematicsClient.getCCM().unloadCinematic(cinematicUuid);
+                }
+        );
+
+        NetworkManager.registerReceiver(
+                NetworkManager.s2c(),
                 Packets.CLIENT_CINEMATIC_PLAY_PACKET,
                 (buf, context) -> {
+                    UUID cinematicUuid = buf.readUuid();
                     boolean paused = buf.readBoolean();
                     long from = buf.readLong();
-                    if (from != 0) {
-                        PolCinematicsClient.getCCM().startFrom(from, paused);
-                    } else {
-                        PolCinematicsClient.getCCM().start(paused);
-                    }
+
+                    PolCinematicsClient.getCCM().start(cinematicUuid, from, paused);
                 }
         );
 
         NetworkManager.registerReceiver(
                 NetworkManager.s2c(),
                 Packets.CLIENT_CINEMATIC_GOTO_PACKET,
-                (buf, context) -> PolCinematicsClient.getCCM().moveTo(buf.readLong())
+                (buf, context) -> {
+                    UUID cinematicUuid = buf.readUuid();
+                    long to = buf.readLong();
+
+                    PolCinematicsClient.getCCM().moveTo(cinematicUuid, to);
+                }
         );
 
         NetworkManager.registerReceiver(
                 NetworkManager.s2c(),
                 Packets.CLIENT_CINEMATIC_PAUSE_PACKET,
-                (buf, context) -> PolCinematicsClient.getCCM().pause()
+                (buf, context) -> {
+                    UUID cinematicUuid = buf.readUuid();
+
+                    PolCinematicsClient.getCCM().pause(cinematicUuid);
+                }
         );
 
         NetworkManager.registerReceiver(
                 NetworkManager.s2c(),
                 Packets.CLIENT_CINEMATIC_RESUME_PACKET,
-                (buf, context) -> PolCinematicsClient.getCCM().resume()
+                (buf, context) -> {
+                    UUID cinematicUuid = buf.readUuid();
+
+                    PolCinematicsClient.getCCM().resume(cinematicUuid);
+                }
         );
 
         NetworkManager.registerReceiver(
                 NetworkManager.s2c(),
                 Packets.CLIENT_CINEMATIC_STOP_PACKET,
-                (buf, context) -> PolCinematicsClient.getCCM().stop()
-        );
-
-        NetworkManager.registerReceiver(
-                NetworkManager.s2c(),
-                Packets.CLIENT_EDITOR_OPEN,
                 (buf, context) -> {
-                    MinecraftClient.getInstance().player.sendMessage(Text.of("Opening editor..."));
-                    try {
-                        int port = buf.readInt();
-                        String password = buf.readString();
-                        String serverAddress = MinecraftClient.getInstance().getCurrentServerEntry().address;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        MinecraftClient.getInstance().player.sendMessage(Text.of("There was an error opening the editor."));
-                    }
+                    UUID cinematicUuid = buf.readUuid();
+
+                    PolCinematicsClient.getCCM().stop(cinematicUuid);
                 }
         );
 
