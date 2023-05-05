@@ -66,7 +66,7 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    private static int create(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int create(CommandContext<ServerCommandSource> context) {
         Cinematic cinematic;
         try {
             cinematic = PolCinematics.CINEMATICS_MANAGER.createCinematic(context.getArgument("cinematicname", String.class), 10000);
@@ -83,7 +83,7 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    private static int load(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int load(CommandContext<ServerCommandSource> context) {
         String name = context.getArgument("filename", String.class);
 
         SimpleCinematic filename = PolCinematics.CINEMATICS_MANAGER.getSimpleCinematic(name);
@@ -129,7 +129,7 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    private static int save(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int save(CommandContext<ServerCommandSource> context) {
         Cinematic cinematic;
 
         try {
@@ -150,7 +150,7 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    private static int list(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int list(CommandContext<ServerCommandSource> context) {
         MutableText msg = Text.literal(PolCinematicsCommand.PREFIX + "§7Cinematics: §f");
 
         PolCinematics.CINEMATICS_MANAGER.getLoadedCinematics().forEach(c -> {
@@ -167,7 +167,7 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    private static int listfiles(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int listfiles(CommandContext<ServerCommandSource> context) {
         MutableText msg = Text.literal(PolCinematicsCommand.PREFIX + "§7File Cinematics: §f");
 
         PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().forEach(sc -> {
