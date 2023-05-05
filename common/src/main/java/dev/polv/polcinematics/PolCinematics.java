@@ -6,10 +6,14 @@ import dev.polv.polcinematics.cinematic.manager.ServerCinematicManager;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.groups.GroupManager;
 import net.minecraft.server.MinecraftServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PolCinematics {
     public static final String MOD_ID = "polcinematics";
     public static final String MOD_VERSION = "0.0.1";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
 
     public static ServerCinematicManager CINEMATICS_MANAGER;
     private static GroupManager GROUP_MANAGER;
