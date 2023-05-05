@@ -7,10 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.polv.polcinematics.commands.subcommands.EditorSubcommand;
-import dev.polv.polcinematics.commands.subcommands.MediaPlayerSubcommand;
-import dev.polv.polcinematics.commands.subcommands.PlayerSubcommand;
-import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
+import dev.polv.polcinematics.commands.subcommands.*;
 import dev.polv.polcinematics.utils.BridagierUtils;
 import dev.polv.polcinematics.utils.ChatUtils;
 import net.minecraft.command.CommandRegistryAccess;
@@ -25,6 +22,7 @@ public class PolCinematicsCommand {
     public final static String PREFIX = "§8[§3PolCinematics§8]§r ";
     private static final String HELP_MESSAGE = ChatUtils.formatHelpMessage(
             "cp", "Player for cinematics",
+            "cg", "Group players to manage them",
             "ce", "Cinematic editor",
             "cm", "Cinematic manager",
             "cpm", "Cinematic media player"
@@ -54,12 +52,14 @@ public class PolCinematicsCommand {
 
         // Building nodes
         LiteralCommandNode<ServerCommandSource> playerNode = PlayerSubcommand.build();
+        LiteralCommandNode<ServerCommandSource> groupNode = GroupSubcommand.build();
         LiteralCommandNode<ServerCommandSource> mediaPlayerNode = MediaPlayerSubcommand.build();
         LiteralCommandNode<ServerCommandSource> managerNode = ManagerSubcommand.build();
         LiteralCommandNode<ServerCommandSource> editorNode = EditorSubcommand.build();
 
         // Registering subcommands to /polcinematics
         mainBuilder.then(playerNode); // /polcinematics player
+        mainBuilder.then(groupNode); // /polcinematics groups
         mainBuilder.then(mediaPlayerNode); // /polcinematics mediaplayer
         mainBuilder.then(managerNode); // /polcinematics manager
         mainBuilder.then(editorNode); // /polcinematics editor
@@ -70,6 +70,7 @@ public class PolCinematicsCommand {
         // Creating aliases
         LiteralArgumentBuilder<ServerCommandSource>[] aliases = new LiteralArgumentBuilder[]{
                 BridagierUtils.goodRedirect("cp", playerNode),
+                BridagierUtils.goodRedirect("cg", groupNode),
                 BridagierUtils.goodRedirect("cmp", mediaPlayerNode),
                 BridagierUtils.goodRedirect("cm", managerNode),
                 BridagierUtils.goodRedirect("ce", editorNode),
