@@ -37,4 +37,15 @@ public class GsonUtils {
         }
         return resultStringBuilder.toString();
     }
+
+    public static void jsonToFile(JsonObject json, File file) throws IOException {
+        String content = jsonToString(json);
+        writeToFile(content, file);
+    }
+
+    private static void writeToFile(String content, File file) throws IOException {
+        FileWriter fileWriter = new FileWriter(file, false);
+        fileWriter.write(content);
+        fileWriter.close();
+    }
 }

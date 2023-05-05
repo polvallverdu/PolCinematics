@@ -157,10 +157,7 @@ public class ServerCinematicManager {
         try {
             cinematicFile.createNewFile();
             JsonObject cinematicJson = cinematic.toJson();
-            String jsonString = GsonUtils.jsonToString(cinematicJson);
-            FileWriter writer = new FileWriter(cinematicFile, false);
-            writer.write(jsonString);
-            writer.close();
+            GsonUtils.jsonToFile(cinematicJson, cinematicFile);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save cinematic");
         }
