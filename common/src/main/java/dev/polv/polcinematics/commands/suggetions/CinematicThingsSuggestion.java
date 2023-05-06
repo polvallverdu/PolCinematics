@@ -6,6 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
@@ -47,7 +48,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return Suggestions.empty();
         }
 
-        Cinematic cinematic = ManagerSubcommand.getSelectedCinematic(player);
+        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getSelectedCinematic(player);
 
         if (cinematic == null) {
             return Suggestions.empty();

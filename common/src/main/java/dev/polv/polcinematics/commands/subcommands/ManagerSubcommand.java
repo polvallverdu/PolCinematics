@@ -14,18 +14,14 @@ import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
+import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 final public class ManagerSubcommand {
-
-    private static HashMap<UUID, UUID> selectedCinematics = new HashMap<>();
 
     public static LiteralCommandNode<ServerCommandSource> build() {
         LiteralArgumentBuilder<ServerCommandSource> managerArgumentBuilder = CommandManager.literal("manager");
@@ -52,21 +48,21 @@ final public class ManagerSubcommand {
     }
 
     private static int select(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        UUID uuid = context.getSource().getPlayer().getUuid();
-        String cinameticName = StringArgumentType.getString(context, "cinematic");
-        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinameticName);
+        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         if (cinematic == null) {
             throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
         }
 
-        selectedCinematics.put(uuid, cinematic.getUuid());
+        PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, cinematic);
         context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
 
         return 1;
     }
 
-    private static int create(CommandContext<ServerCommandSource> context) {
+    private static int create(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Cinematic cinematic;
         try {
             cinematic = PolCinematics.CINEMATICS_MANAGER.createCinematic(context.getArgument("cinematic", String.class), 10000);
@@ -77,13 +73,16 @@ final public class ManagerSubcommand {
 
         context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCreated cinematic §6" + cinematic.getName()));
 
-        selectedCinematics.put(context.getSource().getPlayer().getUuid(), cinematic.getUuid());
+        if (context.getSource().isExecutedByPlayer()) {
+            ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+            PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, cinematic);
 
-        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
+            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
+        }
         return 1;
     }
 
-    private static int load(CommandContext<ServerCommandSource> context) {
+    private static int load(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String name = context.getArgument("filename", String.class);
 
         SimpleCinematic filename = PolCinematics.CINEMATICS_MANAGER.getSimpleCinematic(name);
@@ -102,25 +101,19 @@ final public class ManagerSubcommand {
 
         context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLoaded cinematic §6" + cinematic.getName()));
 
-        selectedCinematics.put(context.getSource().getPlayer().getUuid(), cinematic.getUuid());
+        ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
+        PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, cinematic);
 
         context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
         return 1;
     }
 
     private static int unload(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        String cinameticName = StringArgumentType.getString(context, "cinematic");
-        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinameticName);
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         if (cinematic == null) {
             throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
         }
-
-        new HashMap<>(selectedCinematics).forEach((uuid, cinematicUuid) -> {
-            if (cinematicUuid.equals(cinematic.getUuid())) {
-                selectedCinematics.remove(uuid);
-            }
-        });
 
         PolCinematics.CINEMATICS_MANAGER.saveCinematic(cinematic.getUuid());
         PolCinematics.CINEMATICS_MANAGER.unloadCinematic(cinematic.getUuid());
@@ -129,15 +122,8 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    private static int save(CommandContext<ServerCommandSource> context) {
-        Cinematic cinematic;
-
-        try {
-            String cinematicName = StringArgumentType.getString(context, "cinematic");
-            cinematic = PolCinematics.CINEMATICS_MANAGER.getCinematic(cinematicName);
-        } catch (Exception e) {
-            cinematic = getSelectedCinematic(context.getSource().getPlayer());
-        }
+    private static int save(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        Cinematic cinematic = CommandUtils.getCinematic(context);
 
         if (cinematic == null) {
             context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou don't have any cinematic selected"));
@@ -190,12 +176,5 @@ final public class ManagerSubcommand {
         return 1;
     }
 
-    public static Cinematic getSelectedCinematic(ServerPlayerEntity player) {
-        UUID uuid = player.getUuid();
-        if (selectedCinematics.containsKey(uuid)) {
-            return PolCinematics.CINEMATICS_MANAGER.getCinematic(selectedCinematics.get(uuid));
-        }
-        return null;
-    }
 
 }

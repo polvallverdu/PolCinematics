@@ -18,6 +18,7 @@ import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.commands.suggetions.CinematicThingsSuggestion;
 import dev.polv.polcinematics.commands.suggetions.GroupSuggestion;
 import dev.polv.polcinematics.net.Packets;
+import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -161,13 +162,7 @@ public class PlayerSubcommand {
             }
         } catch (Exception ignore) {}
 
-        Cinematic cinematic;
-        try {
-            cinematic = getCinematic(context);
-        } catch (Exception ignore) {
-            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic not found"));
-            return 1;
-        }
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         paused = paused == null ? false : paused;
         from = from == null ? 0 : from;
@@ -183,7 +178,7 @@ public class PlayerSubcommand {
     }
 
     private static int stop(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         Packets.sendCinematicStop(context.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid());
 
@@ -192,7 +187,7 @@ public class PlayerSubcommand {
     }
 
     private static int broadcast(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         if (PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(cinematic)) {
             context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + cinematic.getName() + " §cis already broadcasted"));
@@ -207,7 +202,7 @@ public class PlayerSubcommand {
     }
 
     private static int unbroadcast(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         if (!PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(cinematic)) {
             context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + cinematic.getName() + " §cis not broadcasted"));
@@ -222,7 +217,7 @@ public class PlayerSubcommand {
     }
 
     private static int pause(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         Packets.sendCinematicPause(context.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid());
 
@@ -231,7 +226,7 @@ public class PlayerSubcommand {
     }
 
     private static int resume(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
 
         Packets.sendCinematicResume(context.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid());
 
@@ -240,23 +235,13 @@ public class PlayerSubcommand {
     }
 
     private static int gotocmd(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+        Cinematic cinematic = CommandUtils.getCinematic(context, false);
         long to = context.getArgument("to", Long.class);
 
         Packets.sendCinematicGoto(context.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid(), to);
 
         context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Moving cinematic §f" + cinematic.getName() + " §7to §f" + to));
         return 1;
-    }
-
-    private static Cinematic getCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        String cinematicName = StringArgumentType.getString(ctx, "cinematic");
-        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.resolveCinematic(cinematicName);
-
-        if (cinematic == null)
-            throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
-
-        return cinematic;
     }
 
 }

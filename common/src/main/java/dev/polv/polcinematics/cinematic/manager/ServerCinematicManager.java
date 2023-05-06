@@ -13,15 +13,14 @@ import dev.polv.polcinematics.net.Packets;
 import dev.polv.polcinematics.net.ServerPacketHandler;
 import dev.polv.polcinematics.utils.GsonUtils;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerCinematicManager {
@@ -37,6 +36,7 @@ public class ServerCinematicManager {
     private final List<SimpleCinematic> fileCinematicsCache;
     private long lastCacheRefresh;
 
+    private final ConcurrentHashMap<UUID, Cinematic> selectedCinematics;
     private final List<UUID> broadcastedCinematics;
 
     public ServerCinematicManager() {
@@ -50,6 +50,7 @@ public class ServerCinematicManager {
         this.loadedCinematics = new ArrayList<>();
         this.fileCinematicsCache = new ArrayList<>();
 
+        this.selectedCinematics = new ConcurrentHashMap<>();
         this.broadcastedCinematics = new ArrayList<>();
 
         LifecycleEvent.SERVER_STOPPING.register(server -> {
@@ -63,6 +64,9 @@ public class ServerCinematicManager {
                     Packets.broadcastCinematic(cinematic, List.of(player));
                 }
             });
+        });
+        PlayerEvent.PLAYER_QUIT.register(player -> {
+            this.selectedCinematics.remove(player.getUuid());
         });
 
         new ServerPacketHandler();
@@ -150,6 +154,8 @@ public class ServerCinematicManager {
         this.loadedCinematics.remove(cinematic);
         Packets.unbroadcastCinematic(cinematic.getUuid(), PolCinematics.SERVER.getPlayerManager().getPlayerList());
         this.broadcastedCinematics.remove(cinematic.getUuid());
+
+        this.selectedCinematics.entrySet().removeIf(entry -> entry.getValue().equals(cinematic));
     }
 
     /**
@@ -320,6 +326,14 @@ public class ServerCinematicManager {
 
     public void removeBroadcastedCinematic(Cinematic cinematic) {
         this.broadcastedCinematics.remove(cinematic.getUuid());
+    }
+
+    public void selectCinematic(ServerPlayerEntity player, Cinematic cinematic) {
+        this.selectedCinematics.put(player.getUuid(), cinematic);
+    }
+
+    public @Nullable Cinematic getSelectedCinematic(ServerPlayerEntity player) {
+        return this.selectedCinematics.get(player.getUuid());
     }
 
 }

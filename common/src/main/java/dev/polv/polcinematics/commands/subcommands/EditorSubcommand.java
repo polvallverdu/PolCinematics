@@ -31,6 +31,7 @@ import dev.polv.polcinematics.exception.InvalidCommandValueException;
 import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.ChatUtils;
 import dev.polv.polcinematics.utils.ColorUtils;
+import dev.polv.polcinematics.utils.CommandUtils;
 import dev.polv.polcinematics.utils.EnumUtils;
 import dev.polv.polcinematics.utils.math.Easing;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -157,7 +158,7 @@ public class EditorSubcommand {
                 l("create")
                         .then(
                                 l("timeline").executes((context) -> {
-                                    Cinematic cinematic = getCinematic(context.getSource().getPlayer());
+                                    Cinematic cinematic = CommandUtils.getCinematic(context);
 
                                     Timeline timeline = cinematic.addTimeline();
 
@@ -449,7 +450,7 @@ public class EditorSubcommand {
     /////// RUN COMMANDS FUNCTIONS ///////
 
     private static int create_composition(CommandContext<ServerCommandSource> ctx, ECompositionType ctype) throws CommandSyntaxException {
-        var pairtc = getTimeline(ctx);
+        var pairtc = CommandUtils.getTimeline(ctx);
         Cinematic cinematic = pairtc.getLeft();
         Timeline timeline = pairtc.getRight();
 
@@ -483,7 +484,8 @@ public class EditorSubcommand {
 
     private static int delete_timeline(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairct = getTimeline(ctx);
+
+        var pairct = CommandUtils.getTimeline(ctx);
         Cinematic cinematic = pairct.getLeft();
         Timeline timeline = pairct.getRight();
 
@@ -500,7 +502,8 @@ public class EditorSubcommand {
 
     private static int delete_composition(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairtc = getComposition(ctx);
+
+        var pairtc = CommandUtils.getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
         WrappedComposition composition = pairtc.getRight();
 
@@ -517,7 +520,8 @@ public class EditorSubcommand {
 
     private static int info_composition_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairtc = getComposition(ctx);
+
+        var pairtc = CommandUtils.getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
         String timelineName = StringArgumentType.getString(ctx, "timeline");
         WrappedComposition wrappedComposition = pairtc.getRight();
@@ -581,7 +585,8 @@ public class EditorSubcommand {
 
     private static int info_attribute_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairtc = getComposition(ctx);
+
+        var pairtc = CommandUtils.getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
         WrappedComposition wrappedComposition = pairtc.getRight();
         Composition composition = wrappedComposition.getComposition();
@@ -625,7 +630,8 @@ public class EditorSubcommand {
 
     private static int info_timeline_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairct = getTimeline(ctx);
+
+        var pairct = CommandUtils.getTimeline(ctx);
         Timeline timeline = pairct.getRight();
         String timelineArg = StringArgumentType.getString(ctx, "timeline");
 
@@ -666,7 +672,8 @@ public class EditorSubcommand {
 
     private static int info_cinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        Cinematic cinematic = getCinematic(player);
+
+        Cinematic cinematic = CommandUtils.getCinematic(ctx);
 
         String cinematicName = cinematic.getName();
         UUID cinematicUUID = cinematic.getUuid();
@@ -712,7 +719,8 @@ public class EditorSubcommand {
 
     private static int duration_cinematic_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        Cinematic cinematic = getCinematic(player);
+
+        Cinematic cinematic = CommandUtils.getCinematic(ctx);
         
         long newDuration = LongArgumentType.getLong(ctx, "duration");
         cinematic.setDuration(newDuration);
@@ -723,7 +731,8 @@ public class EditorSubcommand {
 
     private static int duration_cinematic_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        Cinematic cinematic = getCinematic(player);
+
+        Cinematic cinematic = CommandUtils.getCinematic(ctx);
 
         player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Cinematic duration is §f" + cinematic.getDuration().toMillis() + " §7milliseconds."));
         return 1;
@@ -731,7 +740,8 @@ public class EditorSubcommand {
 
     private static int duration_composition_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairtc = getComposition(ctx);
+
+        var pairtc = CommandUtils.getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
         WrappedComposition wc = pairtc.getRight();
         long newDuration = LongArgumentType.getLong(ctx, "duration");
@@ -749,7 +759,8 @@ public class EditorSubcommand {
 
     private static int duration_composition_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairtc = getComposition(ctx);
+
+        var pairtc = CommandUtils.getComposition(ctx);
 
         player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition time is §f" + pairtc.getRight().getDuration() + " §amilliseconds."));
         return 1;
@@ -757,7 +768,8 @@ public class EditorSubcommand {
 
     private static int property_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairkp = getProperty(ctx);
+
+        var pairkp = CommandUtils.getProperty(ctx);
 
         try {
             Object value = getValue(ctx, pairkp.getRight().getType());
@@ -775,7 +787,8 @@ public class EditorSubcommand {
 
     private static int property_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairkp = getProperty(ctx);
+
+        var pairkp = CommandUtils.getProperty(ctx);
 
         player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§a" + pairkp.getLeft() + " is §f" + pairkp.getRight().getValue() + "§a."));
         return 1;
@@ -783,7 +796,8 @@ public class EditorSubcommand {
 
     private static int attribute_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairkattr = getAttribute(ctx);
+
+        var pairkattr = CommandUtils.getAttribute(ctx);
         long time = LongArgumentType.getLong(ctx, "time");
         Easing easing = Easing.EASE_INOUT_QUAD;
 
@@ -813,7 +827,8 @@ public class EditorSubcommand {
 
     private static int attribute_get_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairattrk = getKeyframe(ctx);
+
+        var pairattrk = CommandUtils.getKeyframe(ctx);
 
         player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7" + pairattrk.getLeft() + " is §f" + pairattrk.getRight().getValue() + " §7with easing §e" + Easing.getName(pairattrk.getRight().getEasing()) + "§7."));
         return 1;
@@ -821,7 +836,8 @@ public class EditorSubcommand {
 
     private static int attribute_modify_easing(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairattrk = getKeyframe(ctx); // Maybe catch and send PolCinematicsCommand.PREFIX + "§cThere's no keyframe at this time." if null?
+
+        var pairattrk = CommandUtils.getKeyframe(ctx); // Maybe catch and send PolCinematicsCommand.PREFIX + "§cThere's no keyframe at this time." if null?
         Easing easing = Easing.fromName(StringArgumentType.getString(ctx, "easing").toUpperCase());
 
         pairattrk.getRight().setEasing(easing);
@@ -831,7 +847,8 @@ public class EditorSubcommand {
 
     private static int attribute_modify_value(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairattrk = getKeyframe(ctx);
+
+        var pairattrk = CommandUtils.getKeyframe(ctx);
 
         Object value;
         try {
@@ -852,8 +869,9 @@ public class EditorSubcommand {
 
     private static int move_composition_timeline(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        Cinematic cinematic = getCinematic(player);
-        var pairtc = getComposition(ctx);
+
+        Cinematic cinematic = CommandUtils.getCinematic(ctx);
+        var pairtc = CommandUtils.getComposition(ctx);
         Timeline newtimeline = cinematic.resolveTimeline(StringArgumentType.getString(ctx, "newtimeline"));
         long newtime = pairtc.getRight().getStartTime();
 
@@ -877,7 +895,8 @@ public class EditorSubcommand {
 
     private static int move_composition_time(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairtc = getComposition(ctx);
+
+        var pairtc = CommandUtils.getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
         long newtime = LongArgumentType.getLong(ctx, "newtime");
 
@@ -893,7 +912,8 @@ public class EditorSubcommand {
 
     private static int move_timeline(CommandContext<ServerCommandSource> ctx, boolean isUp) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-        var pairct = getTimeline(ctx);
+
+        var pairct = CommandUtils.getTimeline(ctx);
         int positions = IntegerArgumentType.getInteger(ctx, "positions");
 
         Cinematic cinematic = pairct.getLeft();
@@ -908,77 +928,6 @@ public class EditorSubcommand {
     }
 
     /////// OTHER FUNCTIONS ///////
-
-    private static Cinematic getCinematic(ServerPlayerEntity player) throws CommandSyntaxException {
-        Cinematic cinematic = ManagerSubcommand.getSelectedCinematic(player);
-
-        if (cinematic == null) {
-            throw PolCinematicsCommand.CINEMATIC_NOT_SELECTED.create();
-        }
-
-        return cinematic;
-    }
-
-    private static Pair<Cinematic, Timeline> getTimeline(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context.getSource().getPlayerOrThrow());
-
-        String timelineName = StringArgumentType.getString(context, "timeline");
-        Timeline timeline = cinematic.resolveTimeline(timelineName);
-
-        if (timeline == null) {
-            throw PolCinematicsCommand.INVALID_TIMELINE.create();
-        }
-
-        return new Pair<>(cinematic, timeline);
-    }
-
-    private static Pair<Timeline, WrappedComposition> getComposition(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context.getSource().getPlayerOrThrow());
-
-        String compoQuery = StringArgumentType.getString(context, "composition");
-        var pair = cinematic.getTimelineAndWrappedComposition(compoQuery);
-
-        if (pair == null)
-            throw PolCinematicsCommand.INVALID_COMPOSITION.create();
-
-        return pair;
-    }
-
-    private static Pair<String, Value> getProperty(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var pairtc = getComposition(context);
-        String propertyKey = StringArgumentType.getString(context, "property");
-
-        Value value = pairtc.getRight().getComposition().getProperty(propertyKey);
-
-        if (value == null)
-            throw PolCinematicsCommand.INVALID_PROPERTY.create();
-
-        return new Pair<>(propertyKey, value);
-    }
-
-    private static Pair<String, Attribute> getAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var pairtc = getComposition(context);
-        String attributeKey = StringArgumentType.getString(context, "attribute");
-
-        Attribute attr = pairtc.getRight().getComposition().getAttribute(attributeKey);
-
-        if (attr == null)
-            throw PolCinematicsCommand.INVALID_ATTRIBUTE.create();
-
-        return new Pair<>(attributeKey, attr);
-    }
-
-    private static Pair<Long, Keyframe> getKeyframe(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var pairkattr = getAttribute(context);
-        long time = LongArgumentType.getLong(context, "time");
-
-        Keyframe keyframe = pairkattr.getRight().getExactKeyframe(LongArgumentType.getLong(context, "time"));
-
-        if (keyframe == null)
-            throw PolCinematicsCommand.INVALID_KEYFRAME.create();
-
-        return new Pair<>(time, keyframe);
-    }
 
     private static Object getValue(CommandContext<ServerCommandSource> ctx, EValueType valueType) throws InvalidValueException {
         /*
