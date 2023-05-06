@@ -53,7 +53,7 @@ public class Keyframe {
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.add("time", new JsonPrimitive(time));
-        json.add("easing", new JsonPrimitive(easing.getId()));
+        json.add("easing", new JsonPrimitive(easing.getName()));
         //json.add("value", new JsonPrimitive(value));
         json.add("value", value.toJson());
         return json;
@@ -61,7 +61,7 @@ public class Keyframe {
 
     public static Keyframe fromJson(JsonObject json) {
         long time = json.get("time").getAsLong();
-        Easing easing = Easing.fromId(json.get("easing").getAsInt());
+        Easing easing = Easing.fromName(json.get("easing").getAsString());
         Value value = Value.fromJson(json.get("value").getAsJsonObject());
         return new Keyframe(time, value, easing);
     }
