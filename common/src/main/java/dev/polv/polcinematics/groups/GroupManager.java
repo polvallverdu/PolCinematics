@@ -48,6 +48,8 @@ public class GroupManager {
             json = GsonUtils.jsonFromFile(groupDataFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            json = GsonUtils.jsonFromString("{\"groups\":[]}"); // Empty json
         }
 
         json.get("groups").getAsJsonArray().forEach(element -> {
