@@ -17,13 +17,13 @@ public enum EValueType {
 
     private final String name;
     private final Object defaultValue;
-    private final Class<?> type;
+    private final Class<?> objClazz;
     private final boolean easing;
 
-    EValueType(String id, Object defaultValue, Class<?> type, boolean easing) {
+    EValueType(String id, Object defaultValue, Class<?> objClazz, boolean easing) {
         this.name = id;
         this.defaultValue = defaultValue;
-        this.type = type;
+        this.objClazz = objClazz;
         this.easing = easing;
     }
 
@@ -35,8 +35,8 @@ public enum EValueType {
         return defaultValue;
     }
 
-    public Class<?> getType() {
-        return type;
+    public Class<?> getClazz() {
+        return objClazz;
     }
 
     public boolean isEasing() {

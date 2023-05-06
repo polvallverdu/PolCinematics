@@ -60,7 +60,7 @@ public class Value {
 
     public void setValue(Object value) throws IllegalArgumentException {
         this.value = value;
-        if (value.getClass() != type.getType()) {
+        if (value.getClass() != type.getClazz()) {
             throw new IllegalArgumentException("Value is not of type " + type.getName());
         }
     }
