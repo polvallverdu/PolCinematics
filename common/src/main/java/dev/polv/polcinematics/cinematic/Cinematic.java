@@ -2,12 +2,12 @@ package dev.polv.polcinematics.cinematic;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.ECameraType;
-import dev.polv.polcinematics.cinematic.timelines.CameraTimeline;
-import dev.polv.polcinematics.cinematic.compositions.Composition;
-import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.types.overlay.OverlayComposition;
+import dev.polv.polcinematics.cinematic.timelines.CameraTimeline;
+import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.BasicCompositionData;

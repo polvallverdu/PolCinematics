@@ -1,11 +1,9 @@
 package dev.polv.polcinematics.commands;
 
-import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.commands.subcommands.*;
 import dev.polv.polcinematics.utils.BridagierUtils;
@@ -14,8 +12,6 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-
-import java.util.function.Function;
 
 public class PolCinematicsCommand {
 

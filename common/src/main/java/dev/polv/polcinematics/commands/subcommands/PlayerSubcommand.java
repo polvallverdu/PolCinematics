@@ -1,12 +1,6 @@
 package dev.polv.polcinematics.commands.subcommands;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.arguments.LongArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -14,9 +8,6 @@ import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.groups.PlayerGroup;
-import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
-import dev.polv.polcinematics.commands.suggetions.CinematicThingsSuggestion;
-import dev.polv.polcinematics.commands.suggetions.GroupSuggestion;
 import dev.polv.polcinematics.net.Packets;
 import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.server.command.CommandManager;
@@ -24,9 +15,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class PlayerSubcommand {
 

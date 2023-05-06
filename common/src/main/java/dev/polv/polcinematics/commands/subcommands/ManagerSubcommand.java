@@ -9,8 +9,6 @@ import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.manager.SimpleCinematic;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
-import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
-import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
@@ -18,7 +16,10 @@ import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.*;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 final public class ManagerSubcommand {

@@ -1,7 +1,6 @@
 package dev.polv.polcinematics.net;
 
 import dev.architectury.networking.NetworkManager;
-import dev.polv.polcinematics.PolCinematics;
 
 public class ServerPacketHandler {
 

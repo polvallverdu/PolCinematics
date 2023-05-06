@@ -3,7 +3,6 @@ package dev.polv.polcinematics.commands.groups;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.architectury.platform.Platform;
-import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.exception.NameException;
 import dev.polv.polcinematics.utils.GsonUtils;
 
@@ -14,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class GroupManager {
 

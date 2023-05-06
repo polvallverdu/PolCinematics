@@ -12,15 +12,15 @@ import dev.polv.polcinematics.exception.NameException;
 import dev.polv.polcinematics.net.Packets;
 import dev.polv.polcinematics.net.ServerPacketHandler;
 import dev.polv.polcinematics.utils.GsonUtils;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerCinematicManager {

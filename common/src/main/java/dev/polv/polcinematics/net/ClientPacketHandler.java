@@ -10,7 +10,6 @@ import dev.polv.polcinematics.utils.GsonUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
