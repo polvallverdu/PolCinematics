@@ -21,7 +21,7 @@ public class PolCinematicsCommand {
             "cg", "Group players to manage them",
             "ce", "Cinematic editor",
             "cm", "Cinematic manager",
-            "cpm", "Cinematic media player"
+            "cmp", "Cinematic media player"
     );
 
     public static final SimpleCommandExceptionType INVALID_UUID = new SimpleCommandExceptionType(Text.of("Invalid UUID"));
@@ -83,15 +83,14 @@ public class PolCinematicsCommand {
     private static int version(CommandContext<ServerCommandSource> ctx) {
         ctx.getSource().sendMessage(Text.of(
                 """
-                §8=========================================
+                §8§l-----------------------------------------
                 
-                §aThis server is using §3PolCinematics
-                §aMade by: §6Pol Vallverdu (polv.dev)
-                §aVersion: §3%version%
-                §aWebsite: §3cinematics.polv.dev
+                §7This server is using §3PolCinematics
+                §7Made by: §fPol Vallverdu (polv.dev)
+                §7Version: §a%version%
+                §7Website: §ccinematics.polv.dev
                 
-                §8=========================================
-                """.replaceAll("%version%", "ALPHA") // TODO: Set version
+                §8§l-----------------------------------------""".replaceAll("%version%", "ALPHA") // TODO: Set version
         ));
 
         return 1;

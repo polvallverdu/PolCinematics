@@ -14,13 +14,15 @@ import java.util.UUID;
 
 public class Timeline {
 
+    private final UUID uuid;
     protected List<WrappedComposition> compositions;
 
     public Timeline() {
-        this(new ArrayList<>());
+        this(UUID.randomUUID(), new ArrayList<>());
     }
 
-    public Timeline(List<WrappedComposition> compositions) {
+    public Timeline(UUID uuid, List<WrappedComposition> compositions) {
+        this.uuid = uuid;
         this.compositions = compositions;
         this.sort();
     }
@@ -126,6 +128,10 @@ public class Timeline {
                 throw new OverlapException(composition, wc);
             }
         }
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public void move(UUID compositionUUID, long startTimeDifference) throws OverlapException {
@@ -237,6 +243,7 @@ public class Timeline {
             compositionsArray.add(wc.toJson());
         }
         json.add("compositions", compositionsArray);
+        json.addProperty("uuid", uuid.toString());
         return json;
     }
 
@@ -245,6 +252,7 @@ public class Timeline {
     }
 
     public static Timeline fromJson(JsonObject json, Class<? extends Timeline> timelineClass) {
+        UUID timelineUUID = UUID.fromString(json.get("uuid").getAsString());
         JsonArray compositionsArray = json.getAsJsonArray("compositions");
         List<WrappedComposition> compositions = new ArrayList<>();
 
@@ -262,8 +270,8 @@ public class Timeline {
         }
 
         try {
-            Constructor<? extends Timeline> constructor = timelineClass.getConstructor(List.class);
-            return constructor.newInstance(compositions);
+            Constructor<? extends Timeline> constructor = timelineClass.getConstructor(UUID.class, List.class);
+            return constructor.newInstance(timelineUUID, compositions);
         } catch (Exception e) {
             throw new RuntimeException("Could not create timeline from json", e);
         }
