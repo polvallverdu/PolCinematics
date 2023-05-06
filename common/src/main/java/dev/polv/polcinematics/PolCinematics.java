@@ -24,9 +24,9 @@ public class PolCinematics {
     public static MinecraftServer SERVER = null;
 
     public static void init() {
+        TASK_MANAGER = TaskManager.create();
         CINEMATICS_MANAGER = new ServerCinematicManager();
         GROUP_MANAGER = new GroupManager();
-        TASK_MANAGER = TaskManager.create();
 
         // Registering main command
         CommandRegistrationEvent.EVENT.register(PolCinematicsCommand::register);
