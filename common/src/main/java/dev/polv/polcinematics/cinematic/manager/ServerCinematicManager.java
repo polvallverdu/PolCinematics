@@ -29,7 +29,6 @@ import java.util.function.Consumer;
 public class ServerCinematicManager {
 
     public enum ECinematicState {
-        UNLOADED,
         LOADING,
         LOADED,
         SAVING,
@@ -61,7 +60,7 @@ public class ServerCinematicManager {
         this.broadcastedCinematics = new ArrayList<>();
 
         LifecycleEvent.SERVER_STOPPING.register(server -> {
-            new ArrayList<>(this.loadedCinematics).forEach((c) -> unloadCinematic(c.getUuid()));
+            new ArrayList<>(this.loadedCinematics).forEach(this::unloadCinematic);
             this.broadcastedCinematics.clear();
         });
         PlayerEvent.PLAYER_JOIN.register(player -> {
@@ -118,7 +117,7 @@ public class ServerCinematicManager {
         Cinematic cinematic = Cinematic.create(name, duration);
         this.loadedCinematics.add(cinematic);
         this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.LOADED);
-        this.saveCinematic(cinematic.getUuid());
+        this.saveCinematic(cinematic, null);
         return cinematic;
     }
 
@@ -129,7 +128,7 @@ public class ServerCinematicManager {
      * @param failedCallback Callback to run when the cinematic fails to load
      * @param doneCallback Callback to run when the cinematic is loaded
      */
-    public void loadCinematic(String fileName, @Nullable Consumer<Exception> failedCallback, @Nullable Runnable doneCallback) throws InvalidCinematicException {
+    public void loadCinematic(String fileName, @Nullable Consumer<Exception> failedCallback, @Nullable Consumer<Cinematic> doneCallback) throws InvalidCinematicException {
         File cinematicFile = new File(cinematicFolder, fileName);
         if (!cinematicFile.exists()) {
             throw new InvalidCinematicException("Cinematic file does not exist");
@@ -167,23 +166,18 @@ public class ServerCinematicManager {
 
             PolCinematics.getTaskManager().run((cc) -> {
                 if (doneCallback != null) {
-                    doneCallback.run();
+                    doneCallback.accept(loadedCinematic);
                 }
             }).start();
-        });
+        }).start();
     }
 
     /**
      * Unload a loaded cinematic
      *
-     * @param cinematicUUID The UUID of the cinematic
+     * @param cinematic The {@link Cinematic} to unload
      */
-    public void unloadCinematic(UUID cinematicUUID) {
-        Cinematic cinematic = getCinematic(cinematicUUID);
-        if (cinematic == null) {
-            throw new InvalidCinematicException("Cinematic is not loaded");
-        }
-
+    public void unloadCinematic(Cinematic cinematic) {
         this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.UNLOADING);
 
         this.loadedCinematics.remove(cinematic);
@@ -197,23 +191,31 @@ public class ServerCinematicManager {
     /**
      * Save a loaded cinematic.
      *
-     * @param cinematicUUID The UUID of the cinematic
+     * @param cinematic The {@link Cinematic} to save
+     * @param doneCallback Callback to run when the cinematic is saved
      */
-    public void saveCinematic(UUID cinematicUUID) {
-        Cinematic cinematic = getCinematic(cinematicUUID);
-        if (cinematic == null) {
-            throw new InvalidCinematicException("Cinematic is not loaded");
-        }
-
+    public void saveCinematic(Cinematic cinematic, @Nullable Runnable doneCallback) {
+        if (this.loadedCinematicState.get(cinematic.getUuid()) != ECinematicState.LOADED) return;
+        this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.SAVING);
         File cinematicFile = new File(cinematicFolder, cinematic.getUuid().toString() + ".json");
 
-        try {
-            cinematicFile.createNewFile();
-            JsonObject cinematicJson = cinematic.toJson();
-            GsonUtils.jsonToFile(cinematicJson, cinematicFile);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save cinematic");
-        }
+        PolCinematics.getTaskManager().runAsync((ctx) -> {
+            try {
+                cinematicFile.createNewFile();
+                JsonObject cinematicJson = cinematic.toJson();
+                GsonUtils.jsonToFile(cinematicJson, cinematicFile);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save cinematic");
+            }
+
+            this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.LOADED);
+
+            PolCinematics.getTaskManager().run((cc) -> {
+                if (doneCallback != null) {
+                    doneCallback.run();
+                }
+            }).start();
+        }).start();
     }
 
     /**
@@ -221,7 +223,7 @@ public class ServerCinematicManager {
      */
     public void saveAllCinematics() {
         for (Cinematic cinematic : loadedCinematics) {
-            saveCinematic(cinematic.getUuid());
+            saveCinematic(cinematic, null);
         }
     }
 
