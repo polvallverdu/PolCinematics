@@ -40,6 +40,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.apache.commons/commons-numbers-core
     // implementation 'org.apache.commons:commons-numbers-core:1.1'
     // implementation 'org.apache.commons:commons-lang3:3.0'
+
+    // PolTaskManager
+    implementation("dev.polv:PolTaskManager:v1.0")
 }
 
 publishing {

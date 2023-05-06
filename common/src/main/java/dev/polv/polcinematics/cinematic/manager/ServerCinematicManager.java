@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class ServerCinematicManager {
 
     private final File cinematicFolder;
     private final List<Cinematic> loadedCinematics;
-    private final List<FileCinematic> fileCinematicsCache;
+    private List<FileCinematic> fileCinematicsCache;
     private long lastCacheRefresh;
 
     private final ConcurrentHashMap<UUID, Cinematic> selectedCinematics;
@@ -69,11 +70,15 @@ public class ServerCinematicManager {
             this.selectedCinematics.remove(player.getUuid());
         });
 
+        PolCinematics.getTaskManager().runAsync((ctx) -> {
+            this.loadCache();
+        }).repeat(Duration.ZERO, Duration.ofSeconds(15));
+
         new ServerPacketHandler();
     }
 
     private void loadCache() {
-        fileCinematicsCache.clear();
+        List<FileCinematic> fileCinematics = new ArrayList<>();
 
         if (cinematicFolder.exists()) {
             for (File file : cinematicFolder.listFiles()) {
@@ -81,7 +86,7 @@ public class ServerCinematicManager {
                     try {
                         JsonObject json = GsonUtils.jsonFromFile(file);
                         FileCinematic cinematic = new FileCinematic(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString());
-                        fileCinematicsCache.add(cinematic);
+                        fileCinematics.add(cinematic);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -89,7 +94,7 @@ public class ServerCinematicManager {
             }
         }
 
-        this.lastCacheRefresh = System.currentTimeMillis();
+        this.fileCinematicsCache = fileCinematics;
     }
 
     /**
@@ -317,9 +322,6 @@ public class ServerCinematicManager {
      * @return list of all {@link FileCinematic}
      */
     public List<FileCinematic> getFileCinematics() {
-        if (System.currentTimeMillis() - lastCacheRefresh > 30000) {
-            this.loadCache();
-        }
         return new ArrayList<>(fileCinematicsCache);
     }
 
