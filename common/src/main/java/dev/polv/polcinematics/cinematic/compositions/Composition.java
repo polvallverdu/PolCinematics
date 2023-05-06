@@ -19,7 +19,6 @@ public abstract class Composition {
 
     private UUID uuid;
     private String name;
-    private long duration;
     private ECompositionType type;
     @Nullable private ICompositionType subtype;
 
@@ -29,14 +28,13 @@ public abstract class Composition {
     protected Composition() {
     }
 
-    protected void init(String name, long duration, ECompositionType type) {
-        init(name, duration, type, null);
+    protected void init(String name, ECompositionType type) {
+        init(name, type, null);
     }
 
-    protected void init(String name, long duration, ECompositionType type, @Nullable ICompositionType subtype) {
+    protected void init(String name, ECompositionType type, @Nullable ICompositionType subtype) {
         this.uuid = UUID.randomUUID();
         this.name = name;
-        this.duration = duration;
         this.type = type;
         this.subtype = subtype;
 
@@ -46,7 +44,7 @@ public abstract class Composition {
         this.declareVariables();
     }
 
-    public static Composition create(String name, long duration, ICompositionType typeOrSubtype) {
+    public static Composition create(String name, ICompositionType typeOrSubtype) {
         Composition compo;
         // Separate type from subtype.
         ECompositionType type = typeOrSubtype.getParent();
@@ -64,9 +62,9 @@ public abstract class Composition {
         }
 
         if (type == null) {
-            compo.init(name, duration, (ECompositionType) subtype);
+            compo.init(name, (ECompositionType) subtype);
         } else {
-            compo.init(name, duration, type, subtype);
+            compo.init(name, type, subtype);
         }
 
         return compo;
@@ -78,7 +76,6 @@ public abstract class Composition {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
         this.uuid = data.uuid();
         this.name = data.name();
-        this.duration = data.duration();
         this.type = ECompositionType.getById(json.get("type").getAsInt());
         this.subtype = this.type.hasSubtypes() ? EnumUtils.findSubtype(this.type, json.get("subtype").getAsString()) : null;
     }
@@ -105,10 +102,6 @@ public abstract class Composition {
         return name;
     }
 
-    public long getDuration() {
-        return duration;
-    }
-
     public ECompositionType getType() {
         return type;
     }
@@ -124,10 +117,6 @@ public abstract class Composition {
     /*protected void setName(String name) {
         this.name = name;
     }*/
-
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
 
     public CompositionProperties getProperties() {
         return properties;
@@ -168,7 +157,6 @@ public abstract class Composition {
         JsonObject json = new JsonObject();
         json.addProperty("uuid", this.getUuid().toString());
         json.addProperty("name", this.getName());
-        json.addProperty("duration", this.getDuration());
         json.addProperty("type", this.getType().getId());
         if (this.getSubtype() != null)
             json.addProperty("subtype", this.getSubtype().getName());

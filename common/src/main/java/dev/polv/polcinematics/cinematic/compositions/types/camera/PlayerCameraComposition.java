@@ -13,8 +13,8 @@ public class PlayerCameraComposition extends CameraComposition {
     }
 
     @Override
-    protected void init(String name, long duration, ECompositionType type) {
-        super.init(name, duration, type);
+    protected void init(String name, ECompositionType type) {
+        super.init(name, type);
 
         this.setPerspective(PlayerPerspective.FIRST_PERSON);
     }

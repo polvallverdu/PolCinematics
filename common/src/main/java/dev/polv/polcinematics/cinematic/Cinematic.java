@@ -97,7 +97,7 @@ public class Cinematic {
     public void moveComposition(Timeline.WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException {
         newTimeline.canMoveThrows(composition, newtime);
         oldTimeline.remove(composition);
-        newTimeline.add(composition.getComposition(), newtime);
+        newTimeline.add(composition.getComposition(), newtime, composition.getDuration());
     }
 
     /**
@@ -292,8 +292,8 @@ public class Cinematic {
     public static Cinematic create(String name, long duration) {
         Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new CameraTimeline(), new ArrayList<>());
         cinematic.addTimeline();
-        var playerCamCompo = CameraComposition.create("default_camera", duration, ECameraType.PLAYER);
-        cinematic.cameraTimeline.add(playerCamCompo, 0);
+        var playerCamCompo = CameraComposition.create("default_camera", ECameraType.PLAYER);
+        cinematic.cameraTimeline.add(playerCamCompo, 0, duration);
         return cinematic;
     }
 

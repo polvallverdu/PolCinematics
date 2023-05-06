@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.exception.OverlapException;
+import dev.polv.polcinematics.utils.BasicCompositionData;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -17,14 +18,16 @@ public class Timeline {
 
         private final Composition composition;
         private long startTime;
+        private long duration;
 
-        public WrappedComposition(Composition composition, long startTime) {
+        public WrappedComposition(Composition composition, long startTime, long duration) {
             this.composition = composition;
             this.startTime = startTime;
+            this.duration = duration;
         }
 
         public long getDuration() {
-            return composition.getDuration();
+            return this.duration;
         }
 
         public void setStartTime(long startTime) {
@@ -56,13 +59,13 @@ public class Timeline {
         }
 
         protected void setDuration(long duration) {
-            composition.setDuration(duration);
+            this.duration = duration;
         }
 
         public JsonObject toJson() {
-            JsonObject json = new JsonObject();
-            json.addProperty("startTime", startTime);
-            json.add("composition", composition.toJson());
+            JsonObject json = composition.toJson();
+            json.addProperty("duration", this.getDuration());
+            json.addProperty("startTime", this.getStartTime());
 
             return json;
         }
@@ -119,8 +122,8 @@ public class Timeline {
         compositions.sort((a, b) -> (int) (a.getStartTime() - b.getStartTime()));
     }
 
-    public void add(@NotNull Composition composition, long startTime) {
-        WrappedComposition wc = new WrappedComposition(composition, startTime);
+    public void add(@NotNull Composition composition, long startTime, long duration) throws OverlapException {
+        WrappedComposition wc = new WrappedComposition(composition, startTime, duration);
         for (WrappedComposition wc1 : compositions) {
             if (wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime() > wc1.getStartTime()) {
                 throw new OverlapException(wc, wc1);
@@ -307,19 +310,19 @@ public class Timeline {
     public static Timeline fromJson(JsonObject json, Class<? extends Timeline> timelineClass) {
         JsonArray compositionsArray = json.getAsJsonArray("compositions");
         List<WrappedComposition> compositions = new ArrayList<>();
+
         for (int i = 0; i < compositionsArray.size(); i++) {
             JsonObject compositionJson = compositionsArray.get(i).getAsJsonObject();
-            long startTime = compositionJson.get("startTime").getAsLong();
+            BasicCompositionData data = BasicCompositionData.fromJson(compositionJson);
+
             try {
-                Composition composition = Composition.fromJson(compositionJson.get("composition").getAsJsonObject());
-                compositions.add(new WrappedComposition(composition, startTime));
+                Composition composition = Composition.fromJson(compositionJson);
+                compositions.add(new WrappedComposition(composition, data.startTime(), data.duration()));
             } catch (Exception e) {
                 e.printStackTrace();
                 return null; // TODO: NOT SAFE
             }
         }
-
-        //return new Timeline(compositions);
 
         try {
             Constructor<? extends Timeline> constructor = timelineClass.getConstructor(List.class);

@@ -469,10 +469,10 @@ public class EditorSubcommand {
             }
         }
 
-        Composition compo = Composition.create(compositionName, duration, subtype);
+        Composition compo = Composition.create(compositionName, subtype);
 
         try {
-            timeline.add(compo, startTime);
+            timeline.add(compo, startTime, duration);
         } catch (OverlapException e) {
             ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
         }
@@ -525,7 +525,7 @@ public class EditorSubcommand {
         // Info vars
         String name = composition.getName();
         UUID uuid = composition.getUuid();
-        long duration = composition.getDuration();
+        long duration = wrappedComposition.getDuration();
         long startTime = wrappedComposition.getStartTime();
         long endTime = wrappedComposition.getDuration();
 
