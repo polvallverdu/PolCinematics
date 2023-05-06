@@ -7,7 +7,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
-import dev.polv.polcinematics.commands.groups.PlayerGroup;
+import dev.polv.polcinematics.groups.PlayerGroup;
 import dev.polv.polcinematics.net.Packets;
 import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.server.command.CommandManager;

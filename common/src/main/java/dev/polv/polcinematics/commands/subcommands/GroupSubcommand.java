@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
-import dev.polv.polcinematics.commands.groups.PlayerGroup;
+import dev.polv.polcinematics.groups.PlayerGroup;
 import dev.polv.polcinematics.exception.NameException;
 import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.command.EntitySelectorReader;

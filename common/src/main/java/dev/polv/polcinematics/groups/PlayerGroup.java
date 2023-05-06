@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.commands.groups;
+package dev.polv.polcinematics.groups;
 
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;

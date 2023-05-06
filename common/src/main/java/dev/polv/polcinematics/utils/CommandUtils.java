@@ -15,7 +15,7 @@ import dev.polv.polcinematics.cinematic.manager.FileCinematic;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
-import dev.polv.polcinematics.commands.groups.PlayerGroup;
+import dev.polv.polcinematics.groups.PlayerGroup;
 import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
 import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
 import dev.polv.polcinematics.commands.suggetions.GroupSuggestion;
