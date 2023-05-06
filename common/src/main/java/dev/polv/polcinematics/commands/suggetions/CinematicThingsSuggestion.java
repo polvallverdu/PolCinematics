@@ -12,6 +12,7 @@ import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.value.Value;
+import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
@@ -78,7 +79,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         }
 
         String compositionname = StringArgumentType.getString(context, "composition");
-        Timeline.WrappedComposition wrappedComposition = timeline.findWrappedComposition(compositionname);
+        WrappedComposition wrappedComposition = timeline.findWrappedComposition(compositionname);
 
         if (wrappedComposition == null) {
             return Suggestions.empty();

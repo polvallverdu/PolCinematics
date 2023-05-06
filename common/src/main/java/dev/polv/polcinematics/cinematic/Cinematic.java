@@ -8,6 +8,7 @@ import dev.polv.polcinematics.cinematic.timelines.CameraTimeline;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.compositions.types.overlay.OverlayComposition;
+import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import net.minecraft.client.util.math.MatrixStack;
@@ -88,13 +89,13 @@ public class Cinematic {
     /**
      * Moves a composition from one timeline to another, and changes its start time
      *
-     * @param composition The {@link Timeline.WrappedComposition} to move
+     * @param composition The {@link WrappedComposition} to move
      * @param oldTimeline The {@link Timeline} the composition is currently in
      * @param newTimeline The {@link Timeline} to move the composition to
      * @param newtime The new start time of the composition
      * @throws OverlapException If the composition overlaps with another composition in the new timeline
      */
-    public void moveComposition(Timeline.WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException {
+    public void moveComposition(WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException {
         newTimeline.canMoveThrows(composition, newtime);
         oldTimeline.remove(composition);
         newTimeline.add(composition.getComposition(), newtime, composition.getDuration());
@@ -156,7 +157,7 @@ public class Cinematic {
      * @return A {@link Pair} containing the {@link Timeline} and the {@link Composition}, or null if the composition was not found.
      */
     public Pair<Timeline, Composition> getTimelineAndComposition(UUID compositionUUID) {
-        Timeline.WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionUUID);
+        WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionUUID);
         if (c != null) {
             return new Pair<>(this.cameraTimeline, c.getComposition());
         }
@@ -171,13 +172,13 @@ public class Cinematic {
     }
 
     /**
-     * Get the {@link Timeline} and {@link Timeline.WrappedComposition} by the given composition UUID
+     * Get the {@link Timeline} and {@link WrappedComposition} by the given composition UUID
      *
      * @param compositionQuery The name or {@link UUID} of a composition
-     * @return A {@link Pair} containing the {@link Timeline} and the {@link Timeline.WrappedComposition}, or null if the composition was not found.
+     * @return A {@link Pair} containing the {@link Timeline} and the {@link WrappedComposition}, or null if the composition was not found.
      */
-    public Pair<Timeline, Timeline.WrappedComposition> getTimelineAndWrappedComposition(String compositionQuery) {
-        Timeline.WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionQuery);
+    public Pair<Timeline, WrappedComposition> getTimelineAndWrappedComposition(String compositionQuery) {
+        WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionQuery);
         if (c != null) {
             return new Pair<>(this.cameraTimeline, c);
         }

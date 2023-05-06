@@ -23,6 +23,7 @@ import dev.polv.polcinematics.cinematic.compositions.attributes.Keyframe;
 import dev.polv.polcinematics.cinematic.compositions.value.CompositionProperties;
 import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.value.Value;
+import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.helpers.CommandCooldownHash;
 import dev.polv.polcinematics.commands.suggetions.*;
@@ -501,7 +502,7 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairtc = getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
-        Timeline.WrappedComposition composition = pairtc.getRight();
+        WrappedComposition composition = pairtc.getRight();
 
         if (runDelete(player.getUuid(), String.valueOf(composition.hashCode()))) {
             timeline.remove(composition);
@@ -519,7 +520,7 @@ public class EditorSubcommand {
         var pairtc = getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
         String timelineName = StringArgumentType.getString(ctx, "timeline");
-        Timeline.WrappedComposition wrappedComposition = pairtc.getRight();
+        WrappedComposition wrappedComposition = pairtc.getRight();
         Composition composition = wrappedComposition.getComposition();
 
         // Info vars
@@ -582,7 +583,7 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairtc = getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
-        Timeline.WrappedComposition wrappedComposition = pairtc.getRight();
+        WrappedComposition wrappedComposition = pairtc.getRight();
         Composition composition = wrappedComposition.getComposition();
 
         String timelineName = StringArgumentType.getString(ctx, "timeline");
@@ -732,7 +733,7 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
         var pairtc = getComposition(ctx);
         Timeline timeline = pairtc.getLeft();
-        Timeline.WrappedComposition wc = pairtc.getRight();
+        WrappedComposition wc = pairtc.getRight();
         long newDuration = LongArgumentType.getLong(ctx, "duration");
 
         try {
@@ -931,7 +932,7 @@ public class EditorSubcommand {
         return new Pair<>(cinematic, timeline);
     }
 
-    private static Pair<Timeline, Timeline.WrappedComposition> getComposition(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static Pair<Timeline, WrappedComposition> getComposition(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         Cinematic cinematic = getCinematic(context.getSource().getPlayerOrThrow());
 
         String compoQuery = StringArgumentType.getString(context, "composition");
