@@ -1,6 +1,5 @@
 package dev.polv.polcinematics.commands.suggetions;
 
-import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -8,20 +7,18 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.compositions.core.Composition;
-import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
-import dev.polv.polcinematics.cinematic.compositions.core.attributes.Attribute;
-import dev.polv.polcinematics.cinematic.compositions.core.value.EValueType;
-import dev.polv.polcinematics.cinematic.compositions.core.value.Value;
+import dev.polv.polcinematics.cinematic.compositions.Composition;
+import dev.polv.polcinematics.cinematic.timelines.Timeline;
+import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
+import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.value.Value;
 import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class CinematicThingsSuggestion implements SuggestionProvider<ServerCommandSource> {
 

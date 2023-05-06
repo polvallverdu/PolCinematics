@@ -2,13 +2,12 @@ package dev.polv.polcinematics.cinematic;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
-import dev.polv.polcinematics.cinematic.compositions.camera.ECameraType;
-import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
-import dev.polv.polcinematics.cinematic.compositions.core.CameraTimeline;
-import dev.polv.polcinematics.cinematic.compositions.core.Composition;
-import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
-import dev.polv.polcinematics.cinematic.compositions.overlay.OverlayComposition;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.ECameraType;
+import dev.polv.polcinematics.cinematic.timelines.CameraTimeline;
+import dev.polv.polcinematics.cinematic.compositions.Composition;
+import dev.polv.polcinematics.cinematic.timelines.Timeline;
+import dev.polv.polcinematics.cinematic.compositions.types.overlay.OverlayComposition;
 import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import net.minecraft.client.util.math.MatrixStack;
@@ -89,7 +88,7 @@ public class Cinematic {
     /**
      * Moves a composition from one timeline to another, and changes its start time
      *
-     * @param composition The {@link dev.polv.polcinematics.cinematic.compositions.core.Timeline.WrappedComposition} to move
+     * @param composition The {@link Timeline.WrappedComposition} to move
      * @param oldTimeline The {@link Timeline} the composition is currently in
      * @param newTimeline The {@link Timeline} to move the composition to
      * @param newtime The new start time of the composition
@@ -172,10 +171,10 @@ public class Cinematic {
     }
 
     /**
-     * Get the {@link Timeline} and {@link dev.polv.polcinematics.cinematic.compositions.core.Timeline.WrappedComposition} by the given composition UUID
+     * Get the {@link Timeline} and {@link Timeline.WrappedComposition} by the given composition UUID
      *
      * @param compositionQuery The name or {@link UUID} of a composition
-     * @return A {@link Pair} containing the {@link Timeline} and the {@link dev.polv.polcinematics.cinematic.compositions.core.Timeline.WrappedComposition}, or null if the composition was not found.
+     * @return A {@link Pair} containing the {@link Timeline} and the {@link Timeline.WrappedComposition}, or null if the composition was not found.
      */
     public Pair<Timeline, Timeline.WrappedComposition> getTimelineAndWrappedComposition(String compositionQuery) {
         Timeline.WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionQuery);

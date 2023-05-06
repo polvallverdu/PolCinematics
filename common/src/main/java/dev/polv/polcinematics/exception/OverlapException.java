@@ -1,6 +1,6 @@
 package dev.polv.polcinematics.exception;
 
-import dev.polv.polcinematics.cinematic.compositions.core.Timeline;
+import dev.polv.polcinematics.cinematic.timelines.Timeline;
 
 public class OverlapException extends RuntimeException {
 

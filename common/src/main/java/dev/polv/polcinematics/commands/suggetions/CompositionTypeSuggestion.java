@@ -5,16 +5,10 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import dev.polv.polcinematics.PolCinematics;
-import dev.polv.polcinematics.cinematic.compositions.core.Composition;
-import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
-import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
+import dev.polv.polcinematics.cinematic.compositions.ICompositionType;
 import net.minecraft.server.command.ServerCommandSource;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 public class CompositionTypeSuggestion implements SuggestionProvider<ServerCommandSource> {
 

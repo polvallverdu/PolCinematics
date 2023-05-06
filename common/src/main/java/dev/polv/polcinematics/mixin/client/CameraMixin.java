@@ -1,16 +1,7 @@
 package dev.polv.polcinematics.mixin.client;
 
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraRot;
-import dev.polv.polcinematics.cinematic.compositions.camera.PlayerCameraComposition;
-import dev.polv.polcinematics.client.PolCinematicsClient;
 import net.minecraft.client.render.Camera;
-import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(Camera.class)
 public class CameraMixin {

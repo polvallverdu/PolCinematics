@@ -5,7 +5,6 @@ import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraComposition;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import dev.polv.polcinematics.net.ClientPacketHandler;
 import net.fabricmc.api.EnvType;

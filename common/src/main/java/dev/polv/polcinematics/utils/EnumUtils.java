@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.utils;
 
-import dev.polv.polcinematics.cinematic.compositions.core.ECompositionType;
-import dev.polv.polcinematics.cinematic.compositions.core.ICompositionType;
+import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
+import dev.polv.polcinematics.cinematic.compositions.ICompositionType;
 import org.jetbrains.annotations.Nullable;
 
 public class EnumUtils {
