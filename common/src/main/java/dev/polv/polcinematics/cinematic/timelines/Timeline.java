@@ -129,18 +129,12 @@ public class Timeline {
     }
 
     public void move(UUID compositionUUID, long startTimeDifference) throws OverlapException {
-        this.move(List.of(compositionUUID), startTimeDifference);
-    }
-
-    public void move(List<UUID> compositions, long startTimeDifference) throws OverlapException {
         // Check if composition could be overlapping another one, if not, change start time
         for (WrappedComposition wc : this.compositions) {
-            for (UUID uuid : compositions) {
-                if (wc.getUuid().equals(uuid)) {
-                    long newStartTime = wc.getStartTime() + startTimeDifference;
-                    canMoveThrows(wc, newStartTime);
-                    wc.setStartTime(newStartTime);
-                }
+            if (wc.getUuid().equals(compositionUUID)) {
+                long newStartTime = wc.getStartTime() + startTimeDifference;
+                canMoveThrows(wc, newStartTime);
+                wc.setStartTime(newStartTime);
             }
         }
 
