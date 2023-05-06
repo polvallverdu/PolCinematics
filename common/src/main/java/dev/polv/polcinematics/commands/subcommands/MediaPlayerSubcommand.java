@@ -62,52 +62,52 @@ final public class MediaPlayerSubcommand {
         return mediaPlayerBuilder.build();
     }
 
-    private static List<ServerPlayerEntity> getAllPlayers(CommandContext<ServerCommandSource> context) {
-        return context.getSource().getServer().getPlayerManager().getPlayerList();
+    private static List<ServerPlayerEntity> getAllPlayers(CommandContext<ServerCommandSource> ctx) {
+        return ctx.getSource().getServer().getPlayerManager().getPlayerList();
     }
 
-    private static int resume(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Packets.sendMediaPlayerState(getAllPlayers(context), true);
+    private static int resume(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Packets.sendMediaPlayerState(getAllPlayers(ctx), true);
         return 1;
     }
 
-    private static int stop(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Packets.sendMediaPlayerStop(getAllPlayers(context));
+    private static int stop(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Packets.sendMediaPlayerStop(getAllPlayers(ctx));
         return 1;
     }
 
-    private static int jump(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Packets.sendMediaPlayerSetTime(getAllPlayers(context), LongArgumentType.getLong(context, "time"));
+    private static int jump(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Packets.sendMediaPlayerSetTime(getAllPlayers(ctx), LongArgumentType.getLong(ctx, "time"));
         return 1;
     }
 
-    private static int pause(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Packets.sendMediaPlayerState(getAllPlayers(context), false);
+    private static int pause(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Packets.sendMediaPlayerState(getAllPlayers(ctx), false);
         return 1;
     }
 
-    private static int play(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int play(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         boolean paused = false;
         boolean audioOnly = false;
 
         try {
-            paused = BoolArgumentType.getBool(context, "paused");
+            paused = BoolArgumentType.getBool(ctx, "paused");
         } catch (IllegalArgumentException ignored) {}
         try {
-            audioOnly = BoolArgumentType.getBool(context, "audioOnly");
+            audioOnly = BoolArgumentType.getBool(ctx, "audioOnly");
         } catch (IllegalArgumentException ignored) {}
 
-        Packets.sendMediaPlayerCreate(getAllPlayers(context), StringArgumentType.getString(context, "path"), paused, audioOnly);
+        Packets.sendMediaPlayerCreate(getAllPlayers(ctx), StringArgumentType.getString(ctx, "path"), paused, audioOnly);
         return 1;
     }
 
-    /*private static int alpha(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        alpha = FloatArgumentType.getFloat(context, "alpha");
+    /*private static int alpha(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        alpha = FloatArgumentType.getFloat(ctx, "alpha");
         return 1;
     }
 */
-    private static int volume(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Packets.sendMediaPlayerSetVolume(getAllPlayers(context), LongArgumentType.getLong(context, "volume"));
+    private static int volume(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Packets.sendMediaPlayerSetVolume(getAllPlayers(ctx), LongArgumentType.getLong(ctx, "volume"));
         return 1;
     }
 

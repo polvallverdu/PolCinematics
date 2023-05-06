@@ -29,7 +29,7 @@ public class CompositionTypeSuggestion implements SuggestionProvider<ServerComma
     }
 
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> ctx, SuggestionsBuilder builder) throws CommandSyntaxException {
         for (ICompositionType type : types) {
             builder.suggest(type.getName());
         }

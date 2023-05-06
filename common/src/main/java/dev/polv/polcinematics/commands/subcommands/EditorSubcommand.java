@@ -161,12 +161,12 @@ public class EditorSubcommand {
         editorBuilder.then(
                 l("create")
                         .then(
-                                l("timeline").executes((context) -> {
-                                    Cinematic cinematic = CommandUtils.getCinematic(context);
+                                l("timeline").executes((ctx) -> {
+                                    Cinematic cinematic = CommandUtils.getCinematic(ctx);
 
                                     Timeline timeline = cinematic.addTimeline();
 
-                                    context.getSource().sendMessage(Text.literal(PolCinematicsCommand.PREFIX + "Timeline " + cinematic.getTimelineCount() + " created"));
+                                    ctx.getSource().sendMessage(Text.literal(PolCinematicsCommand.PREFIX + "Timeline " + cinematic.getTimelineCount() + " created"));
                                     return 1;
                                 })
                         )
@@ -420,8 +420,8 @@ public class EditorSubcommand {
 
         editorBuilder.then(
                 l("help")
-                        .executes(context -> {
-                            context.getSource().sendMessage(Text.of(SUBCOMMANDS));
+                        .executes(ctx -> {
+                            ctx.getSource().sendMessage(Text.of(SUBCOMMANDS));
                             return 1;
                         })
         );

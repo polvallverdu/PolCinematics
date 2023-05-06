@@ -81,10 +81,10 @@ public class CommandUtils {
         return null;
     }
 
-    public static Pair<Cinematic, Timeline> getTimeline(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+    public static Pair<Cinematic, Timeline> getTimeline(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Cinematic cinematic = getCinematic(ctx);
 
-        String timelineName = StringArgumentType.getString(context, "timeline");
+        String timelineName = StringArgumentType.getString(ctx, "timeline");
         Timeline timeline = cinematic.resolveTimeline(timelineName);
 
         if (timeline == null) {
@@ -94,10 +94,10 @@ public class CommandUtils {
         return new Pair<>(cinematic, timeline);
     }
 
-    public static Pair<Timeline, WrappedComposition> getComposition(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(context);
+    public static Pair<Timeline, WrappedComposition> getComposition(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Cinematic cinematic = getCinematic(ctx);
 
-        String compoQuery = StringArgumentType.getString(context, "composition");
+        String compoQuery = StringArgumentType.getString(ctx, "composition");
         var pair = cinematic.getTimelineAndWrappedComposition(compoQuery);
 
         if (pair == null)
@@ -106,9 +106,9 @@ public class CommandUtils {
         return pair;
     }
 
-    public static Pair<String, Value> getProperty(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var pairtc = getComposition(context);
-        String propertyKey = StringArgumentType.getString(context, "property");
+    public static Pair<String, Value> getProperty(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        var pairtc = getComposition(ctx);
+        String propertyKey = StringArgumentType.getString(ctx, "property");
 
         Value value = pairtc.getRight().getComposition().getProperty(propertyKey);
 
@@ -118,9 +118,9 @@ public class CommandUtils {
         return new Pair<>(propertyKey, value);
     }
 
-    public static Pair<String, Attribute> getAttribute(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var pairtc = getComposition(context);
-        String attributeKey = StringArgumentType.getString(context, "attribute");
+    public static Pair<String, Attribute> getAttribute(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        var pairtc = getComposition(ctx);
+        String attributeKey = StringArgumentType.getString(ctx, "attribute");
 
         Attribute attr = pairtc.getRight().getComposition().getAttribute(attributeKey);
 
@@ -130,11 +130,11 @@ public class CommandUtils {
         return new Pair<>(attributeKey, attr);
     }
 
-    public static Pair<Long, Keyframe> getKeyframe(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var pairkattr = getAttribute(context);
-        long time = LongArgumentType.getLong(context, "time");
+    public static Pair<Long, Keyframe> getKeyframe(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        var pairkattr = getAttribute(ctx);
+        long time = LongArgumentType.getLong(ctx, "time");
 
-        Keyframe keyframe = pairkattr.getRight().getExactKeyframe(LongArgumentType.getLong(context, "time"));
+        Keyframe keyframe = pairkattr.getRight().getExactKeyframe(LongArgumentType.getLong(ctx, "time"));
 
         if (keyframe == null)
             throw PolCinematicsCommand.INVALID_KEYFRAME.create();
@@ -170,7 +170,7 @@ public class CommandUtils {
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> arg_selector() {
         return CommandManager.argument("selector", StringArgumentType.greedyString())
-                .suggests((context, builder) -> EntityArgumentType.players().listSuggestions(context, builder));
+                .suggests((ctx, builder) -> EntityArgumentType.players().listSuggestions(ctx, builder));
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, Long> arg_from() {

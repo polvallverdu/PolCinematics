@@ -40,8 +40,8 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
     }
 
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayer();
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> ctx, SuggestionsBuilder builder) throws CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayer();
 
         if (player == null) {
             return Suggestions.empty();
@@ -62,7 +62,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return builder.buildFuture();
         }
 
-        String timelinename = StringArgumentType.getString(context, "timeline");
+        String timelinename = StringArgumentType.getString(ctx, "timeline");
         Timeline timeline = cinematic.resolveTimeline(timelinename);
 
         if (timeline == null) {
@@ -78,7 +78,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return builder.buildFuture();
         }
 
-        String compositionname = StringArgumentType.getString(context, "composition");
+        String compositionname = StringArgumentType.getString(ctx, "composition");
         WrappedComposition wrappedComposition = timeline.findWrappedComposition(compositionname);
 
         if (wrappedComposition == null) {
@@ -108,7 +108,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             EValueType valueType = null;
 
             if (type == SuggestionType.PROPERTY_VALUE) {
-                String propertyValue = StringArgumentType.getString(context, "property");
+                String propertyValue = StringArgumentType.getString(ctx, "property");
                 Value val = composition.getProperty(propertyValue);
                 if (val == null) {
                     return Suggestions.empty();
@@ -118,7 +118,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             }
 
             if (type == SuggestionType.ATTRIBUTE_VALUE) {
-                String attributeKey = StringArgumentType.getString(context, "attribute");
+                String attributeKey = StringArgumentType.getString(ctx, "attribute");
                 Attribute attr = composition.getAttribute(attributeKey);
                 if (attr == null) {
                     return Suggestions.empty();
@@ -132,7 +132,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
                     return Suggestions.empty();
                 }
                 case CAMERAPOS -> {
-                    return Vec3ArgumentType.vec3().listSuggestions(context, builder);
+                    return Vec3ArgumentType.vec3().listSuggestions(ctx, builder);
                 }
                 case BOOLEAN -> {
                     builder.suggest("true");
