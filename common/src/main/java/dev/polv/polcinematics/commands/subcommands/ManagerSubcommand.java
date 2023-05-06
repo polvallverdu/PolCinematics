@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.manager.SimpleCinematic;
+import dev.polv.polcinematics.cinematic.manager.FileCinematic;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
@@ -113,11 +113,11 @@ final public class ManagerSubcommand {
     }
 
     private static int load(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        SimpleCinematic simpleCinematic = CommandUtils.getFileCinematic(ctx);
+        FileCinematic fileCinematic = CommandUtils.getFileCinematic(ctx);
 
         Cinematic cinematic;
         try {
-            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(simpleCinematic.uuid() + ".json");
+            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(fileCinematic.uuid() + ".json");
         } catch (InvalidCinematicException e) {
             ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic not found"));
             e.printStackTrace();
@@ -184,7 +184,7 @@ final public class ManagerSubcommand {
     private static int listfiles(CommandContext<ServerCommandSource> ctx) {
         MutableText msg = Text.literal(PolCinematicsCommand.PREFIX + "§7File Cinematics: §f");
 
-        PolCinematics.CINEMATICS_MANAGER.getSimpleCinematics().forEach(sc -> {
+        PolCinematics.CINEMATICS_MANAGER.getFileCinematics().forEach(sc -> {
             boolean isLoaded = PolCinematics.CINEMATICS_MANAGER.isCinematicLoaded(sc.uuid());
 
             MutableText ctext = Text.literal("§f[" + (isLoaded ? "§aLOADED" : "§cUNLOADED") + "§f] " + sc.name() + " ");

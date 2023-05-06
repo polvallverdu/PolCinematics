@@ -33,7 +33,7 @@ public class ServerCinematicManager {
 
     private final File cinematicFolder;
     private final List<Cinematic> loadedCinematics;
-    private final List<SimpleCinematic> fileCinematicsCache;
+    private final List<FileCinematic> fileCinematicsCache;
     private long lastCacheRefresh;
 
     private final ConcurrentHashMap<UUID, Cinematic> selectedCinematics;
@@ -80,7 +80,7 @@ public class ServerCinematicManager {
                 if (file.getName().endsWith(".json")) {
                     try {
                         JsonObject json = GsonUtils.jsonFromFile(file);
-                        SimpleCinematic cinematic = new SimpleCinematic(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString());
+                        FileCinematic cinematic = new FileCinematic(UUID.fromString(json.get("uuid").getAsString()), json.get("name").getAsString());
                         fileCinematicsCache.add(cinematic);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -262,15 +262,15 @@ public class ServerCinematicManager {
     }
 
     /**
-     * Get a {@link SimpleCinematic} by {@link UUID}
+     * Get a {@link FileCinematic} by {@link UUID}
      * <br>
-     * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
+     * A {@link FileCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
      *
      * @param uuid The {@link UUID} of the cinematic
      * @return The cinematic, or null if not found
      */
-    public @Nullable SimpleCinematic getSimpleCinematic(UUID uuid) {
-        for (SimpleCinematic cinematic : fileCinematicsCache) {
+    public @Nullable FileCinematic getFileCinematic(UUID uuid) {
+        for (FileCinematic cinematic : fileCinematicsCache) {
             if (cinematic.uuid().equals(uuid)) {
                 return cinematic;
             }
@@ -279,15 +279,15 @@ public class ServerCinematicManager {
     }
 
     /**
-     * Get a {@link SimpleCinematic} by name or {@link UUID#toString()}
+     * Get a {@link FileCinematic} by name or {@link UUID#toString()}
      * <br>
-     * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
+     * A {@link FileCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
      *
      * @param cinematicName The name of the cinematic or it's UUID strigified.
-     * @return The {@link SimpleCinematic}, or null if not found
+     * @return The {@link FileCinematic}, or null if not found
      */
-    public @Nullable SimpleCinematic getSimpleCinematic(String cinematicName) {
-        for (SimpleCinematic cinematic : fileCinematicsCache) {
+    public @Nullable FileCinematic getFileCinematic(String cinematicName) {
+        for (FileCinematic cinematic : fileCinematicsCache) {
             if (cinematic.name().equalsIgnoreCase(cinematicName)) {
                 return cinematic;
             }
@@ -296,17 +296,17 @@ public class ServerCinematicManager {
     }
 
     /**
-     * Get a {@link SimpleCinematic} by name or {@link UUID}
+     * Get a {@link FileCinematic} by name or {@link UUID}
      * <br>
-     * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
+     * A {@link FileCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
      * @param nameOrUUID The name of the cinematic or it's UUID strigified.
-     * @return The {@link SimpleCinematic}, or null if not found
+     * @return The {@link FileCinematic}, or null if not found
      */
-    public @Nullable SimpleCinematic resolveSimpleCinematic(String nameOrUUID) {
-        SimpleCinematic cinematic = getSimpleCinematic(nameOrUUID);
+    public @Nullable FileCinematic resolveFileCinematic(String nameOrUUID) {
+        FileCinematic cinematic = getFileCinematic(nameOrUUID);
         if (cinematic == null) {
             try {
-                cinematic = getSimpleCinematic(UUID.fromString(nameOrUUID));
+                cinematic = getFileCinematic(UUID.fromString(nameOrUUID));
             } catch (IllegalArgumentException ignored) {
             }
         }
@@ -314,9 +314,9 @@ public class ServerCinematicManager {
     }
 
     /**
-     * @return list of all {@link SimpleCinematic}
+     * @return list of all {@link FileCinematic}
      */
-    public List<SimpleCinematic> getSimpleCinematics() {
+    public List<FileCinematic> getFileCinematics() {
         if (System.currentTimeMillis() - lastCacheRefresh > 30000) {
             this.loadCache();
         }
@@ -330,7 +330,7 @@ public class ServerCinematicManager {
      * @return true if the name is taken, false otherwise
      */
     public boolean isNameTaken(String name) {
-        return this.getSimpleCinematic(name) != null;
+        return this.getFileCinematic(name) != null;
     }
 
     public boolean isCinematicBroadcasted(Cinematic cinematic) {

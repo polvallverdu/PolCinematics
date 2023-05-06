@@ -11,7 +11,7 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.attributes.Keyframe;
 import dev.polv.polcinematics.cinematic.compositions.value.Value;
-import dev.polv.polcinematics.cinematic.manager.SimpleCinematic;
+import dev.polv.polcinematics.cinematic.manager.FileCinematic;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
@@ -60,10 +60,10 @@ public class CommandUtils {
         return cinematic;
     }
 
-    public static SimpleCinematic getFileCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        SimpleCinematic cinematic = null;
+    public static FileCinematic getFileCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        FileCinematic cinematic = null;
         String cinematicResolver = StringArgumentType.getString(ctx, "filename");
-        cinematic = PolCinematics.CINEMATICS_MANAGER.resolveSimpleCinematic(cinematicResolver);
+        cinematic = PolCinematics.CINEMATICS_MANAGER.resolveFileCinematic(cinematicResolver);
 
         if (cinematic == null) {
             throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
