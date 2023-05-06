@@ -45,7 +45,7 @@ public class WrappedComposition {
         return startTime + time + getDuration();
     }
 
-    public UUID getUUID() {
+    public UUID getUuid() {
         return composition.getUuid();
     }
 

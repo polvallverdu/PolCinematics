@@ -41,7 +41,7 @@ public class Timeline {
 
     public WrappedComposition findWrappedComposition(UUID uuid) {
         for (WrappedComposition wc : compositions) {
-            if (wc.getUUID().equals(uuid)) {
+            if (wc.getUuid().equals(uuid)) {
                 return wc;
             }
         }
@@ -78,7 +78,7 @@ public class Timeline {
 
     public void remove(UUID compositionUUID) {
         for (WrappedComposition wc : new ArrayList<>(compositions)) {
-            if (wc.getUUID().equals(compositionUUID)) {
+            if (wc.getUuid().equals(compositionUUID)) {
                 compositions.remove(wc);
                 break;
             }
@@ -91,7 +91,7 @@ public class Timeline {
 
     public void changeDuration(UUID compositionUUID, long newDuration) throws IllegalArgumentException, OverlapException {
         for (WrappedComposition wc : compositions) {
-            if (wc.getUUID().equals(compositionUUID)) {
+            if (wc.getUuid().equals(compositionUUID)) {
                 this.changeDuration(wc, newDuration);
                 return;
             }
@@ -136,7 +136,7 @@ public class Timeline {
         // Check if composition could be overlapping another one, if not, change start time
         for (WrappedComposition wc : this.compositions) {
             for (UUID uuid : compositions) {
-                if (wc.getUUID().equals(uuid)) {
+                if (wc.getUuid().equals(uuid)) {
                     long newStartTime = wc.getStartTime() + startTimeDifference;
                     canMoveThrows(wc, newStartTime);
                     wc.setStartTime(newStartTime);

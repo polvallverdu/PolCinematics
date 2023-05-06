@@ -71,7 +71,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
 
         if (type == SuggestionType.COMPOSITION) {
             timeline.getWrappedCompositions().forEach(wc -> {
-                builder.suggest(wc.getUUID().toString(), Text.of(wc.getComposition().getName()));
+                builder.suggest(wc.getUuid().toString(), Text.of(wc.getComposition().getName()));
                 builder.suggest(wc.getComposition().getName());
             });
 

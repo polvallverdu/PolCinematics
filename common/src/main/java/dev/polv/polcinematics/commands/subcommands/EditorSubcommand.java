@@ -646,13 +646,13 @@ public class EditorSubcommand {
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineArg + " " + wc.getUUID().toString()))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineArg + " " + wc.getUuid().toString()))
             );
             MutableText duration = Text.literal(" [DURATION] ").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GREEN)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce duration composition " + timelineArg + " " + wc.getUUID().toString() + " "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce duration composition " + timelineArg + " " + wc.getUuid().toString() + " "))
             );
             MutableText delete = Text.literal("[DELETE]").setStyle(
                     Style.EMPTY
@@ -905,7 +905,7 @@ public class EditorSubcommand {
         long newtime = LongArgumentType.getLong(ctx, "newtime");
 
         try {
-            timeline.move(pairtc.getRight().getUUID(), newtime);
+            timeline.move(pairtc.getRight().getUuid(), newtime);
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline has been moved."));
         } catch (OverlapException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
