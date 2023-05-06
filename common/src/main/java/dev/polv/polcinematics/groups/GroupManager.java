@@ -3,6 +3,7 @@ package dev.polv.polcinematics.groups;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.architectury.platform.Platform;
+import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.exception.NameException;
 import dev.polv.polcinematics.utils.GsonUtils;
 
@@ -13,19 +14,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Semaphore;
 
 public class GroupManager {
 
     private final File groupDataFile;
 
     private final List<PlayerGroup> groups;
+    private final static Semaphore savingLock = new Semaphore(1);
 
     public GroupManager() {
-        Path dataPath = Platform.getConfigFolder().resolve("polcinematics/data/groups.json");
-        groupDataFile = dataPath.toFile();
+        Path dataPath = Platform.getConfigFolder().resolve("polcinematics/data");
+        groupDataFile = new File(dataPath.toFile(), "groups.json");
 
         if (!groupDataFile.exists()) {
-            groupDataFile.mkdirs();
+            dataPath.toFile().mkdirs();
             try {
                 groupDataFile.createNewFile();
             } catch (IOException e) {
@@ -37,7 +40,6 @@ public class GroupManager {
         this.groups = Collections.synchronizedList(new ArrayList<>());
 
         this.loadFromJson();
-        this.scheduleSave();
     }
 
     private void loadFromJson() {
@@ -53,37 +55,24 @@ public class GroupManager {
         });
     }
 
-    private void save(boolean scheduleSave) { // TODO: Make it threadsafe
-        JsonObject json = new JsonObject();
-        JsonArray groups = new JsonArray();
-        this.groups.stream().map(PlayerGroup::toJson).forEach(groups::add);
-        json.add("groups", groups);
-
-        try {
-            GsonUtils.jsonToFile(json, groupDataFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public void save() {
+        if (!savingLock.tryAcquire()) {
+            return;
         }
 
-        if (scheduleSave) {
-            scheduleSave();
-        }
-    }
+        PolCinematics.getTaskManager().runAsync((ctx) -> {
+            JsonObject json = new JsonObject();
+            JsonArray groups = new JsonArray();
+            this.groups.stream().map(PlayerGroup::toJson).forEach(groups::add);
+            json.add("groups", groups);
 
-    private void scheduleSave() {
-        new Thread(() -> {
             try {
-                Thread.sleep(30000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                GsonUtils.jsonToFile(json, groupDataFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
+                savingLock.release();
             }
-            save(true);
-        }).start();
-    }
-
-    public void save() { // TODO: Make it more efficient
-        new Thread(() -> {
-            save(false);
         }).start();
     }
 
