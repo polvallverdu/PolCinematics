@@ -30,34 +30,20 @@ import java.util.UUID;
 
 public class PlayerSubcommand {
 
-    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_cinematic() {
-        return CommandManager.argument("cinematic", StringArgumentType.word())
-                .suggests(new CinematicLoadedSuggestion());
-    }
-
-    private static RequiredArgumentBuilder<ServerCommandSource, Long> arg_from() {
-        return CommandManager.argument("from", LongArgumentType.longArg(0));
-    }
-
-    private static RequiredArgumentBuilder<ServerCommandSource, Boolean> arg_paused() {
-        return CommandManager.argument("paused", BoolArgumentType.bool());
-    }
     
     public static LiteralCommandNode<ServerCommandSource> build() {
         LiteralArgumentBuilder<ServerCommandSource> controlArgumentBuilder = CommandManager.literal("control");
 
         controlArgumentBuilder.then(CommandManager.literal("broadcast")
                 .then(
-                        CommandManager.argument("cinematic", StringArgumentType.string())
-                        .suggests(new CinematicLoadedSuggestion())
+                        CommandUtils.arg_cinematic()
                         .executes(PlayerSubcommand::broadcast)
                 )
         );
 
         controlArgumentBuilder.then(CommandManager.literal("unbroadcast")
                 .then(
-                        CommandManager.argument("cinematic", StringArgumentType.string())
-                                .suggests(new CinematicLoadedSuggestion())
+                        CommandUtils.arg_cinematic()
                                 .executes(PlayerSubcommand::unbroadcast)
                 )
         );
@@ -67,11 +53,11 @@ public class PlayerSubcommand {
                         .then(
                                 CommandManager.literal("all")
                                         .then(
-                                                arg_cinematic()
+                                                CommandUtils.arg_cinematic()
                                                         .then(
-                                                                arg_from()
+                                                                CommandUtils.arg_from()
                                                                         .then(
-                                                                                arg_paused()
+                                                                                CommandUtils.arg_paused()
                                                                                         .executes(PlayerSubcommand::play)
                                                                         )
                                                                         .executes(PlayerSubcommand::play)
@@ -83,14 +69,13 @@ public class PlayerSubcommand {
                         .then(
                                 CommandManager.literal("group")
                                         .then(
-                                                CommandManager.argument("group", StringArgumentType.word())
-                                                        .suggests(new GroupSuggestion())
+                                                CommandUtils.arg_group()
                                                         .then(
-                                                                arg_cinematic()
+                                                                CommandUtils.arg_cinematic()
                                                                         .then(
-                                                                                arg_from()
+                                                                                CommandUtils.arg_from()
                                                                                         .then(
-                                                                                                arg_paused()
+                                                                                                CommandUtils.arg_paused()
                                                                                                         .executes(PlayerSubcommand::play)
                                                                                         )
                                                                                         .executes(PlayerSubcommand::play)
@@ -104,7 +89,7 @@ public class PlayerSubcommand {
         controlArgumentBuilder.then(
                 CommandManager.literal("stop")
                         .then(
-                                arg_cinematic()
+                                CommandUtils.arg_cinematic()
                                         .executes(PlayerSubcommand::stop)
                         )
         );
@@ -112,7 +97,7 @@ public class PlayerSubcommand {
         controlArgumentBuilder.then(
                 CommandManager.literal("pause")
                         .then(
-                                arg_cinematic()
+                                CommandUtils.arg_cinematic()
                                         .executes(PlayerSubcommand::pause)
                         )
         );
@@ -120,9 +105,9 @@ public class PlayerSubcommand {
         controlArgumentBuilder.then(
                 CommandManager.literal("goto")
                         .then(
-                                arg_cinematic()
+                                CommandUtils.arg_cinematic()
                                         .then(
-                                                CommandManager.argument("to", LongArgumentType.longArg(0))
+                                                CommandUtils.arg_to()
                                                         .executes(PlayerSubcommand::gotocmd)
                                         )
                         )
@@ -131,7 +116,7 @@ public class PlayerSubcommand {
         controlArgumentBuilder.then(
                 CommandManager.literal("resume")
                         .then(
-                                arg_cinematic()
+                                CommandUtils.arg_cinematic()
                                         .executes(PlayerSubcommand::resume)
                         )
         );

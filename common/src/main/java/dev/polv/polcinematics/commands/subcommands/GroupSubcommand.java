@@ -10,6 +10,7 @@ import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.groups.PlayerGroup;
 import dev.polv.polcinematics.commands.suggetions.GroupSuggestion;
 import dev.polv.polcinematics.exception.NameException;
+import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.command.EntitySelector;
 import net.minecraft.command.EntitySelectorReader;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -28,8 +29,7 @@ public class GroupSubcommand {
                                 .then(
                                         CommandManager.argument("name", StringArgumentType.word())
                                                 .then(
-                                                        CommandManager.argument("selector", StringArgumentType.greedyString())
-                                                                .suggests((context, builder) -> EntityArgumentType.players().listSuggestions(context, builder))
+                                                        CommandUtils.arg_selector()
                                                                 .executes((ctx) -> {
                                                                     String selectorString = StringArgumentType.getString(ctx, "selector");
                                                                     try {
@@ -63,17 +63,12 @@ public class GroupSubcommand {
                 .then(
                         CommandManager.literal("delete")
                                 .then(
-                                        CommandManager.argument("name", StringArgumentType.word())
-                                                .suggests(new GroupSuggestion())
+                                        CommandUtils.arg_group()
                                                 .executes((ctx) -> {
-                                                    String name = StringArgumentType.getString(ctx, "name");
-                                                    PlayerGroup group = PolCinematics.getGroupManager().resolveGroup(name);
-                                                    if (group == null) {
-                                                        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "Group " + name + " not found."));
-                                                        return 1;
-                                                    }
+                                                    PlayerGroup group = CommandUtils.getGroup(ctx);
+
                                                     PolCinematics.getGroupManager().deleteGroup(group);
-                                                    ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "Group " + name + " deleted."));
+                                                    ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "Group " + group.getName() + " deleted."));
                                                     return 1;
                                                 })
                                 )
@@ -81,20 +76,14 @@ public class GroupSubcommand {
                 .then(
                         CommandManager.literal("modify")
                                 .then(
-                                        CommandManager.argument("name", StringArgumentType.word())
-                                                .suggests(new GroupSuggestion())
+                                        CommandUtils.arg_group()
                                                 .then(
                                                         CommandManager.literal("selector")
                                                                 .then(
-                                                                        CommandManager.argument("selector", StringArgumentType.greedyString())
-                                                                                .suggests((context, builder) -> EntityArgumentType.players().listSuggestions(context, builder))
-                                                                                .executes((ctx) -> {
-                                                                                    String groupname = StringArgumentType.getString(ctx, "name");
-                                                                                    PlayerGroup group = PolCinematics.getGroupManager().resolveGroup(groupname);
-                                                                                    if (group == null) {
-                                                                                        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "Group " + groupname + " not found."));
-                                                                                        return 1;
-                                                                                    }
+                                                                        CommandUtils.arg_selector()
+                                                                        .executes((ctx) -> {
+                                                                                    PlayerGroup group = CommandUtils.getGroup(ctx);
+
                                                                                     String selectorString = StringArgumentType.getString(ctx, "selector");
                                                                                     group.setSelector(selectorString);
                                                                                     PolCinematics.getGroupManager().save();

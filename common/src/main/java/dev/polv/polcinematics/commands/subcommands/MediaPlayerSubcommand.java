@@ -9,6 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.net.Packets;
+import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -26,8 +27,7 @@ final public class MediaPlayerSubcommand {
                 CommandManager
                         .literal("jump")
                         .then(
-                                CommandManager
-                                        .argument("time", LongArgumentType.longArg(0))
+                                CommandUtils.arg_time()
                                         .executes(MediaPlayerSubcommand::jump)
                         )
         );

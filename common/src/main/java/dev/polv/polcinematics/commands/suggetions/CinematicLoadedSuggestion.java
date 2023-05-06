@@ -7,6 +7,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -14,12 +15,11 @@ public class CinematicLoadedSuggestion implements SuggestionProvider<ServerComma
 
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-        try {
-            String cinematicname = context.getArgument("cinematicname", String.class);
-            PolCinematics.CINEMATICS_MANAGER.getLoadedCinematics().stream().filter(cinematic -> cinematic.getName().toLowerCase().contains(cinematicname.toLowerCase())).forEach(cinematic -> builder.suggest(cinematic.getName()));
-        } catch (Exception ignore) {
-            PolCinematics.CINEMATICS_MANAGER.getLoadedCinematics().forEach(cinematic -> builder.suggest(cinematic.getName()));
-        }
+        PolCinematics.CINEMATICS_MANAGER.getLoadedCinematics().forEach(cinematic -> {
+            builder.suggest(cinematic.getName());
+            builder.suggest(cinematic.getUuid().toString(), Text.of(cinematic.getName()));
+        });
+
         return builder.buildFuture();
     }
 

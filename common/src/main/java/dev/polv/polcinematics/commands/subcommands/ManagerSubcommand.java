@@ -26,14 +26,43 @@ final public class ManagerSubcommand {
     public static LiteralCommandNode<ServerCommandSource> build() {
         LiteralArgumentBuilder<ServerCommandSource> managerArgumentBuilder = CommandManager.literal("manager");
 
-        managerArgumentBuilder.then(CommandManager.literal("select").then(CommandManager.argument("cinematic", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::select)));
-        managerArgumentBuilder.then(CommandManager.literal("load").then(CommandManager.argument("filename", StringArgumentType.string()).suggests(new CinematicFileSuggetion()).executes(ManagerSubcommand::load)));
-        managerArgumentBuilder.then(CommandManager.literal("unload").then(CommandManager.argument("cinematic", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::unload)));
-        managerArgumentBuilder.then(CommandManager.literal("create").then(CommandManager.argument("cinematic", StringArgumentType.word()).executes(ManagerSubcommand::create)));
+        managerArgumentBuilder.then(
+                CommandManager.literal("select")
+                        .then(
+                                CommandUtils.arg_cinematic()
+                                        .executes(ManagerSubcommand::select)
+                        )
+        );
+
+        managerArgumentBuilder.then(
+                CommandManager.literal("load")
+                        .then(
+                                CommandUtils.arg_filecinematic()
+                                        .executes(ManagerSubcommand::load)
+                        )
+        );
+
+        managerArgumentBuilder.then(
+                CommandManager.literal("unload")
+                        .then(
+                                CommandUtils.arg_cinematic()
+                                        .executes(ManagerSubcommand::unload)
+                        )
+        );
+
+        managerArgumentBuilder.then(
+                CommandManager.literal("create")
+                        .then(
+                                CommandManager.argument("cinematic", StringArgumentType.word())
+                                        .executes(ManagerSubcommand::create)
+                        )
+        );
+
         managerArgumentBuilder.then(
                 CommandManager.literal("save")
                         .then(
-                                CommandManager.argument("cinematic", StringArgumentType.word()).suggests(new CinematicLoadedSuggestion()).executes(ManagerSubcommand::save)
+                                CommandUtils.arg_cinematic()
+                                        .executes(ManagerSubcommand::save)
                         )
                         .executes(ManagerSubcommand::save)
         );
@@ -83,28 +112,26 @@ final public class ManagerSubcommand {
     }
 
     private static int load(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        String name = context.getArgument("filename", String.class);
-
-        SimpleCinematic filename = PolCinematics.CINEMATICS_MANAGER.getSimpleCinematic(name);
+        SimpleCinematic simpleCinematic = CommandUtils.getFileCinematic(context);
 
         Cinematic cinematic;
         try {
-            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(filename.uuid() + ".json");
+            cinematic = PolCinematics.CINEMATICS_MANAGER.loadCinematic(simpleCinematic.uuid() + ".json");
         } catch (InvalidCinematicException e) {
-            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + name + " §cnot found"));
+            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic not found"));
             e.printStackTrace();
             return 1;
         } catch (AlreadyLoadedCinematicException e) {
-            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + name + " §cis already loaded"));
+            context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Cinematic is already loaded"));
             return 1;
         }
 
-        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLoaded cinematic §6" + cinematic.getName()));
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Loaded cinematic §f" + cinematic.getName()));
 
         ServerPlayerEntity player = context.getSource().getPlayerOrThrow();
         PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, cinematic);
 
-        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
+        context.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Selected cinematic §f" + cinematic.getName()));
         return 1;
     }
 

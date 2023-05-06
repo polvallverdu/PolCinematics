@@ -263,13 +263,13 @@ public class ServerCinematicManager {
 
     /**
      * Get a {@link SimpleCinematic} by {@link UUID}
-     * <p>
+     * <br>
      * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
      *
      * @param uuid The {@link UUID} of the cinematic
      * @return The cinematic, or null if not found
      */
-    public SimpleCinematic getSimpleCinematic(UUID uuid) {
+    public @Nullable SimpleCinematic getSimpleCinematic(UUID uuid) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
             if (cinematic.uuid().equals(uuid)) {
                 return cinematic;
@@ -280,20 +280,37 @@ public class ServerCinematicManager {
 
     /**
      * Get a {@link SimpleCinematic} by name or {@link UUID#toString()}
-     * <p>
+     * <br>
      * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
      *
-     * @param nameOrUUID The name of the cinematic or it's UUID strigified.
-     * @return
+     * @param cinematicName The name of the cinematic or it's UUID strigified.
+     * @return The {@link SimpleCinematic}, or null if not found
      */
-    public SimpleCinematic getSimpleCinematic(String nameOrUUID) {
+    public @Nullable SimpleCinematic getSimpleCinematic(String cinematicName) {
         for (SimpleCinematic cinematic : fileCinematicsCache) {
-            if (cinematic.name().equalsIgnoreCase(nameOrUUID) ||
-                    cinematic.uuid().toString().replaceAll("-", "").equalsIgnoreCase(nameOrUUID.replace("-", ""))) {
+            if (cinematic.name().equalsIgnoreCase(cinematicName)) {
                 return cinematic;
             }
         }
         return null;
+    }
+
+    /**
+     * Get a {@link SimpleCinematic} by name or {@link UUID}
+     * <br>
+     * A {@link SimpleCinematic} is a cinematic that is not loaded into memory, but exists in the cinematics folder.
+     * @param nameOrUUID The name of the cinematic or it's UUID strigified.
+     * @return The {@link SimpleCinematic}, or null if not found
+     */
+    public @Nullable SimpleCinematic resolveSimpleCinematic(String nameOrUUID) {
+        SimpleCinematic cinematic = getSimpleCinematic(nameOrUUID);
+        if (cinematic == null) {
+            try {
+                cinematic = getSimpleCinematic(UUID.fromString(nameOrUUID));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return cinematic;
     }
 
     /**

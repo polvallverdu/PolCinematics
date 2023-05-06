@@ -1,7 +1,9 @@
 package dev.polv.polcinematics.utils;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.polv.polcinematics.PolCinematics;
@@ -9,11 +11,18 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
 import dev.polv.polcinematics.cinematic.compositions.attributes.Keyframe;
 import dev.polv.polcinematics.cinematic.compositions.value.Value;
+import dev.polv.polcinematics.cinematic.manager.SimpleCinematic;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
+import dev.polv.polcinematics.commands.groups.PlayerGroup;
 import dev.polv.polcinematics.commands.subcommands.ManagerSubcommand;
+import dev.polv.polcinematics.commands.suggetions.CinematicFileSuggetion;
+import dev.polv.polcinematics.commands.suggetions.CinematicLoadedSuggestion;
+import dev.polv.polcinematics.commands.suggetions.GroupSuggestion;
 import net.minecraft.command.CommandException;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Pair;
@@ -48,6 +57,18 @@ public class CommandUtils {
             if (cinematic == null) {
                 throw PolCinematicsCommand.CINEMATIC_NOT_SELECTED.create();
             }
+        }
+
+        return cinematic;
+    }
+
+    public static SimpleCinematic getFileCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        SimpleCinematic cinematic = null;
+        String cinematicResolver = StringArgumentType.getString(ctx, "filename");
+        cinematic = PolCinematics.CINEMATICS_MANAGER.resolveSimpleCinematic(cinematicResolver);
+
+        if (cinematic == null) {
+            throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
         }
 
         return cinematic;
@@ -121,6 +142,53 @@ public class CommandUtils {
             throw PolCinematicsCommand.INVALID_KEYFRAME.create();
 
         return new Pair<>(time, keyframe);
+    }
+
+    public static PlayerGroup getGroup(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        String group = StringArgumentType.getString(ctx, "group");
+        PlayerGroup playerGroup = PolCinematics.getGroupManager().resolveGroup(group);
+
+        if (playerGroup == null) {
+            throw PolCinematicsCommand.GROUP_NOT_FOUND.create();
+        }
+
+        return playerGroup;
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> arg_cinematic() {
+        return CommandManager.argument("cinematic", StringArgumentType.word())
+                .suggests(new CinematicLoadedSuggestion());
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> arg_filecinematic() {
+        return CommandManager.argument("filename", StringArgumentType.string())
+                .suggests(new CinematicFileSuggetion());
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> arg_group() {
+        return CommandManager.argument("group", StringArgumentType.word())
+                .suggests(new GroupSuggestion());
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, String> arg_selector() {
+        return CommandManager.argument("selector", StringArgumentType.greedyString())
+                .suggests((context, builder) -> EntityArgumentType.players().listSuggestions(context, builder));
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, Long> arg_from() {
+        return CommandManager.argument("from", LongArgumentType.longArg(0));
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, Long> arg_to() {
+        return CommandManager.argument("to", LongArgumentType.longArg(0));
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, Long> arg_time() {
+        return CommandManager.argument("time", LongArgumentType.longArg(0));
+    }
+
+    public static RequiredArgumentBuilder<ServerCommandSource, Boolean> arg_paused() {
+        return CommandManager.argument("paused", BoolArgumentType.bool());
     }
 
 }
