@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.commands.suggetions;
+package dev.polv.polcinematics.exception;
 
 public class InvalidValueException extends IllegalArgumentException {
 
