@@ -20,20 +20,25 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class ServerCinematicManager {
 
     public enum ECinematicState {
-        STOPPED,
-        PLAYING,
-        PAUSED
+        UNLOADED,
+        LOADING,
+        LOADED,
+        SAVING,
+        UNLOADING,
     }
 
     private final File cinematicFolder;
     private final List<Cinematic> loadedCinematics;
+    private final HashMap<UUID, ECinematicState> loadedCinematicState;
     private List<FileCinematic> fileCinematicsCache;
     private long lastCacheRefresh;
 
@@ -49,6 +54,7 @@ public class ServerCinematicManager {
         }
 
         this.loadedCinematics = new ArrayList<>();
+        this.loadedCinematicState = new HashMap<>();
         this.fileCinematicsCache = new ArrayList<>();
 
         this.selectedCinematics = new ConcurrentHashMap<>();
@@ -111,6 +117,7 @@ public class ServerCinematicManager {
         }
         Cinematic cinematic = Cinematic.create(name, duration);
         this.loadedCinematics.add(cinematic);
+        this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.LOADED);
         this.saveCinematic(cinematic.getUuid());
         return cinematic;
     }
@@ -119,30 +126,51 @@ public class ServerCinematicManager {
      * Loads a cinematic from file
      *
      * @param fileName Name of the file
-     * @return The loaded cinematic
+     * @param failedCallback Callback to run when the cinematic fails to load
+     * @param doneCallback Callback to run when the cinematic is loaded
      */
-    public Cinematic loadCinematic(String fileName) throws InvalidCinematicException, AlreadyLoadedCinematicException {
+    public void loadCinematic(String fileName, @Nullable Consumer<Exception> failedCallback, @Nullable Runnable doneCallback) throws InvalidCinematicException {
         File cinematicFile = new File(cinematicFolder, fileName);
         if (!cinematicFile.exists()) {
             throw new InvalidCinematicException("Cinematic file does not exist");
         }
 
-        Cinematic loadedCinematic;
-        try {
-            JsonObject cinematicJson = GsonUtils.jsonFromFile(cinematicFile);
-            loadedCinematic = Cinematic.fromJson(cinematicJson);
-        } catch (IOException e) {
-            throw new InvalidCinematicException("Cinematic file is invalid");
-        }
+        PolCinematics.getTaskManager().runAsync((ctx) -> {
+            Cinematic loadedCinematic;
+            try {
+                JsonObject cinematicJson = GsonUtils.jsonFromFile(cinematicFile);
+                UUID cinematicUUID = UUID.fromString(cinematicJson.get("uuid").getAsString());
+                ECinematicState imaginaryState = this.loadedCinematicState.get(cinematicUUID);
+                if (imaginaryState != null) {
+                    PolCinematics.getTaskManager().run((cc) -> {
+                        if (failedCallback != null) {
+                            failedCallback.accept(new AlreadyLoadedCinematicException(imaginaryState == ECinematicState.LOADING ? "Cinematic is being loaded already" : "Cinematic is already loaded"));
+                        }
+                    }).start();
+                    return;
+                }
+                this.loadedCinematicState.put(cinematicUUID, ECinematicState.LOADING);
 
-        Cinematic currentlyLoadedCinematic = getCinematic(loadedCinematic.getUuid());
-        if (currentlyLoadedCinematic != null) {
-            throw new AlreadyLoadedCinematicException("Cinematic is already loaded");
-        }
+                loadedCinematic = Cinematic.fromJson(cinematicJson);
+            } catch (Exception e) {
+                PolCinematics.getTaskManager().run((cc) -> {
+                    if (failedCallback != null) {
+                        failedCallback.accept(new InvalidCinematicException("Cinematic file is invalid"));
+                    }
+                }).start();
+                e.printStackTrace();
+                return;
+            }
 
-        this.loadedCinematics.add(loadedCinematic);
+            this.loadedCinematics.add(loadedCinematic);
+            this.loadedCinematicState.put(loadedCinematic.getUuid(), ECinematicState.LOADED);
 
-        return loadedCinematic;
+            PolCinematics.getTaskManager().run((cc) -> {
+                if (doneCallback != null) {
+                    doneCallback.run();
+                }
+            }).start();
+        });
     }
 
     /**
@@ -156,11 +184,14 @@ public class ServerCinematicManager {
             throw new InvalidCinematicException("Cinematic is not loaded");
         }
 
+        this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.UNLOADING);
+
         this.loadedCinematics.remove(cinematic);
         Packets.unbroadcastCinematic(cinematic.getUuid(), PolCinematics.SERVER.getPlayerManager().getPlayerList());
         this.broadcastedCinematics.remove(cinematic.getUuid());
 
         this.selectedCinematics.entrySet().removeIf(entry -> entry.getValue().equals(cinematic));
+        this.loadedCinematicState.remove(cinematic.getUuid());
     }
 
     /**
