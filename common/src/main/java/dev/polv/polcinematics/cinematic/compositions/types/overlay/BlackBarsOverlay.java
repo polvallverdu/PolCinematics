@@ -11,19 +11,19 @@ import java.awt.*;
 public class BlackBarsOverlay extends OverlayComposition {
 
     @Override
-    protected void declareVariables() {
-        this.declareAttribute("COLOR", "Color for the bars", EValueType.COLOR);
-        this.declareAttribute("SIZE", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
+    protected void declare() {
+        this.declareTimeVariable("COLOR", "Color for the bars", EValueType.COLOR);
+        this.declareTimeVariable("SIZE", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
     }
 
     @Override
     public void tick(MatrixStack MatrixStack, long time) {
         int maxHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
-        double sizeMultiplier = (double) this.getAttribute("SIZE").getValue(time);
+        double sizeMultiplier = (double) this.getTimeVariable("SIZE").getValue(time);
         sizeMultiplier = Math.max(0.0, Math.min(1.0, sizeMultiplier));
         int barHeight = (int) (maxHeight*0.5*sizeMultiplier);
 
-        int color = ColorUtils.getColor((Color) this.getAttribute("COLOR").getValue(time));
+        int color = ColorUtils.getColor((Color) this.getTimeVariable("COLOR").getValue(time));
 
         DrawableHelper.fill(MatrixStack, 0, 0, MinecraftClient.getInstance().getWindow().getScaledWidth(), barHeight, color);
         DrawableHelper.fill(MatrixStack, 0, MinecraftClient.getInstance().getWindow().getScaledHeight(), MinecraftClient.getInstance().getWindow().getScaledWidth(), MinecraftClient.getInstance().getWindow().getScaledHeight()-barHeight, color);

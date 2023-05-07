@@ -17,8 +17,8 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.ICompositionType;
-import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
-import dev.polv.polcinematics.cinematic.compositions.attributes.AttributeList;
+import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
+import dev.polv.polcinematics.cinematic.compositions.timevariables.CompositionTimeVariables;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
 import dev.polv.polcinematics.cinematic.compositions.value.CompositionProperties;
@@ -62,7 +62,7 @@ public class EditorSubcommand {
             "info", "Get information about a timeline or composition",
             "duration", "Get or set the duration of a timeline or composition",
             "property", "Get or set the value of a property of a timeline or composition",
-            "attribute", "Get or set the value of an attribute of a timeline or composition",
+            "timevariable", "Get or set the value of a timed variable of a timeline or composition",
             "help", "Display this help message"
     );
 
@@ -214,11 +214,11 @@ public class EditorSubcommand {
                                                 arg("composition", StringArgumentType.word())
                                                         .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION))
                                                         .then(
-                                                                l("attribute")
+                                                                l("timevariable")
                                                                         .then(
-                                                                                arg("attribute", StringArgumentType.word())
-                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_KEYS))
-                                                                                        .executes(EditorSubcommand::info_attribute_specific)
+                                                                                arg("timevariable", StringArgumentType.word())
+                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_KEYS))
+                                                                                        .executes(EditorSubcommand::info_timevariable_specific)
                                                                         )
                                                         )
                                                         .then(
@@ -292,24 +292,24 @@ public class EditorSubcommand {
                         .suggests(new EasingSuggestion()).then(
                                 arg_value(
                                         arg("time", LongArgumentType.longArg(0)),
-                                        EditorSubcommand::attribute_set,
-                                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
+                                        EditorSubcommand::timevariable_set,
+                                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_VALUE)
                                 )
                         )
         );
         var set_normal = l("not_easing").then(
                 arg_value(
                         arg("time", LongArgumentType.longArg(0)),
-                        EditorSubcommand::attribute_set,
-                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
+                        EditorSubcommand::timevariable_set,
+                        new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_VALUE)
                 )
         );
         editorBuilder.then(
-                l("attribute")
+                l("timevariable")
                         .then(
                                 arg_timeline_composition(
-                                        arg("attribute", StringArgumentType.word())
-                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_KEYS))
+                                        arg("timevariable", StringArgumentType.word())
+                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_KEYS))
                                                 .then(
                                                         l("set")
                                                                 .then(
@@ -334,11 +334,11 @@ public class EditorSubcommand {
                                                                         l("easing")
                                                                                 .then(
                                                                                         arg("time", LongArgumentType.longArg(0))
-                                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION))
+                                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_POSITION))
                                                                                                 .then(
                                                                                                         arg("easing", StringArgumentType.word())
                                                                                                                 .suggests(new EasingSuggestion())
-                                                                                                                .executes(EditorSubcommand::attribute_modify_easing)
+                                                                                                                .executes(EditorSubcommand::timevariable_modify_easing)
                                                                                                 )
                                                                                 )
                                                                 )
@@ -347,9 +347,9 @@ public class EditorSubcommand {
                                                                                 .then(
                                                                                         arg_value(
                                                                                                 arg("time", LongArgumentType.longArg(0))
-                                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION)),
-                                                                                                EditorSubcommand::attribute_modify_value,
-                                                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_VALUE)
+                                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_POSITION)),
+                                                                                                EditorSubcommand::timevariable_modify_value,
+                                                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_VALUE)
                                                                                         )
                                                                                 )
                                                                 )
@@ -358,14 +358,14 @@ public class EditorSubcommand {
                                                         l("get")
                                                                 .then(
                                                                         arg("time", LongArgumentType.longArg(0))
-                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.ATTRIBUTE_POSITION))
-                                                                                .executes(EditorSubcommand::attribute_get_specific)
+                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_POSITION))
+                                                                                .executes(EditorSubcommand::timevariable_get_specific)
                                                                 )
-                                                                //.executes(EditorSubcommand::attribute_get) Would be the same, not doing two times the same thing...
-                                                                .executes(EditorSubcommand::info_attribute_specific)
+                                                                //.executes(EditorSubcommand::timevariable_get) Would be the same, not doing two times the same thing...
+                                                                .executes(EditorSubcommand::info_timevariable_specific)
                                                 )
-                                                //.executes(EditorSubcommand::attribute_get)
-                                                .executes(EditorSubcommand::info_attribute_specific)
+                                                //.executes(EditorSubcommand::timevariable_get)
+                                                .executes(EditorSubcommand::info_timevariable_specific)
                                 )
                         )
         );
@@ -562,23 +562,23 @@ public class EditorSubcommand {
             player.sendMessage(Text.of("§7§o(" + value.getType().getName() + ") §r§f" + key + ": §7" + value.getValue()));
         }
 
-        player.sendMessage(Text.of("\n§b§lAttributes\n"));
-        AttributeList attributes = composition.getAttributesList();
-        for (String key : attributes.getKeys()) {
-            Attribute attribute = attributes.getAttribute(key);
+        player.sendMessage(Text.of("\n§b§lTime variables\n"));
+        CompositionTimeVariables timeVariables = composition.getCompositionTimeVariables();
+        for (String key : timeVariables.getKeys()) {
+            TimeVariable timeVariable = timeVariables.getTimeVariables(key);
             var infotext = Text
                     .literal("[INFO]")
                     .setStyle(
                             Style.EMPTY
                                     .withBold(true)
                                     .withColor(Formatting.DARK_AQUA)
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineName + " " + composition.getName() + " attribute " + key))
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to see more info about this attribute.")))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineName + " " + composition.getName() + " timed variable " + key))
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to see more info about this timed variable.")))
                     );
 
             player.sendMessage(
                     Text
-                            .literal("§7§o(" + attribute.getType().getName() + ") §r§7" + key + "§7- §6" + attribute.getKeyframeCount() + " §fkeyframes ")
+                            .literal("§7§o(" + timeVariable.getType().getName() + ") §r§7" + key + "§7- §6" + timeVariable.getKeyframeCount() + " §fkeyframes ")
                             .append(infotext)
             );
         }
@@ -587,7 +587,7 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int info_attribute_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int info_timevariable_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairtc = CommandUtils.getComposition(ctx);
@@ -597,27 +597,27 @@ public class EditorSubcommand {
 
         String timelineName = StringArgumentType.getString(ctx, "timeline");
 
-        String key = StringArgumentType.getString(ctx, "attribute");
-        Attribute attribute = composition.getAttributesList().getAttribute(key);
+        String key = StringArgumentType.getString(ctx, "timevariable");
+        TimeVariable timeVariable = composition.getCompositionTimeVariables().getTimeVariables(key);
 
-        attribute.getAllKeyframes().forEach(keyframe -> {
+        timeVariable.getAllKeyframes().forEach(keyframe -> {
             MutableText change = Text.literal(" [MODIFY]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce attribute " + timelineName + " " + composition.getUuid() + " " + attribute.getName() + " modify value " + keyframe.getTime() + " "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevariable " + timelineName + " " + composition.getUuid() + " " + timeVariable.getName() + " modify value " + keyframe.getTime() + " "))
             );
             MutableText easing = Text.literal(" [EASING]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GOLD)
                             .withBold(true)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce attribute " + timelineName + " " + composition.getUuid() + " " + attribute.getName() + " modify easing " + keyframe.getTime() + " "))
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevariable " + timelineName + " " + composition.getUuid() + " " + timeVariable.getName() + " modify easing " + keyframe.getTime() + " "))
             );
             MutableText delete = Text.literal(" [DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce attribute " + timelineName + " " + composition.getUuid() + " " + attribute.getName() + " delete " + keyframe.getTime()))
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevariable " + timelineName + " " + composition.getUuid() + " " + timeVariable.getName() + " delete " + keyframe.getTime()))
             );
 
             player.sendMessage(
@@ -798,10 +798,10 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int attribute_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int timevariable_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        var pairkattr = CommandUtils.getAttribute(ctx);
+        var pairkattr = CommandUtils.getTimeVariable(ctx);
         long time = LongArgumentType.getLong(ctx, "time");
         Easing easing = Easing.EASE_INOUT_QUAD;
 
@@ -829,7 +829,7 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int attribute_get_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int timevariable_get_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairattrk = CommandUtils.getKeyframe(ctx);
@@ -838,7 +838,7 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int attribute_modify_easing(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int timevariable_modify_easing(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairattrk = CommandUtils.getKeyframe(ctx); // Maybe catch and send PolCinematicsCommand.PREFIX + "§cThere's no keyframe at this time." if null?
@@ -849,7 +849,7 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int attribute_modify_value(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int timevariable_modify_value(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairattrk = CommandUtils.getKeyframe(ctx);

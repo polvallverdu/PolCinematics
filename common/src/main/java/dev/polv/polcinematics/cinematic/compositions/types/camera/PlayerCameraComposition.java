@@ -8,7 +8,7 @@ public class PlayerCameraComposition extends CameraComposition {
     public static final String PERSPECTIVE_KEY = "perspective";
 
     @Override
-    protected void declareVariables() {
+    protected void declare() {
         this.declareProperty(PERSPECTIVE_KEY, "1: First Person, 2: Second Person, 3: Third Person", EValueType.INTEGER);
     }
 

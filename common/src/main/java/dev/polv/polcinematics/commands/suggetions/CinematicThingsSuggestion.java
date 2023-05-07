@@ -9,7 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
-import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
+import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
 import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.value.Value;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
@@ -28,9 +28,9 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         COMPOSITION,
         PROPERTY_KEYS,
         PROPERTY_VALUE,
-        ATTRIBUTE_KEYS,
-        ATTRIBUTE_VALUE,
-        ATTRIBUTE_POSITION,
+        TIMEVARIABLE_KEYS,
+        TIMEVARIABLE_VALUE,
+        TIMEVARIABLE_POSITION,
     }
 
     private final SuggestionType type;
@@ -87,8 +87,8 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
 
         Composition composition = wrappedComposition.getComposition();
 
-        if (type == SuggestionType.ATTRIBUTE_KEYS) {
-            composition.getAttributesList().getKeys().forEach(builder::suggest);
+        if (type == SuggestionType.TIMEVARIABLE_KEYS) {
+            composition.getCompositionTimeVariables().getKeys().forEach(builder::suggest);
             return builder.buildFuture();
         }
 
@@ -97,14 +97,14 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return builder.buildFuture();
         }
 
-        if (type == SuggestionType.ATTRIBUTE_POSITION) {
-            composition.getAttributesList().getAttributes().forEach(attribute -> {
-                attribute.getAllKeyframes().forEach(kf -> builder.suggest(String.valueOf(kf.getTime())));
+        if (type == SuggestionType.TIMEVARIABLE_POSITION) {
+            composition.getCompositionTimeVariables().getTimeVariables().forEach(timeVariable -> {
+                timeVariable.getAllKeyframes().forEach(kf -> builder.suggest(String.valueOf(kf.getTime())));
             });
             return builder.buildFuture();
         }
 
-        if (type == SuggestionType.PROPERTY_VALUE || type == SuggestionType.ATTRIBUTE_VALUE) {
+        if (type == SuggestionType.PROPERTY_VALUE || type == SuggestionType.TIMEVARIABLE_VALUE) {
             EValueType valueType = null;
 
             if (type == SuggestionType.PROPERTY_VALUE) {
@@ -117,9 +117,9 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
                 valueType = val.getType();
             }
 
-            if (type == SuggestionType.ATTRIBUTE_VALUE) {
-                String attributeKey = StringArgumentType.getString(ctx, "attribute");
-                Attribute attr = composition.getAttribute(attributeKey);
+            if (type == SuggestionType.TIMEVARIABLE_VALUE) {
+                String timeVariableKey = StringArgumentType.getString(ctx, "timevariable");
+                TimeVariable attr = composition.getTimeVariable(timeVariableKey);
                 if (attr == null) {
                     return Suggestions.empty();
                 }

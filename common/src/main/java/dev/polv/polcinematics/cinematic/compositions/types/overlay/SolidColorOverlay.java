@@ -10,22 +10,22 @@ import java.awt.*;
 public class SolidColorOverlay extends OverlayComposition {
 
     @Override
-    protected void declareVariables() {
-        this.declareAttribute("COLOR", "Color for the solid", EValueType.COLOR);
-        this.declareAttribute("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareAttribute("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareAttribute("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareAttribute("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
+    protected void declare() {
+        this.declareTimeVariable("COLOR", "Color for the solid", EValueType.COLOR);
+        this.declareTimeVariable("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareTimeVariable("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareTimeVariable("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareTimeVariable("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
     }
 
     @Override
     public void tick(MatrixStack MatrixStack, long time) {
-        Color color = (Color) this.getAttribute("COLOR").getValue(time);
+        Color color = (Color) this.getTimeVariable("COLOR").getValue(time);
 
-        int x = (int) this.getAttribute("X").getValue(time);
-        int y = (int) this.getAttribute("Y").getValue(time);
-        int width = (int) this.getAttribute("WIDTH").getValue(time);
-        int height = (int) this.getAttribute("HEIGHT").getValue(time);
+        int x = (int) this.getTimeVariable("X").getValue(time);
+        int y = (int) this.getTimeVariable("Y").getValue(time);
+        int width = (int) this.getTimeVariable("WIDTH").getValue(time);
+        int height = (int) this.getTimeVariable("HEIGHT").getValue(time);
 
         /*if (fullscreen > 0) {
             int widthWindow = MinecraftClient.getInstance().getWindow().getWidth();

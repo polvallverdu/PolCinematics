@@ -1,8 +1,8 @@
 package dev.polv.polcinematics.cinematic.compositions;
 
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
-import dev.polv.polcinematics.cinematic.compositions.attributes.AttributeList;
+import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
+import dev.polv.polcinematics.cinematic.compositions.timevariables.CompositionTimeVariables;
 import dev.polv.polcinematics.cinematic.compositions.helpers.CompositionInfo;
 import dev.polv.polcinematics.cinematic.compositions.value.CompositionProperties;
 import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
@@ -23,7 +23,7 @@ public abstract class Composition {
     @Nullable private ICompositionType subtype;
 
     private CompositionProperties properties;
-    private AttributeList attributes;
+    private CompositionTimeVariables timeVariables;
 
     protected Composition() {
     }
@@ -39,9 +39,9 @@ public abstract class Composition {
         this.subtype = subtype;
 
         this.properties = new CompositionProperties();
-        this.attributes = new AttributeList();
+        this.timeVariables = new CompositionTimeVariables();
 
-        this.declareVariables();
+        this.declare();
     }
 
     public static Composition create(String name, ICompositionType typeOrSubtype) {
@@ -70,7 +70,7 @@ public abstract class Composition {
         return compo;
     }
 
-    protected abstract void declareVariables();
+    protected abstract void declare();
 
     protected void readComposition(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
@@ -85,9 +85,9 @@ public abstract class Composition {
         return CompositionProperties.fromJson(json.get("properties").getAsJsonObject());
     }
 
-    protected AttributeList readAttributeList(JsonObject json) {
-        this.attributes = AttributeList.fromJson(json.get("attributes").getAsJsonObject());
-        return AttributeList.fromJson(json.get("attributes").getAsJsonObject());
+    protected CompositionTimeVariables readTimeVariables(JsonObject json) {
+        this.timeVariables = CompositionTimeVariables.fromJson(json.get("timevariables").getAsJsonObject());
+        return CompositionTimeVariables.fromJson(json.get("timevariables").getAsJsonObject());
     }
 
     protected void configure(JsonObject json) {
@@ -135,22 +135,22 @@ public abstract class Composition {
         return properties.createProperty(key, type, type.getDefaultValue());
     }
 
-    public Attribute getAttribute(String attributeName) {
-        return attributes.getAttribute(attributeName);
+    public TimeVariable getTimeVariable(String timevariableKey) {
+        return timeVariables.getTimeVariables(timevariableKey);
     }
 
-    public AttributeList getAttributesList() {
-        return attributes;
+    public CompositionTimeVariables getCompositionTimeVariables() {
+        return timeVariables;
     }
 
-    public Attribute declareAttribute(String name, String description, EValueType type) {
-        Attribute atr = this.getAttribute(name);
+    public TimeVariable declareTimeVariable(String name, String description, EValueType type) {
+        TimeVariable atr = this.getTimeVariable(name);
         if (atr != null) {
             atr.setDescription(description);
             return atr;
         }
 
-        return attributes.createAttribute(name, description, type);
+        return timeVariables.createTimeVariable(name, description, type);
     }
 
     public JsonObject toJson() {
@@ -162,7 +162,7 @@ public abstract class Composition {
             json.addProperty("subtype", this.getSubtype().getName());
 
         json.add("properties", this.properties.toJson());
-        json.add("attributes", this.getAttributesList().toJson());
+        json.add("timevariables", this.timeVariables.toJson());
 
         return json;
     }
@@ -201,7 +201,7 @@ public abstract class Composition {
 
         compo.readComposition(json);
         compo.readProperties(json);
-        compo.readAttributeList(json);
+        compo.readTimeVariables(json);
         compo.configure(json);
         return compo;
     }

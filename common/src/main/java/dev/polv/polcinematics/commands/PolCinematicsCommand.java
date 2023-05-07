@@ -31,7 +31,7 @@ public class PolCinematicsCommand {
     public static final SimpleCommandExceptionType INVALID_TIMELINE = new SimpleCommandExceptionType(Text.of("Timeline not found"));
     public static final SimpleCommandExceptionType INVALID_COMPOSITION = new SimpleCommandExceptionType(Text.of("Compsositing not found"));
     public static final SimpleCommandExceptionType INVALID_PROPERTY = new SimpleCommandExceptionType(Text.of("Invalid property key"));
-    public static final SimpleCommandExceptionType INVALID_ATTRIBUTE = new SimpleCommandExceptionType(Text.of("Invalid attribute key"));
+    public static final SimpleCommandExceptionType INVALID_TIMEVARIABLE = new SimpleCommandExceptionType(Text.of("Invalid time variable key"));
     public static final SimpleCommandExceptionType INVALID_KEYFRAME = new SimpleCommandExceptionType(Text.of("There's no keyframe at this time"));
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {

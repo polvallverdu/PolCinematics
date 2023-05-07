@@ -11,7 +11,7 @@ public class AudioComposition extends Composition {
     public static final String AUDIO_URL_KEY = "AUDIO_URL";
 
     @Override
-    protected void declareVariables() {
+    protected void declare() {
         this.declareProperty(AUDIO_URL_KEY, "The URL of the audio file", EValueType.STRING);
     }
 
@@ -58,7 +58,7 @@ public class AudioComposition extends Composition {
 
     @Override
     public void onCompositionTick(long time) {
-        int volume = (int) this.getAttribute("volume").getValue(time);
+        int volume = (int) this.getTimeVariable("volume").getValue(time);
         volume = Math.min(100, Math.max(0, volume));
         float transVolume = (float) volume / 100;
         transVolume = transVolume * transVolume;

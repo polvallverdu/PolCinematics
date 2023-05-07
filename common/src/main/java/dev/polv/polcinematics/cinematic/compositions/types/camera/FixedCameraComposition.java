@@ -12,7 +12,7 @@ public class FixedCameraComposition extends CameraComposition {
     public static final String ROLL_KEY = "ROLL";
 
     @Override
-    protected void declareVariables() {
+    protected void declare() {
         this.declareProperty(X_KEY, "Coordinate X", EValueType.DOUBLE);
         this.declareProperty(Y_KEY, "Coordinate Y", EValueType.DOUBLE);
         this.declareProperty(Z_KEY, "Coordinate Z", EValueType.DOUBLE);

@@ -8,8 +8,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
-import dev.polv.polcinematics.cinematic.compositions.attributes.Attribute;
-import dev.polv.polcinematics.cinematic.compositions.attributes.Keyframe;
+import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
+import dev.polv.polcinematics.cinematic.compositions.timevariables.Keyframe;
 import dev.polv.polcinematics.cinematic.compositions.value.Value;
 import dev.polv.polcinematics.cinematic.manager.FileCinematic;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
@@ -118,20 +118,20 @@ public class CommandUtils {
         return new Pair<>(propertyKey, value);
     }
 
-    public static Pair<String, Attribute> getAttribute(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Pair<String, TimeVariable> getTimeVariable(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         var pairtc = getComposition(ctx);
-        String attributeKey = StringArgumentType.getString(ctx, "attribute");
+        String timeVariableKey = StringArgumentType.getString(ctx, "timevariable");
 
-        Attribute attr = pairtc.getRight().getComposition().getAttribute(attributeKey);
+        TimeVariable attr = pairtc.getRight().getComposition().getTimeVariable(timeVariableKey);
 
         if (attr == null)
-            throw PolCinematicsCommand.INVALID_ATTRIBUTE.create();
+            throw PolCinematicsCommand.INVALID_TIMEVARIABLE.create();
 
-        return new Pair<>(attributeKey, attr);
+        return new Pair<>(timeVariableKey, attr);
     }
 
     public static Pair<Long, Keyframe> getKeyframe(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        var pairkattr = getAttribute(ctx);
+        var pairkattr = getTimeVariable(ctx);
         long time = LongArgumentType.getLong(ctx, "time");
 
         Keyframe keyframe = pairkattr.getRight().getExactKeyframe(LongArgumentType.getLong(ctx, "time"));

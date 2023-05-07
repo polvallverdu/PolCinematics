@@ -8,19 +8,19 @@ public class LerpCameraComposition extends CameraComposition {
     public static final String ROTATION_KEY = "rotation";
 
     @Override
-    protected void declareVariables() {
+    protected void declare() {
         this.declareProperty(POSITION_KEY, "Position", EValueType.CAMERAPOS);
         this.declareProperty(ROTATION_KEY, "Rotation", EValueType.CAMERAROT);
     }
 
     @Override
     public CameraPos getCameraPos(long time) {
-        return this.getAttribute(POSITION_KEY).getLerpCameraPos(time);
+        return this.getTimeVariable(POSITION_KEY).getLerpCameraPos(time);
     }
 
     @Override
     public CameraRot getCameraRot(long time) {
-        return this.getAttribute(ROTATION_KEY).getLerpCameraRot(time);
+        return this.getTimeVariable(ROTATION_KEY).getLerpCameraRot(time);
     }
 
 }

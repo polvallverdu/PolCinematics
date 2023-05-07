@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.cinematic.compositions.attributes;
+package dev.polv.polcinematics.cinematic.compositions.timevariables;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -21,7 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class Attribute {
+public class TimeVariable {
 
     private final UUID uuid;
     private final String name;
@@ -29,7 +29,7 @@ public class Attribute {
     private final EValueType type;
     private final List<Keyframe> keyframes;
 
-    protected Attribute(UUID uuid, String name, String description, EValueType type, List<Keyframe> keyframes) {
+    protected TimeVariable(UUID uuid, String name, String description, EValueType type, List<Keyframe> keyframes) {
         this.uuid = uuid;
         this.name = name;
         this.description = description;
@@ -87,7 +87,7 @@ public class Attribute {
 
     public void moveKeyframe(Keyframe keyframe, long newTime) {
         if (!keyframes.contains(keyframe)) {
-            throw new IllegalArgumentException("The keyframe is not part of this attribute.");
+            throw new IllegalArgumentException("The keyframe is not part of this timevariable.");
         }
         keyframe.setTime(newTime);
         sort();
@@ -100,14 +100,14 @@ public class Attribute {
      */
     public boolean removeExactKeyframe(long time) throws DeleteKeyframeException {
         if (keyframes.size() <= 1) {
-            throw new DeleteKeyframeException("Cannot delete the last keyframe of an attribute.");
+            throw new DeleteKeyframeException("Cannot delete the last keyframe of a timevariable.");
         }
         return keyframes.removeIf(keyframe -> keyframe.getTime() == time);
     }
 
     public void removeKeyframe(long time) throws DeleteKeyframeException {
         if (keyframes.size() <= 1) {
-            throw new DeleteKeyframeException("Cannot delete the last keyframe of an attribute.");
+            throw new DeleteKeyframeException("Cannot delete the last keyframe of a timevariable.");
         }
         if (removeExactKeyframe(time)) return;
 
@@ -242,7 +242,7 @@ public class Attribute {
     }
 
     public Object getValue(long time) {
-        return this.getValue(time, true); // Easing is enabled by default. It is later checked if the attribute type supports easing.
+        return this.getValue(time, true); // Easing is enabled by default. It is later checked if the timevariable type supports easing.
     }
 
     private double getFraction(long time, Keyframe current, Keyframe next) {
@@ -259,7 +259,7 @@ public class Attribute {
     }
 
     public Object getValue(long time, boolean eased) {
-        eased = eased && this.type.isEasing(); // Make sure the attribute type supports easing.
+        eased = eased && this.type.isEasing(); // Make sure the timevariable type supports easing.
 
         if (keyframes.isEmpty()) {
             return 0;
@@ -357,7 +357,7 @@ public class Attribute {
         return description;
     }
 
-    public Attribute setDescription(String description) {
+    public TimeVariable setDescription(String description) {
         this.description = description;
         return this;
     }
@@ -384,7 +384,7 @@ public class Attribute {
         return json;
     }
 
-    public static Attribute fromJson(JsonObject json) {
+    public static TimeVariable fromJson(JsonObject json) {
         JsonArray keyframesArray = json.getAsJsonArray("keyframes");
 
         BasicCompositionData data = BasicCompositionData.fromJson(json);
@@ -396,7 +396,7 @@ public class Attribute {
             keyframes.add(Keyframe.fromJson(keyframesArray.get(i).getAsJsonObject()));
         }
 
-        return new Attribute(data.uuid(), data.name(), description, type, keyframes);
+        return new TimeVariable(data.uuid(), data.name(), description, type, keyframes);
     }
 
     public void orderEasings(Easing startEasing, Easing middleEasing, Easing endEasing) {
