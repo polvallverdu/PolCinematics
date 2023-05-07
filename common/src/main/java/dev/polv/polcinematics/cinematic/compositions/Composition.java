@@ -127,12 +127,16 @@ public abstract class Composition {
     }
 
     public Constant declareConstant(String key, String description, EValueType type) {
+        return this.declareConstant(key, description, type, type.getDefaultValue());
+    }
+
+    public Constant declareConstant(String key, String description, EValueType type, Object defaultValue) {
         Constant value = this.getConstant(key);
         if (value != null) {
             return value;
         }
 
-        return constants.createConstant(key, description, type);
+        return constants.createConstant(key, description, type, defaultValue);
     }
 
     public TimeVariable getTimeVariable(String timevariableKey) {
@@ -144,13 +148,17 @@ public abstract class Composition {
     }
 
     public TimeVariable declareTimeVariable(String name, String description, EValueType type) {
+        return this.declareTimeVariable(name, description, type, type.getDefaultValue());
+    }
+
+    public TimeVariable declareTimeVariable(String name, String description, EValueType type, Object defaultValue) {
         TimeVariable atr = this.getTimeVariable(name);
         if (atr != null) {
             atr.setDescription(description);
             return atr;
         }
 
-        return timeVariables.createTimeVariable(name, description, type);
+        return timeVariables.createTimeVariable(name, description, type, defaultValue);
     }
 
     public JsonObject toJson() {

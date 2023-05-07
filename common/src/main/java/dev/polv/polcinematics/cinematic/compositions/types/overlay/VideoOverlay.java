@@ -3,6 +3,7 @@ package dev.polv.polcinematics.cinematic.compositions.types.overlay;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.client.players.IMediaPlayer;
 import dev.polv.polcinematics.client.players.VideoPlayer;
+import dev.polv.polcinematics.utils.render.RenderUtils;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class VideoOverlay extends OverlayComposition {
@@ -17,9 +18,9 @@ public class VideoOverlay extends OverlayComposition {
 
         this.declareTimeVariable("X", "Goes from 0% to 100%", EValueType.INTEGER);
         this.declareTimeVariable("Y", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("ALPHA", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
+        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER, 50);
+        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER, 50);
+        this.declareTimeVariable("ALPHA", "Goes from 0% to 100%", EValueType.INTEGER, 100);
     }
 
     @Override
@@ -28,14 +29,11 @@ public class VideoOverlay extends OverlayComposition {
         int y = (int) this.getTimeVariable("Y").getValue(time);
         int width = (int) this.getTimeVariable("WIDTH").getValue(time);
         int height = (int) this.getTimeVariable("HEIGHT").getValue(time);
-        double alpha = (double) this.getTimeVariable("ALPHA").getValue(time);
+        float alpha = (float) (int) this.getTimeVariable("ALPHA").getValue(time);
 
-        this.videoPlayer.render(matrixStack, x, y, width, height, (float) alpha);
-    }
+        var dimensions = RenderUtils.calculateDimensions(x, y, width, height);
 
-    public void setVideo(String videoUrl) {
-        this.getConstant(VIDEO_URL_KEY).setValue(videoUrl);
-        this.initPlayer();
+        this.videoPlayer.render(matrixStack, x, y, dimensions.getLeft(), dimensions.getRight(), alpha/100);
     }
 
     private void initPlayer() {

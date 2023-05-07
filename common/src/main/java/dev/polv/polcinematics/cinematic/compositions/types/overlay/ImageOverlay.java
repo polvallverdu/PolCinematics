@@ -18,9 +18,9 @@ public class ImageOverlay extends OverlayComposition {
 
         this.declareTimeVariable("X", "Goes from 0% to 100%", EValueType.INTEGER);
         this.declareTimeVariable("Y", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("ALPHA", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
+        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER, 50);
+        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER, 50);
+        this.declareTimeVariable("ALPHA", "Goes from 0% to 100%", EValueType.INTEGER, 100);
     }
 
     @Override
@@ -29,14 +29,11 @@ public class ImageOverlay extends OverlayComposition {
         int y = (int) this.getTimeVariable("Y").getValue(time);
         int width = (int) this.getTimeVariable("WIDTH").getValue(time);
         int height = (int) this.getTimeVariable("HEIGHT").getValue(time);
-        double alpha = (double) this.getTimeVariable("ALPHA").getValue(time);
+        float alpha = (float) (int) this.getTimeVariable("ALPHA").getValue(time);
 
-        RenderUtils.renderImage(this.image, matrixStack, x, y, width, height, (float) alpha);
-    }
+        var dimensions = RenderUtils.calculateDimensions(x, y, width, height);
 
-    public void setImageUrl(String imageUrl) {
-        this.getConstant(IMAGE_URL_KEY).setValue(imageUrl);
-        download();
+        RenderUtils.renderImage(this.image, matrixStack, x, y, dimensions.getLeft(), dimensions.getRight(), alpha/100);
     }
 
     private void download() {

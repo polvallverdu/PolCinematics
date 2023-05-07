@@ -58,7 +58,7 @@ public class ColorUtils {
      * @param alpha The alpha value to apply. This is a double between 0.0 and 1.0
      * @return The color with the alpha applied
      */
-    public static int applyAlphaToColor(int color, double alpha) {
+    public static int applyAlphaToColor(int color, float alpha) {
         return (int) (alpha * 255) << 24 | (color & 0x00FFFFFF);
     }
 

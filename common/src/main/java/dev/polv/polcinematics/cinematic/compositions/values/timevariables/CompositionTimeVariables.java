@@ -3,6 +3,7 @@ package dev.polv.polcinematics.cinematic.compositions.values.timevariables;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.Value;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,8 +30,8 @@ public class CompositionTimeVariables {
         return timeVariables.get(name);
     }
 
-    public TimeVariable createTimeVariable(String name, String description, EValueType type) {
-        TimeVariable timeVariable = new TimeVariable(UUID.randomUUID(), name, description, type, new ArrayList<>());
+    public TimeVariable createTimeVariable(String name, String description, EValueType type, Object defaultValue) {
+        TimeVariable timeVariable = new TimeVariable(UUID.randomUUID(), name, description, type, List.of(new Keyframe(0, new Value(defaultValue, type))));
         timeVariables.put(name, timeVariable);
         return timeVariable;
     }

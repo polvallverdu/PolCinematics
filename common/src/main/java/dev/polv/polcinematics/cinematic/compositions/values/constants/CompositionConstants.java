@@ -3,6 +3,7 @@ package dev.polv.polcinematics.cinematic.compositions.values.constants;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.Value;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,8 +35,8 @@ public class CompositionConstants {
     }
 
 
-    public Constant createConstant(String key, String description, EValueType type) {
-        Constant constant = new Constant(UUID.randomUUID(), key, description, type);
+    public Constant createConstant(String key, String description, EValueType type, Object defaultValue) {
+        Constant constant = new Constant(UUID.randomUUID(), key, description, new Value(defaultValue, type));
         constantValues.put(key, constant);
         return constant;
     }

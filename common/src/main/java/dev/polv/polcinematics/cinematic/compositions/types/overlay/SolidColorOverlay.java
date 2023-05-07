@@ -2,6 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.types.overlay;
 
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.utils.ColorUtils;
+import dev.polv.polcinematics.utils.render.RenderUtils;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -14,8 +15,9 @@ public class SolidColorOverlay extends OverlayComposition {
         this.declareTimeVariable("COLOR", "Color for the solid", EValueType.COLOR);
         this.declareTimeVariable("X", "Goes from 0% to 100%", EValueType.INTEGER);
         this.declareTimeVariable("Y", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER);
-        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER, 50);
+        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER, 50);
+        this.declareTimeVariable("ALPHA", "Goes from 0% to 100%", EValueType.INTEGER, 100);
     }
 
     @Override
@@ -26,21 +28,11 @@ public class SolidColorOverlay extends OverlayComposition {
         int y = (int) this.getTimeVariable("Y").getValue(time);
         int width = (int) this.getTimeVariable("WIDTH").getValue(time);
         int height = (int) this.getTimeVariable("HEIGHT").getValue(time);
+        float alpha = (float) (int) this.getTimeVariable("ALPHA").getValue(time);
 
-        /*if (fullscreen > 0) {
-            int widthWindow = MinecraftClient.getInstance().getWindow().getWidth();
-            int heightWindow = MinecraftClient.getInstance().getWindow().getHeight();
+        var dimensions = RenderUtils.calculateDimensions(x, y, width, height);
 
-            // calculate the difference between the size (fullscreen = 0) and the minecraft widow size (fullscreen = 1) relative to fullscreen
-            x = 0 + (widthWindow - width) * fullscreen;
-            y = 0 + (heightWindow - height) * fullscreen;
-            width = widthWindow + (widthWindow - width) * fullscreen;
-            height = heightWindow + (heightWindow - height) * fullscreen;
-        }*/
-
-        //this.render(MatrixStack, (int) x, (int) y, (int) width, (int) height, alpha, time);
-
-        DrawableHelper.fill(MatrixStack, x, y, width, height, ColorUtils.getColor(color));
+        DrawableHelper.fill(MatrixStack, x, y, dimensions.getLeft(), dimensions.getRight(), ColorUtils.applyAlphaToColor(ColorUtils.getColor(color), alpha/100f));
     }
 
 }
