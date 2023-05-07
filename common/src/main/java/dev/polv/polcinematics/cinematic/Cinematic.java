@@ -1,6 +1,5 @@
 package dev.polv.polcinematics.cinematic;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.Composition;

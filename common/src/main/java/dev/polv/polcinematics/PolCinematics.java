@@ -6,10 +6,10 @@ import dev.architectury.event.events.common.TickEvent;
 import dev.polv.polcinematics.cinematic.manager.ServerCinematicManager;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.groups.GroupManager;
+import dev.polv.taskmanager.core.TaskManager;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import dev.polv.taskmanager.core.TaskManager;
 
 public class PolCinematics {
     public static final String MOD_ID = "polcinematics";

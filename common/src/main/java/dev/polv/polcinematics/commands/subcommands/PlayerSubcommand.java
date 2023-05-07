@@ -10,7 +10,6 @@ import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.groups.PlayerGroup;
 import dev.polv.polcinematics.net.Packets;
 import dev.polv.polcinematics.utils.CommandUtils;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
