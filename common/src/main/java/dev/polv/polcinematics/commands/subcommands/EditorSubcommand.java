@@ -437,9 +437,12 @@ public class EditorSubcommand {
             var typeBuilder = l(ctype.getName());
 
             if (ctype.hasSubtypes()) {
-                typeBuilder.then(arg("composition_subtype", StringArgumentType.word())
-                        .suggests(new CompositionTypeSuggestion(ctype.getSubtypes()))
-                        .executes((ctx) -> EditorSubcommand.create_composition(ctx, ctype)));
+                for (ICompositionType subtype : ctype.getSubtypes()) {
+                    typeBuilder.then(
+                            l(subtype.getName())
+                                    .executes((ctx) -> EditorSubcommand.create_composition(ctx, subtype))
+                    );
+                }
             } else {
                 typeBuilder.executes((ctx) -> EditorSubcommand.create_composition(ctx, ctype));
             }
@@ -452,7 +455,7 @@ public class EditorSubcommand {
 
     /////// RUN COMMANDS FUNCTIONS ///////
 
-    private static int create_composition(CommandContext<ServerCommandSource> ctx, ECompositionType ctype) throws CommandSyntaxException {
+    private static int create_composition(CommandContext<ServerCommandSource> ctx, ICompositionType subtype) throws CommandSyntaxException {
         var pairtc = CommandUtils.getTimeline(ctx);
         Cinematic cinematic = pairtc.getLeft();
         Timeline timeline = pairtc.getRight();
@@ -461,23 +464,11 @@ public class EditorSubcommand {
         long startTime = LongArgumentType.getLong(ctx, "composition_starttime");
         long duration = LongArgumentType.getLong(ctx, "composition_duration");
 
-        ICompositionType subtype = null;
-        if (ctype.hasSubtypes()) {
-            try {
-                String subtypename = StringArgumentType.getString(ctx, "composition_subtype");
-                subtype = EnumUtils.findSubtype(ctype, subtypename);
-            } catch (IllegalArgumentException ignore) {} // subtype will be null
-
-            if (subtype == null) {
-                ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§cYou need to specify a valid subtype for this composition type."));
-                return 1;
-            }
-        }
-
         Composition compo = Composition.create(compositionName, subtype);
 
         try {
             timeline.add(compo, startTime, duration);
+            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition created"));
         } catch (OverlapException e) {
             ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
         }
