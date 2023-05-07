@@ -16,10 +16,10 @@ public class ImageOverlay extends OverlayComposition {
     protected void declare() {
         this.declareConstant("IMAGE_URL", "The url of the image", EValueType.STRING);
 
-        this.declareTimeVariable("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareTimeVariable("X", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("Y", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER);
         this.declareTimeVariable("ALPHA", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
     }
 

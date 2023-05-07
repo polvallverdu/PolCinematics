@@ -12,10 +12,10 @@ public class SolidColorOverlay extends OverlayComposition {
     @Override
     protected void declare() {
         this.declareTimeVariable("COLOR", "Color for the solid", EValueType.COLOR);
-        this.declareTimeVariable("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareTimeVariable("X", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("Y", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER);
     }
 
     @Override

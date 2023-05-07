@@ -16,10 +16,10 @@ public class WebBrowserOverlay extends OverlayComposition {
         this.declareConstant(URL_KEY, "The url of the video", EValueType.STRING);
         this.declareConstant(CUSTOMCSS_KEY, "Custom CSS to apply to the webpage", EValueType.STRING);
 
-        this.declareTimeVariable("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("WIDTH", "Goes from 0 to niputaidea", EValueType.INTEGER);
-        this.declareTimeVariable("HEIGHT", "Goes from 0 to niputaidea", EValueType.INTEGER);
+        this.declareTimeVariable("X", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("Y", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER);
+        this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER);
     }
 
     @Override
