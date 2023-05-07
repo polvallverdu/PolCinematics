@@ -55,8 +55,11 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
 
         if (type == SuggestionType.TIMELINE) {
             builder.suggest("camera");
+            builder.suggest(cinematic.getCameraTimeline().getUuid().toString(), Text.of("Timeline: camera"));
             for (int i = 0; i < cinematic.getTimelineCount(); i++) {
-                builder.suggest(String.valueOf(i+1));
+                String timelineName = String.valueOf(i+1);
+                builder.suggest(timelineName);
+                builder.suggest(cinematic.getTimeline(i).getUuid().toString(), Text.of("Timeline: " + timelineName));
             }
 
             return builder.buildFuture();

@@ -1,5 +1,6 @@
 package dev.polv.polcinematics.cinematic;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
@@ -13,6 +14,7 @@ import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Pair;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -130,17 +132,39 @@ public class Cinematic {
     }
 
     /**
+     * @return The {@link Timeline} with the given {@link UUID}
+     */
+    public @Nullable Timeline getTimeline(UUID timelineUUID) {
+        for (Timeline timeline : this.timelines) {
+            if (timeline.getUuid().equals(timelineUUID)) {
+                return timeline;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Resolve a {@link Timeline} by its index or {@link UUID}
+     *
+     * @param query The index (or "camera") or {@link UUID} of the timeline (index starts at 1)
      * @return The {@link Timeline} at the given index (starts at 1)
      */
-    public Timeline resolveTimeline(String index) {
-        if (index.equals("camera")) {
+    public @Nullable Timeline resolveTimeline(String query) {
+        if (query.equalsIgnoreCase("camera")) {
             return this.cameraTimeline;
         }
         try {
-            return this.timelines.get(Integer.parseInt(index)-1);
+            int index = Integer.parseInt(query);
+            return this.getTimeline(index - 1);
         } catch (NumberFormatException e) {
-            return null;
+            try {
+                UUID uuid = UUID.fromString(query);
+                return this.getTimeline(uuid);
+            } catch (IllegalArgumentException ignored) {
+            }
         }
+
+        return null;
     }
 
     /**
@@ -169,6 +193,12 @@ public class Cinematic {
             }
         }
         return null;
+    }
+
+    public ArrayList<Timeline> getTimelines() {
+        ArrayList<Timeline> timelines = new ArrayList<>(this.timelines);
+        timelines.add(0, this.cameraTimeline);
+        return timelines;
     }
 
     /**

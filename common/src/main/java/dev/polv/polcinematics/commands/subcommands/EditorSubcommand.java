@@ -655,8 +655,7 @@ public class EditorSubcommand {
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                            .withStrikethrough(true)
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§cTo delete run the manual command")))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete composition " + wc.getUuid()))
             );
 
             player.sendMessage(
@@ -679,10 +678,7 @@ public class EditorSubcommand {
         String cinematicName = cinematic.getName();
         UUID cinematicUUID = cinematic.getUuid();
         Duration duration = cinematic.getDuration();
-        ArrayList<String> timelines = Lists.newArrayList("camera");
-        for (int i = 0; i < cinematic.getTimelineCount(); i++) {
-            timelines.add(String.valueOf(i+1));
-        }
+        ArrayList<Timeline> timelines = cinematic.getTimelines();
 
         StringBuilder message = new StringBuilder(BOTTOM_LINE);
         message.append("\n\n").append("§fName: §7").append(cinematicName).append("\n");
@@ -696,14 +692,13 @@ public class EditorSubcommand {
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timeline))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timeline.getUuid()))
             );
             MutableText delete = Text.literal("[DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                            .withStrikethrough(true)
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§cTo delete run the manual command")))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete timeline " + timeline.getUuid()))
             );
 
             player.sendMessage(
