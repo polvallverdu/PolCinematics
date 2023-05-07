@@ -554,9 +554,18 @@ public class EditorSubcommand {
 
 
         message.append("§a§lConstants").append("\n");
-        player.sendMessage(Text.of(message.toString())); // TODO: Add clicable text
+        player.sendMessage(Text.of(message.toString()));
         for (Constant constant : composition.getCompositionConstants().getConstants()) {
-            player.sendMessage(Text.of("§7§o(" + constant.getType().getName() + ") §r§f" + constant.getKey() + ": §7" + constant.getValue()));
+            var editText = Text
+                    .literal("[EDIT]")
+                    .setStyle(
+                            Style.EMPTY
+                                    .withBold(true)
+                                    .withColor(Formatting.DARK_AQUA)
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce constants " + timelineName + " " + composition.getName() + " " + constant.getKey() + " set "))
+                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to edit this constant")))
+                    );
+            player.sendMessage(Text.literal("§7§o(" + constant.getType().getName() + ") §r§f" + constant.getKey() + ": §7" + constant.getValue() + " ").append(editText));
         }
 
         player.sendMessage(Text.of("\n§b§lTime variables\n"));
