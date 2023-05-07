@@ -30,6 +30,7 @@ import dev.polv.polcinematics.commands.helpers.CommandCooldownHash;
 import dev.polv.polcinematics.commands.suggetions.CinematicThingsSuggestion;
 import dev.polv.polcinematics.commands.suggetions.CompositionTypeSuggestion;
 import dev.polv.polcinematics.commands.suggetions.EasingSuggestion;
+import dev.polv.polcinematics.exception.DeleteKeyframeException;
 import dev.polv.polcinematics.exception.InvalidCommandValueException;
 import dev.polv.polcinematics.exception.InvalidValueException;
 import dev.polv.polcinematics.exception.OverlapException;
@@ -362,6 +363,14 @@ public class EditorSubcommand {
                                                                 )
                                                                 //.executes(EditorSubcommand::timevariable_get) Would be the same, not doing two times the same thing...
                                                                 .executes(EditorSubcommand::info_timevariable_specific)
+                                                )
+                                                .then(
+                                                        l("delete")
+                                                                .then(
+                                                                        arg("time", LongArgumentType.longArg(0))
+                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_POSITION))
+                                                                                .executes(EditorSubcommand::timevariable_delete)
+                                                                )
                                                 )
                                                 //.executes(EditorSubcommand::timevariable_get)
                                                 .executes(EditorSubcommand::info_timevariable_specific)
@@ -859,6 +868,20 @@ public class EditorSubcommand {
 
         pairattrk.getRight().getValue().setValue(value);
         player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aValue has been updated to §f" + value + "§a."));
+        return 1;
+    }
+
+    private static int timevariable_delete(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        var timeVariable = CommandUtils.getTimeVariable(ctx);
+        var keyframe = CommandUtils.getKeyframe(ctx);
+
+        try {
+            timeVariable.getRight().removeExactKeyframe(keyframe.getRight().getTime());
+            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aKeyframe has been deleted."));
+        } catch (DeleteKeyframeException e) {
+            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
+        }
+
         return 1;
     }
 
