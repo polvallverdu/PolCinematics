@@ -17,13 +17,12 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.ICompositionType;
+import dev.polv.polcinematics.cinematic.compositions.constantvariables.Constant;
 import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
 import dev.polv.polcinematics.cinematic.compositions.timevariables.CompositionTimeVariables;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
-import dev.polv.polcinematics.cinematic.compositions.value.CompositionProperties;
 import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
-import dev.polv.polcinematics.cinematic.compositions.value.Value;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
@@ -61,8 +60,8 @@ public class EditorSubcommand {
             "delete", "Delete a timeline or composition",
             "info", "Get information about a timeline or composition",
             "duration", "Get or set the duration of a timeline or composition",
-            "property", "Get or set the value of a property of a timeline or composition",
-            "timevariable", "Get or set the value of a timed variable of a timeline or composition",
+            "constants", "Get or set the value of a constant of a timeline or composition",
+            "timevar", "Get or set the value of a timed variable of a timeline or composition",
             "help", "Display this help message"
     );
 
@@ -214,7 +213,7 @@ public class EditorSubcommand {
                                                 arg("composition", StringArgumentType.word())
                                                         .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION))
                                                         .then(
-                                                                l("timevariable")
+                                                                l("timevar")
                                                                         .then(
                                                                                 arg("timevariable", StringArgumentType.word())
                                                                                         .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_KEYS))
@@ -222,11 +221,11 @@ public class EditorSubcommand {
                                                                         )
                                                         )
                                                         .then(
-                                                                l("property")
+                                                                l("constant")
                                                                         .then(
-                                                                                arg("property", StringArgumentType.word())
-                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.PROPERTY_KEYS))
-                                                                                        .executes(EditorSubcommand::property_get) // It's the same. Not doing the same thing two times
+                                                                                arg("constant", StringArgumentType.word())
+                                                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.CONSTANT_KEYS))
+                                                                                        .executes(EditorSubcommand::constant_get) // It's the same. Not doing the same thing two times
                                                                         )
                                                         )
                                                         .executes(EditorSubcommand::info_composition_specific)
@@ -266,23 +265,23 @@ public class EditorSubcommand {
         );
 
         editorBuilder.then(
-                l("property")
+                l("constants")
                         .then(
                                 arg_timeline_composition(
-                                        arg("property", StringArgumentType.word())
-                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.PROPERTY_KEYS))
+                                        arg("constant", StringArgumentType.word())
+                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.CONSTANT_KEYS))
                                                 .then(
                                                         arg_value(
                                                                 l("set"),
-                                                                EditorSubcommand::property_set,
-                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.PROPERTY_VALUE)
+                                                                EditorSubcommand::constant_set,
+                                                                new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.CONSTANT_VALUE)
                                                         )
                                                 )
                                                 .then(
                                                         l("get")
-                                                                .executes(EditorSubcommand::property_get)
+                                                                .executes(EditorSubcommand::constant_get)
                                                 )
-                                                .executes(EditorSubcommand::property_get)
+                                                .executes(EditorSubcommand::constant_get)
                                 )
                         )
         );
@@ -305,7 +304,7 @@ public class EditorSubcommand {
                 )
         );
         editorBuilder.then(
-                l("timevariable")
+                l("timevar")
                         .then(
                                 arg_timeline_composition(
                                         arg("timevariable", StringArgumentType.word())
@@ -554,12 +553,10 @@ public class EditorSubcommand {
         message.append("§fSubtype: §7").append(subtype == null ? "None" : subtype.getName()).append("\n\n");
 
 
-        message.append("§a§lProperties").append("\n");
-        player.sendMessage(Text.of(message.toString()));
-        CompositionProperties properties = composition.getProperties();
-        for (String key : properties.getKeys()) {
-            Value value = properties.getValue(key);
-            player.sendMessage(Text.of("§7§o(" + value.getType().getName() + ") §r§f" + key + ": §7" + value.getValue()));
+        message.append("§a§lConstants").append("\n");
+        player.sendMessage(Text.of(message.toString())); // TODO: Add clicable text
+        for (Constant constant : composition.getCompositionConstants().getConstants()) {
+            player.sendMessage(Text.of("§7§o(" + constant.getType().getName() + ") §r§f" + constant.getKey() + ": §7" + constant.getValue()));
         }
 
         player.sendMessage(Text.of("\n§b§lTime variables\n"));
@@ -770,31 +767,30 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int property_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int constant_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        var pairkp = CommandUtils.getProperty(ctx);
+        var pairkp = CommandUtils.getConstant(ctx);
 
         try {
             Object value = getValue(ctx, pairkp.getRight().getType());
             pairkp.getRight().setValue(value);
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§f" + pairkp.getLeft() + " §7has been set to §f" + value + "§7."));
         } catch (InvalidValueException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
-            return 1;
         } catch (IllegalArgumentException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cThere's an issue that shouldn't have happened. Open an issue with your server logs."));
             e.printStackTrace();
-            return 1;
         }
         return 1;
     }
 
-    private static int property_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int constant_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        var pairkp = CommandUtils.getProperty(ctx);
+        var pairkp = CommandUtils.getConstant(ctx);
 
-        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§a" + pairkp.getLeft() + " is §f" + pairkp.getRight().getValue() + "§a."));
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§f" + pairkp.getLeft() + "§7 is §f" + pairkp.getRight().getValue() + "§7."));
         return 1;
     }
 

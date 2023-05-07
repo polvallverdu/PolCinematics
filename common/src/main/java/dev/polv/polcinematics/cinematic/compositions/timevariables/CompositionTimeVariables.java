@@ -41,6 +41,7 @@ public class CompositionTimeVariables {
 
     public JsonObject toJson() {
         JsonArray jsonArray = new JsonArray();
+
         for (TimeVariable timeVariable : timeVariables.values()) {
             jsonArray.add(timeVariable.toJson());
         }

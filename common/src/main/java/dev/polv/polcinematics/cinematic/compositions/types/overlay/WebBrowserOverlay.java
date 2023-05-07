@@ -13,8 +13,8 @@ public class WebBrowserOverlay extends OverlayComposition {
 
     @Override
     protected void declare() {
-        this.declareProperty(URL_KEY, "The url of the video", EValueType.STRING);
-        this.declareProperty(CUSTOMCSS_KEY, "Custom CSS to apply to the webpage", EValueType.STRING);
+        this.declareConstant(URL_KEY, "The url of the video", EValueType.STRING);
+        this.declareConstant(CUSTOMCSS_KEY, "Custom CSS to apply to the webpage", EValueType.STRING);
 
         this.declareTimeVariable("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
         this.declareTimeVariable("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
@@ -33,11 +33,11 @@ public class WebBrowserOverlay extends OverlayComposition {
     }
 
     public String getUrl() {
-        return this.getProperty(URL_KEY).getValueAsString();
+        return this.getConstant(URL_KEY).getValueAsString();
     }
 
     public String getCustomCSS() {
-        return this.getProperty(CUSTOMCSS_KEY).getValueAsString();
+        return this.getConstant(CUSTOMCSS_KEY).getValueAsString();
     }
 
     @Override

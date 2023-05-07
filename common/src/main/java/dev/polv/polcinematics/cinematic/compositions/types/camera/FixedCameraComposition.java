@@ -13,12 +13,12 @@ public class FixedCameraComposition extends CameraComposition {
 
     @Override
     protected void declare() {
-        this.declareProperty(X_KEY, "Coordinate X", EValueType.DOUBLE);
-        this.declareProperty(Y_KEY, "Coordinate Y", EValueType.DOUBLE);
-        this.declareProperty(Z_KEY, "Coordinate Z", EValueType.DOUBLE);
-        this.declareProperty(PITCH_KEY, "Pitch Rotation", EValueType.DOUBLE);
-        this.declareProperty(YAW_KEY, "Yaw Rotation", EValueType.DOUBLE);
-        this.declareProperty(ROLL_KEY, "Roll Rotation", EValueType.DOUBLE);
+        this.declareConstant(X_KEY, "Coordinate X", EValueType.DOUBLE);
+        this.declareConstant(Y_KEY, "Coordinate Y", EValueType.DOUBLE);
+        this.declareConstant(Z_KEY, "Coordinate Z", EValueType.DOUBLE);
+        this.declareConstant(PITCH_KEY, "Pitch Rotation", EValueType.DOUBLE);
+        this.declareConstant(YAW_KEY, "Yaw Rotation", EValueType.DOUBLE);
+        this.declareConstant(ROLL_KEY, "Roll Rotation", EValueType.DOUBLE);
     }
 
     @Override
@@ -32,11 +32,11 @@ public class FixedCameraComposition extends CameraComposition {
     }
 
     private double get(String key) {
-        return this.getProperty(key).getValueAsDouble();
+        return this.getConstant(key).getValueAsDouble();
     }
 
     private void set(String key, double value) {
-        this.getProperty(key).setValue(value);
+        this.getConstant(key).setValue(value);
     }
 
     public double getX() {

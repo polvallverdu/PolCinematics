@@ -9,7 +9,7 @@ public class PlayerCameraComposition extends CameraComposition {
 
     @Override
     protected void declare() {
-        this.declareProperty(PERSPECTIVE_KEY, "1: First Person, 2: Second Person, 3: Third Person", EValueType.INTEGER);
+        this.declareConstant(PERSPECTIVE_KEY, "1: First Person, 2: Second Person, 3: Third Person", EValueType.INTEGER);
     }
 
     @Override
@@ -30,11 +30,11 @@ public class PlayerCameraComposition extends CameraComposition {
     }
 
     public PlayerPerspective getPerspective() {
-        return PlayerPerspective.fromId(this.getProperty(PERSPECTIVE_KEY).getValueAsInteger());
+        return PlayerPerspective.fromId(this.getConstant(PERSPECTIVE_KEY).getValueAsInteger());
     }
 
     public void setPerspective(PlayerPerspective perspective) {
-        this.getProperty(PERSPECTIVE_KEY).setValue(perspective.getId());
+        this.getConstant(PERSPECTIVE_KEY).setValue(perspective.getId());
     }
 
     public enum PlayerPerspective {

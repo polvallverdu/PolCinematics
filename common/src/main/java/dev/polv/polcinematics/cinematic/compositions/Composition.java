@@ -1,12 +1,12 @@
 package dev.polv.polcinematics.cinematic.compositions;
 
 import com.google.gson.JsonObject;
+import dev.polv.polcinematics.cinematic.compositions.constantvariables.Constant;
 import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
 import dev.polv.polcinematics.cinematic.compositions.timevariables.CompositionTimeVariables;
 import dev.polv.polcinematics.cinematic.compositions.helpers.CompositionInfo;
-import dev.polv.polcinematics.cinematic.compositions.value.CompositionProperties;
+import dev.polv.polcinematics.cinematic.compositions.constantvariables.CompositionConstants;
 import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
-import dev.polv.polcinematics.cinematic.compositions.value.Value;
 import dev.polv.polcinematics.exception.CompositionException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import dev.polv.polcinematics.utils.EnumUtils;
@@ -22,7 +22,7 @@ public abstract class Composition {
     private ECompositionType type;
     @Nullable private ICompositionType subtype;
 
-    private CompositionProperties properties;
+    private CompositionConstants constants;
     private CompositionTimeVariables timeVariables;
 
     protected Composition() {
@@ -38,7 +38,7 @@ public abstract class Composition {
         this.type = type;
         this.subtype = subtype;
 
-        this.properties = new CompositionProperties();
+        this.constants = new CompositionConstants();
         this.timeVariables = new CompositionTimeVariables();
 
         this.declare();
@@ -80,9 +80,9 @@ public abstract class Composition {
         this.subtype = this.type.hasSubtypes() ? EnumUtils.findSubtype(this.type, json.get("subtype").getAsString()) : null;
     }
 
-    protected CompositionProperties readProperties(JsonObject json) {
-        this.properties = CompositionProperties.fromJson(json.get("properties").getAsJsonObject());
-        return CompositionProperties.fromJson(json.get("properties").getAsJsonObject());
+    protected CompositionConstants readConstants(JsonObject json) {
+        this.constants = CompositionConstants.fromJson(json.get("constants").getAsJsonObject());
+        return CompositionConstants.fromJson(json.get("constants").getAsJsonObject());
     }
 
     protected CompositionTimeVariables readTimeVariables(JsonObject json) {
@@ -118,21 +118,21 @@ public abstract class Composition {
         this.name = name;
     }*/
 
-    public CompositionProperties getProperties() {
-        return properties;
+    public CompositionConstants getCompositionConstants() {
+        return constants;
     }
 
-    public Value getProperty(String key) {
-        return properties.getValue(key);
+    public Constant getConstant(String key) {
+        return constants.getConstant(key);
     }
 
-    public Value declareProperty(String key, String description, EValueType type) { // Not using description. Leaving here for the future.
-        Value value = this.getProperty(key);
+    public Constant declareConstant(String key, String description, EValueType type) {
+        Constant value = this.getConstant(key);
         if (value != null) {
             return value;
         }
 
-        return properties.createProperty(key, type, type.getDefaultValue());
+        return constants.createConstant(key, description, type);
     }
 
     public TimeVariable getTimeVariable(String timevariableKey) {
@@ -161,7 +161,7 @@ public abstract class Composition {
         if (this.getSubtype() != null)
             json.addProperty("subtype", this.getSubtype().getName());
 
-        json.add("properties", this.properties.toJson());
+        json.add("constants", this.constants.toJson());
         json.add("timevariables", this.timeVariables.toJson());
 
         return json;
@@ -200,7 +200,7 @@ public abstract class Composition {
         }
 
         compo.readComposition(json);
-        compo.readProperties(json);
+        compo.readConstants(json);
         compo.readTimeVariables(json);
         compo.configure(json);
         return compo;

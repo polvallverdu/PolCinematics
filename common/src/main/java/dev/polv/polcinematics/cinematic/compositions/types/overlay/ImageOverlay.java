@@ -14,7 +14,7 @@ public class ImageOverlay extends OverlayComposition {
 
     @Override
     protected void declare() {
-        this.declareProperty("IMAGE_URL", "The url of the image", EValueType.STRING);
+        this.declareConstant("IMAGE_URL", "The url of the image", EValueType.STRING);
 
         this.declareTimeVariable("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
         this.declareTimeVariable("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
@@ -35,12 +35,12 @@ public class ImageOverlay extends OverlayComposition {
     }
 
     public void setImageUrl(String imageUrl) {
-        this.getProperty(IMAGE_URL_KEY).setValue(imageUrl);
+        this.getConstant(IMAGE_URL_KEY).setValue(imageUrl);
         download();
     }
 
     private void download() {
-        this.image = DownloadHandler.INSTANCE.downloadImage(this.getProperty(IMAGE_URL_KEY).getValueAsString());
+        this.image = DownloadHandler.INSTANCE.downloadImage(this.getConstant(IMAGE_URL_KEY).getValueAsString());
     }
 
     @Override

@@ -30,7 +30,7 @@ public class PolCinematicsCommand {
     public static final SimpleCommandExceptionType CINEMATIC_NOT_SELECTED = new SimpleCommandExceptionType(Text.of("Cinematic not selected. Select with /cm select <name>"));
     public static final SimpleCommandExceptionType INVALID_TIMELINE = new SimpleCommandExceptionType(Text.of("Timeline not found"));
     public static final SimpleCommandExceptionType INVALID_COMPOSITION = new SimpleCommandExceptionType(Text.of("Compsositing not found"));
-    public static final SimpleCommandExceptionType INVALID_PROPERTY = new SimpleCommandExceptionType(Text.of("Invalid property key"));
+    public static final SimpleCommandExceptionType INVALID_CONSTANT = new SimpleCommandExceptionType(Text.of("Invalid constant key"));
     public static final SimpleCommandExceptionType INVALID_TIMEVARIABLE = new SimpleCommandExceptionType(Text.of("Invalid time variable key"));
     public static final SimpleCommandExceptionType INVALID_KEYFRAME = new SimpleCommandExceptionType(Text.of("There's no keyframe at this time"));
 

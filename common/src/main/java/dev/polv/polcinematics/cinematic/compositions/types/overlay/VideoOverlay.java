@@ -13,7 +13,7 @@ public class VideoOverlay extends OverlayComposition {
 
     @Override
     protected void declare() {
-        this.declareProperty(VIDEO_URL_KEY, "The url of the video", EValueType.STRING);
+        this.declareConstant(VIDEO_URL_KEY, "The url of the video", EValueType.STRING);
 
         this.declareTimeVariable("X", "Goes from 0 to niputaidea", EValueType.INTEGER);
         this.declareTimeVariable("Y", "Goes from 0 to niputaidea", EValueType.INTEGER);
@@ -34,14 +34,14 @@ public class VideoOverlay extends OverlayComposition {
     }
 
     public void setVideo(String videoUrl) {
-        this.getProperty(VIDEO_URL_KEY).setValue(videoUrl);
+        this.getConstant(VIDEO_URL_KEY).setValue(videoUrl);
         this.initPlayer();
     }
 
     private void initPlayer() {
         if (this.videoPlayer != null)
             this.videoPlayer.stop();
-        this.videoPlayer = (VideoPlayer) IMediaPlayer.createPlayer(VideoPlayer.class, this.getProperty(VIDEO_URL_KEY).getValueAsString());
+        this.videoPlayer = (VideoPlayer) IMediaPlayer.createPlayer(VideoPlayer.class, this.getConstant(VIDEO_URL_KEY).getValueAsString());
     }
 
     @Override

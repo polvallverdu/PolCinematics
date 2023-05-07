@@ -9,6 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
+import dev.polv.polcinematics.cinematic.compositions.constantvariables.Constant;
 import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
 import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.value.Value;
@@ -26,8 +27,8 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
     public enum SuggestionType {
         TIMELINE,
         COMPOSITION,
-        PROPERTY_KEYS,
-        PROPERTY_VALUE,
+        CONSTANT_KEYS,
+        CONSTANT_VALUE,
         TIMEVARIABLE_KEYS,
         TIMEVARIABLE_VALUE,
         TIMEVARIABLE_POSITION,
@@ -92,8 +93,8 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return builder.buildFuture();
         }
 
-        if (type == SuggestionType.PROPERTY_KEYS) {
-            composition.getProperties().getKeys().forEach(builder::suggest);
+        if (type == SuggestionType.CONSTANT_KEYS) {
+            composition.getCompositionConstants().getKeys().forEach(builder::suggest);
             return builder.buildFuture();
         }
 
@@ -104,12 +105,12 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return builder.buildFuture();
         }
 
-        if (type == SuggestionType.PROPERTY_VALUE || type == SuggestionType.TIMEVARIABLE_VALUE) {
+        if (type == SuggestionType.CONSTANT_VALUE || type == SuggestionType.TIMEVARIABLE_VALUE) {
             EValueType valueType = null;
 
-            if (type == SuggestionType.PROPERTY_VALUE) {
-                String propertyValue = StringArgumentType.getString(ctx, "property");
-                Value val = composition.getProperty(propertyValue);
+            if (type == SuggestionType.CONSTANT_VALUE) {
+                String constantValue = StringArgumentType.getString(ctx, "constant");
+                Constant val = composition.getConstant(constantValue);
                 if (val == null) {
                     return Suggestions.empty();
                 }

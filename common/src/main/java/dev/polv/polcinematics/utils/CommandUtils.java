@@ -8,9 +8,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.compositions.constantvariables.Constant;
 import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
 import dev.polv.polcinematics.cinematic.compositions.timevariables.Keyframe;
-import dev.polv.polcinematics.cinematic.compositions.value.Value;
 import dev.polv.polcinematics.cinematic.manager.FileCinematic;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
@@ -106,16 +106,16 @@ public class CommandUtils {
         return pair;
     }
 
-    public static Pair<String, Value> getProperty(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Pair<String, Constant> getConstant(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         var pairtc = getComposition(ctx);
-        String propertyKey = StringArgumentType.getString(ctx, "property");
+        String constantKey = StringArgumentType.getString(ctx, "constant");
 
-        Value value = pairtc.getRight().getComposition().getProperty(propertyKey);
+        Constant value = pairtc.getRight().getComposition().getConstant(constantKey);
 
         if (value == null)
-            throw PolCinematicsCommand.INVALID_PROPERTY.create();
+            throw PolCinematicsCommand.INVALID_CONSTANT.create();
 
-        return new Pair<>(propertyKey, value);
+        return new Pair<>(constantKey, value);
     }
 
     public static Pair<String, TimeVariable> getTimeVariable(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

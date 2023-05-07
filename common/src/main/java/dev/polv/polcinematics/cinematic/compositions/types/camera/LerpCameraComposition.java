@@ -9,8 +9,8 @@ public class LerpCameraComposition extends CameraComposition {
 
     @Override
     protected void declare() {
-        this.declareProperty(POSITION_KEY, "Position", EValueType.CAMERAPOS);
-        this.declareProperty(ROTATION_KEY, "Rotation", EValueType.CAMERAROT);
+        this.declareConstant(POSITION_KEY, "Position", EValueType.CAMERAPOS);
+        this.declareConstant(ROTATION_KEY, "Rotation", EValueType.CAMERAROT);
     }
 
     @Override

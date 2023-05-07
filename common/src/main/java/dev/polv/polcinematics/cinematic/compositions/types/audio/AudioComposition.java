@@ -12,17 +12,17 @@ public class AudioComposition extends Composition {
 
     @Override
     protected void declare() {
-        this.declareProperty(AUDIO_URL_KEY, "The URL of the audio file", EValueType.STRING);
+        this.declareConstant(AUDIO_URL_KEY, "The URL of the audio file", EValueType.STRING);
     }
 
     public void setAudioUrl(String audioUrl) {
-        this.getProperty(AUDIO_URL_KEY).setValue(audioUrl);
+        this.getConstant(AUDIO_URL_KEY).setValue(audioUrl);
     }
 
     private void initPlayer() {
         if (this.player != null)
             this.player.stop();
-        this.player = (AudioPlayer) IMediaPlayer.createPlayer(AudioPlayer.class, this.getProperty(AUDIO_URL_KEY).getValueAsString());
+        this.player = (AudioPlayer) IMediaPlayer.createPlayer(AudioPlayer.class, this.getConstant(AUDIO_URL_KEY).getValueAsString());
     }
 
     @Override
