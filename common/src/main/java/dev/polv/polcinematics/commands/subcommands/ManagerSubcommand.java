@@ -25,10 +25,10 @@ import net.minecraft.util.Formatting;
 final public class ManagerSubcommand {
 
     public static LiteralCommandNode<ServerCommandSource> build() {
-        LiteralArgumentBuilder<ServerCommandSource> managerArgumentBuilder = CommandManager.literal("manager");
+        LiteralArgumentBuilder<ServerCommandSource> managerArgumentBuilder = CommandUtils.l("manager");
 
         managerArgumentBuilder.then(
-                CommandManager.literal("select")
+                CommandUtils.l("select")
                         .then(
                                 CommandUtils.arg_cinematic()
                                         .executes(ManagerSubcommand::select)
@@ -36,7 +36,7 @@ final public class ManagerSubcommand {
         );
 
         managerArgumentBuilder.then(
-                CommandManager.literal("load")
+                CommandUtils.l("load")
                         .then(
                                 CommandUtils.arg_filecinematic()
                                         .executes(ManagerSubcommand::load)
@@ -44,7 +44,7 @@ final public class ManagerSubcommand {
         );
 
         managerArgumentBuilder.then(
-                CommandManager.literal("unload")
+                CommandUtils.l("unload")
                         .then(
                                 CommandUtils.arg_cinematic()
                                         .executes(ManagerSubcommand::unload)
@@ -52,7 +52,7 @@ final public class ManagerSubcommand {
         );
 
         managerArgumentBuilder.then(
-                CommandManager.literal("create")
+                CommandUtils.l("create")
                         .then(
                                 CommandManager.argument("cinematic", StringArgumentType.word())
                                         .executes(ManagerSubcommand::create)
@@ -60,7 +60,7 @@ final public class ManagerSubcommand {
         );
 
         managerArgumentBuilder.then(
-                CommandManager.literal("save")
+                CommandUtils.l("save")
                         .then(
                                 CommandUtils.arg_cinematic()
                                         .executes(ManagerSubcommand::save)
@@ -68,9 +68,9 @@ final public class ManagerSubcommand {
                         .executes(ManagerSubcommand::save)
         );
         managerArgumentBuilder.then(
-                CommandManager.literal("list")
-                        .then(CommandManager.literal("loaded").executes(ManagerSubcommand::list))
-                        .then(CommandManager.literal("files").executes(ManagerSubcommand::listfiles))
+                CommandUtils.l("list")
+                        .then(CommandUtils.l("loaded").executes(ManagerSubcommand::list))
+                        .then(CommandUtils.l("files").executes(ManagerSubcommand::listfiles))
                         .executes(ManagerSubcommand::listfiles)
         );
 

@@ -72,11 +72,11 @@ public class EditorSubcommand {
     private static final CommandCooldownHash DELETE_COOLDOWN = new CommandCooldownHash(Duration.ofSeconds(15));
 
     private static LiteralArgumentBuilder<ServerCommandSource> l(String name) {
-        return CommandManager.literal(name);
+        return CommandUtils.l(name);
     }
 
     private static <T> RequiredArgumentBuilder<ServerCommandSource, T> arg(String name, ArgumentType<T> argumentType) {
-        return CommandManager.argument(name, argumentType);
+        return CommandUtils.arg(name, argumentType);
     }
 
     private static LiteralArgumentBuilder<ServerCommandSource> arg_value(LiteralArgumentBuilder<ServerCommandSource> l, Command<ServerCommandSource> executor, @Nullable SuggestionProvider<ServerCommandSource> suggestionProvider) {

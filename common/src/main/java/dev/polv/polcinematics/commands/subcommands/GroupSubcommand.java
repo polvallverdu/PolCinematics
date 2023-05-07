@@ -18,11 +18,11 @@ import net.minecraft.text.Text;
 public class GroupSubcommand {
 
     public static LiteralCommandNode<ServerCommandSource> build() {
-        LiteralArgumentBuilder<ServerCommandSource> groupBuilder = CommandManager.literal("groups");
+        LiteralArgumentBuilder<ServerCommandSource> groupBuilder = CommandUtils.l("groups");
 
         groupBuilder
                 .then(
-                        CommandManager.literal("create")
+                        CommandUtils.l("create")
                                 .then(
                                         CommandManager.argument("name", StringArgumentType.word())
                                                 .then(
@@ -48,7 +48,7 @@ public class GroupSubcommand {
                                 )
                 )
                 .then(
-                        CommandManager.literal("list")
+                        CommandUtils.l("list")
                                 .executes((ctx) -> {
                                     ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "Groups:"));
                                     PolCinematics.getGroupManager().getGroups().forEach((group) -> {
@@ -58,7 +58,7 @@ public class GroupSubcommand {
                                 })
                 )
                 .then(
-                        CommandManager.literal("delete")
+                        CommandUtils.l("delete")
                                 .then(
                                         CommandUtils.arg_group()
                                                 .executes((ctx) -> {
@@ -71,11 +71,11 @@ public class GroupSubcommand {
                                 )
                 )
                 .then(
-                        CommandManager.literal("modify")
+                        CommandUtils.l("modify")
                                 .then(
                                         CommandUtils.arg_group()
                                                 .then(
-                                                        CommandManager.literal("selector")
+                                                        CommandUtils.l("selector")
                                                                 .then(
                                                                         CommandUtils.arg_selector()
                                                                         .executes((ctx) -> {

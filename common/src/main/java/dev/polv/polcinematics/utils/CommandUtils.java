@@ -1,8 +1,10 @@
 package dev.polv.polcinematics.utils;
 
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -29,6 +31,11 @@ import java.util.UUID;
 
 public class CommandUtils {
 
+    public static LiteralArgumentBuilder<ServerCommandSource> l(String name) {
+        return CommandManager.literal(name)
+                .requires(source -> source.hasPermissionLevel(4));
+    }
+    
     public static Cinematic getCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         return getCinematic(ctx, true);
     }
@@ -153,40 +160,44 @@ public class CommandUtils {
         return playerGroup;
     }
 
+    public static <T> RequiredArgumentBuilder<ServerCommandSource, T> arg(String name, ArgumentType<T> argumentType) {
+        return CommandManager.argument(name, argumentType);
+    }
+
     public static RequiredArgumentBuilder<ServerCommandSource, String> arg_cinematic() {
-        return CommandManager.argument("cinematic", StringArgumentType.word())
+        return arg("cinematic", StringArgumentType.word())
                 .suggests(new CinematicLoadedSuggestion());
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> arg_filecinematic() {
-        return CommandManager.argument("filename", StringArgumentType.string())
+        return arg("filename", StringArgumentType.string())
                 .suggests(new CinematicFileSuggetion());
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> arg_group() {
-        return CommandManager.argument("group", StringArgumentType.word())
+        return arg("group", StringArgumentType.word())
                 .suggests(new GroupSuggestion());
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, String> arg_selector() {
-        return CommandManager.argument("selector", StringArgumentType.greedyString())
+        return arg("selector", StringArgumentType.greedyString())
                 .suggests((ctx, builder) -> EntityArgumentType.players().listSuggestions(ctx, builder));
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, Long> arg_from() {
-        return CommandManager.argument("from", LongArgumentType.longArg(0));
+        return arg("from", LongArgumentType.longArg(0));
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, Long> arg_to() {
-        return CommandManager.argument("to", LongArgumentType.longArg(0));
+        return arg("to", LongArgumentType.longArg(0));
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, Long> arg_time() {
-        return CommandManager.argument("time", LongArgumentType.longArg(0));
+        return arg("time", LongArgumentType.longArg(0));
     }
 
     public static RequiredArgumentBuilder<ServerCommandSource, Boolean> arg_paused() {
-        return CommandManager.argument("paused", BoolArgumentType.bool());
+        return arg("paused", BoolArgumentType.bool());
     }
 
 }

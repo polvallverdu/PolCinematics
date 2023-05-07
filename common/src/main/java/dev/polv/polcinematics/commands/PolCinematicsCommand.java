@@ -8,6 +8,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.commands.subcommands.*;
 import dev.polv.polcinematics.utils.BridagierUtils;
 import dev.polv.polcinematics.utils.ChatUtils;
+import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -36,14 +37,13 @@ public class PolCinematicsCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
         LiteralArgumentBuilder<ServerCommandSource> mainBuilder = CommandManager.literal("polcinematics");
-        mainBuilder.then(CommandManager.literal("help").executes(ctx -> {
+        mainBuilder.then(CommandUtils.l("help").executes(ctx -> {
             ctx.getSource().sendMessage(Text.literal(HELP_MESSAGE));
             return 1;
         }));
         mainBuilder.executes(PolCinematicsCommand::version);
         mainBuilder.then(
-                CommandManager
-                        .literal("version")
+                CommandManager.literal("version")
                         .executes(PolCinematicsCommand::version)
         );
 

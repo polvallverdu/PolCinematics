@@ -21,16 +21,16 @@ public class PlayerSubcommand {
 
     
     public static LiteralCommandNode<ServerCommandSource> build() {
-        LiteralArgumentBuilder<ServerCommandSource> controlArgumentBuilder = CommandManager.literal("control");
+        LiteralArgumentBuilder<ServerCommandSource> controlArgumentBuilder = CommandUtils.l("control");
 
-        controlArgumentBuilder.then(CommandManager.literal("broadcast")
+        controlArgumentBuilder.then(CommandUtils.l("broadcast")
                 .then(
                         CommandUtils.arg_cinematic()
                         .executes(PlayerSubcommand::broadcast)
                 )
         );
 
-        controlArgumentBuilder.then(CommandManager.literal("unbroadcast")
+        controlArgumentBuilder.then(CommandUtils.l("unbroadcast")
                 .then(
                         CommandUtils.arg_cinematic()
                                 .executes(PlayerSubcommand::unbroadcast)
@@ -38,9 +38,9 @@ public class PlayerSubcommand {
         );
 
         controlArgumentBuilder.then(
-                CommandManager.literal("play")
+                CommandUtils.l("play")
                         .then(
-                                CommandManager.literal("all")
+                                CommandUtils.l("all")
                                         .then(
                                                 CommandUtils.arg_cinematic()
                                                         .then(
@@ -56,7 +56,7 @@ public class PlayerSubcommand {
                                         .executes(PlayerSubcommand::play)
                         )
                         .then(
-                                CommandManager.literal("group")
+                                CommandUtils.l("group")
                                         .then(
                                                 CommandUtils.arg_group()
                                                         .then(
@@ -76,7 +76,7 @@ public class PlayerSubcommand {
         );
 
         controlArgumentBuilder.then(
-                CommandManager.literal("stop")
+                CommandUtils.l("stop")
                         .then(
                                 CommandUtils.arg_cinematic()
                                         .executes(PlayerSubcommand::stop)
@@ -84,7 +84,7 @@ public class PlayerSubcommand {
         );
 
         controlArgumentBuilder.then(
-                CommandManager.literal("pause")
+                CommandUtils.l("pause")
                         .then(
                                 CommandUtils.arg_cinematic()
                                         .executes(PlayerSubcommand::pause)
@@ -92,7 +92,7 @@ public class PlayerSubcommand {
         );
 
         controlArgumentBuilder.then(
-                CommandManager.literal("goto")
+                CommandUtils.l("goto")
                         .then(
                                 CommandUtils.arg_cinematic()
                                         .then(
@@ -103,7 +103,7 @@ public class PlayerSubcommand {
         );
 
         controlArgumentBuilder.then(
-                CommandManager.literal("resume")
+                CommandUtils.l("resume")
                         .then(
                                 CommandUtils.arg_cinematic()
                                         .executes(PlayerSubcommand::resume)

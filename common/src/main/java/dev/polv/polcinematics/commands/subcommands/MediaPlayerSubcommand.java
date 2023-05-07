@@ -19,30 +19,27 @@ import java.util.List;
 final public class MediaPlayerSubcommand {
 
     public static LiteralCommandNode<ServerCommandSource> build() {
-        LiteralArgumentBuilder<ServerCommandSource> mediaPlayerBuilder = CommandManager.literal("mediaplayer");
+        LiteralArgumentBuilder<ServerCommandSource> mediaPlayerBuilder = CommandUtils.l("mediaplayer");
 
-        mediaPlayerBuilder.then(CommandManager.literal("resume").executes(MediaPlayerSubcommand::resume));
-        mediaPlayerBuilder.then(CommandManager.literal("stop").executes(MediaPlayerSubcommand::stop));
+        mediaPlayerBuilder.then(CommandUtils.l("resume").executes(MediaPlayerSubcommand::resume));
+        mediaPlayerBuilder.then(CommandUtils.l("stop").executes(MediaPlayerSubcommand::stop));
         mediaPlayerBuilder.then(
-                CommandManager
-                        .literal("jump")
+                CommandUtils.l("jump")
                         .then(
                                 CommandUtils.arg_time()
                                         .executes(MediaPlayerSubcommand::jump)
                         )
         );
-        mediaPlayerBuilder.then(CommandManager.literal("pause").executes(MediaPlayerSubcommand::pause));
+        mediaPlayerBuilder.then(CommandUtils.l("pause").executes(MediaPlayerSubcommand::pause));
         mediaPlayerBuilder.then(
-                CommandManager
-                        .literal("play")
+                CommandUtils.l("play")
                         .then(
-                                CommandManager
-                                        .argument("path", StringArgumentType.string())
+                                CommandUtils.arg("path", StringArgumentType.string())
                                         .then(
-                                                CommandManager.argument("paused", BoolArgumentType.bool())
-                                                        .then(CommandManager
-                                                                .argument("audioOnly", BoolArgumentType.bool())
-                                                                .executes(MediaPlayerSubcommand::play)
+                                                CommandUtils.arg("paused", BoolArgumentType.bool())
+                                                        .then(
+                                                                CommandUtils.arg("audioOnly", BoolArgumentType.bool())
+                                                                        .executes(MediaPlayerSubcommand::play)
                                                         )
                                                         .executes(MediaPlayerSubcommand::play)
                                         )
@@ -50,11 +47,9 @@ final public class MediaPlayerSubcommand {
                         )
         );
         mediaPlayerBuilder.then(
-                CommandManager
-                        .literal("volume")
+                CommandUtils.l("volume")
                         .then(
-                                CommandManager
-                                        .argument("volume", IntegerArgumentType.integer(0, 100))
+                                CommandUtils.arg("volume", IntegerArgumentType.integer(0, 100))
                                         .executes(MediaPlayerSubcommand::volume)
                         )
         );
