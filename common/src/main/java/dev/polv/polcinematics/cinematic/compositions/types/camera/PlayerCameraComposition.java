@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.cinematic.compositions.types.camera;
 
 import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
-import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 
 public class PlayerCameraComposition extends CameraComposition {
 

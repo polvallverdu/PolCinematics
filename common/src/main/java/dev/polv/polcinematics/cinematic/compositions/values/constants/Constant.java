@@ -1,10 +1,10 @@
-package dev.polv.polcinematics.cinematic.compositions.constantvariables;
+package dev.polv.polcinematics.cinematic.compositions.values.constants;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
-import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
-import dev.polv.polcinematics.cinematic.compositions.value.Value;
+import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.Value;
 
 import java.awt.*;
 import java.util.UUID;

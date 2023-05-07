@@ -1,12 +1,12 @@
 package dev.polv.polcinematics.cinematic.compositions;
 
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.constantvariables.Constant;
-import dev.polv.polcinematics.cinematic.compositions.timevariables.TimeVariable;
-import dev.polv.polcinematics.cinematic.compositions.timevariables.CompositionTimeVariables;
+import dev.polv.polcinematics.cinematic.compositions.values.constants.Constant;
+import dev.polv.polcinematics.cinematic.compositions.values.timevariables.TimeVariable;
+import dev.polv.polcinematics.cinematic.compositions.values.timevariables.CompositionTimeVariables;
 import dev.polv.polcinematics.cinematic.compositions.helpers.CompositionInfo;
-import dev.polv.polcinematics.cinematic.compositions.constantvariables.CompositionConstants;
-import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.constants.CompositionConstants;
+import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.exception.CompositionException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import dev.polv.polcinematics.utils.EnumUtils;

@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.cinematic.compositions.types.audio;
 
 import dev.polv.polcinematics.cinematic.compositions.Composition;
-import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.client.players.AudioPlayer;
 import dev.polv.polcinematics.client.players.IMediaPlayer;
 

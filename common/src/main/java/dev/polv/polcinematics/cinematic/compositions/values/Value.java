@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.cinematic.compositions.value;
+package dev.polv.polcinematics.cinematic.compositions.values;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;

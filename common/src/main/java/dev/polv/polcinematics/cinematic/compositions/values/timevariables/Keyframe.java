@@ -1,9 +1,9 @@
-package dev.polv.polcinematics.cinematic.compositions.timevariables;
+package dev.polv.polcinematics.cinematic.compositions.values.timevariables;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
-import dev.polv.polcinematics.cinematic.compositions.value.Value;
+import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.Value;
 import dev.polv.polcinematics.utils.math.Easing;
 
 public class Keyframe {

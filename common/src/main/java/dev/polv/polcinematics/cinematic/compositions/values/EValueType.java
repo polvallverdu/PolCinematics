@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.cinematic.compositions.value;
+package dev.polv.polcinematics.cinematic.compositions.values;
 
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;

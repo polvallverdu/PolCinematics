@@ -1,6 +1,6 @@
 package dev.polv.polcinematics.cinematic.compositions.types.overlay;
 
-import dev.polv.polcinematics.cinematic.compositions.value.EValueType;
+import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.utils.ColorUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
