@@ -163,12 +163,10 @@ public class PlayerSubcommand {
     private static int broadcast(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
 
-        if (PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(cinematic)) {
-            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + cinematic.getName() + " §cis already broadcasted"));
-            return 1;
+        if (!PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(cinematic)) {
+            PolCinematics.CINEMATICS_MANAGER.addBroadcastedCinematic(cinematic);
         }
 
-        PolCinematics.CINEMATICS_MANAGER.addBroadcastedCinematic(cinematic);
         Packets.broadcastCinematic(cinematic, ctx.getSource().getServer().getPlayerManager().getPlayerList());
 
         ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Broadcasting cinematic §f" + cinematic.getName()));
