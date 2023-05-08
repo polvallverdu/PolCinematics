@@ -9,10 +9,13 @@ public class AudioComposition extends Composition {
 
     private AudioPlayer player;
     public static final String AUDIO_URL_KEY = "AUDIO_URL";
+    public static final String VOLUME_KEY = "VOLUME";
 
     @Override
     protected void declare() {
         this.declareConstant(AUDIO_URL_KEY, "The URL of the audio file", EValueType.STRING);
+
+        this.declareTimeVariable(VOLUME_KEY, "Volume of the music. From 0 to 100", EValueType.INTEGER, 100);
     }
 
     public void setAudioUrl(String audioUrl) {
@@ -58,7 +61,7 @@ public class AudioComposition extends Composition {
 
     @Override
     public void onCompositionTick(long time) {
-        int volume = (int) this.getTimeVariable("volume").getValue(time);
+        int volume = (int) this.getTimeVariable(VOLUME_KEY).getValue(time);
         volume = Math.min(100, Math.max(0, volume));
         float transVolume = (float) volume / 100;
         transVolume = transVolume * transVolume;

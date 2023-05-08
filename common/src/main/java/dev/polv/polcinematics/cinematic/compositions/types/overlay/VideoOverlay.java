@@ -11,6 +11,7 @@ public class VideoOverlay extends OverlayComposition {
     private VideoPlayer videoPlayer;
 
     public static final String VIDEO_URL_KEY = "VIDEO_URL";
+    public static final String VOLUME_KEY = "VOLUME";
 
     @Override
     protected void declare() {
@@ -21,6 +22,8 @@ public class VideoOverlay extends OverlayComposition {
         this.declareTimeVariable("WIDTH", "Goes from 0% to 100%", EValueType.INTEGER, 50);
         this.declareTimeVariable("HEIGHT", "Goes from 0% to 100%", EValueType.INTEGER, 50);
         this.declareTimeVariable("ALPHA", "Goes from 0% to 100%", EValueType.INTEGER, 100);
+
+        this.declareTimeVariable(VOLUME_KEY, "Volume of the music. From 0 to 100", EValueType.INTEGER, 100);
     }
 
     @Override
@@ -75,5 +78,15 @@ public class VideoOverlay extends OverlayComposition {
     @Override
     public void onCinematicTimeChange(long time) {
         this.videoPlayer.setTime(time);
+    }
+
+    @Override
+    public void onCompositionTick(long time) {
+        int volume = (int) this.getTimeVariable(VOLUME_KEY).getValue(time);
+        volume = Math.min(100, Math.max(0, volume));
+        float transVolume = (float) volume / 100;
+        transVolume = transVolume * transVolume;
+        if (this.videoPlayer.getVolumeFloat() != transVolume)
+            this.videoPlayer.setVolume(volume);
     }
 }
