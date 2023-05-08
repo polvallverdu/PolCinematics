@@ -97,7 +97,7 @@ public class Cinematic {
      * @param newtime The new start time of the composition
      * @throws OverlapException If the composition overlaps with another composition in the new timeline
      */
-    public void moveComposition(WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException {
+    public void moveComposition(WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException, IllegalArgumentException {
         newTimeline.canMoveThrows(composition, newtime);
         oldTimeline.remove(composition);
         newTimeline.add(composition.getComposition(), newtime, composition.getDuration());

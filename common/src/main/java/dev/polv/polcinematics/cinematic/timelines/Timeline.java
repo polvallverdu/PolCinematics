@@ -3,16 +3,20 @@ package dev.polv.polcinematics.cinematic.timelines;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
+import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
 import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class Timeline {
+
+    private final static ECompositionType[] ALLOWED_TYPES = new ECompositionType[]{ECompositionType.AUDIO_COMPOSITION, ECompositionType.OVERLAY_COMPOSITION};
 
     private final UUID uuid;
     protected List<WrappedComposition> compositions;
@@ -67,7 +71,12 @@ public class Timeline {
         compositions.sort((a, b) -> (int) (a.getStartTime() - b.getStartTime()));
     }
 
-    public void add(@NotNull Composition composition, long startTime, long duration) throws OverlapException {
+    public void add(@NotNull Composition composition, long startTime, long duration) throws IllegalArgumentException, OverlapException {
+        // check if composition.getType() is in this.getAllowedTypes()
+        if (Arrays.binarySearch(this.getAllowedTypes(), composition.getType()) < 0) {
+            throw new IllegalArgumentException("Composition type " + composition.getType() + " is not allowed in this timeline");
+        }
+
         WrappedComposition wc = new WrappedComposition(composition, startTime, duration);
         for (WrappedComposition wc1 : compositions) {
             if (wc.getStartTime() < wc1.getFinishTime() && wc.getFinishTime() > wc1.getStartTime()) {
@@ -234,6 +243,10 @@ public class Timeline {
             newComposition.getComposition().onCompositionStart();
             newComposition.getComposition().onCompositionTick(time - newComposition.getStartTime());
         }
+    }
+
+    public ECompositionType[] getAllowedTypes() {
+        return ALLOWED_TYPES;
     }
 
     public JsonObject toJson() {

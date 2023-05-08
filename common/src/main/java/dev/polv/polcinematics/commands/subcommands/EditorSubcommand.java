@@ -473,7 +473,7 @@ public class EditorSubcommand {
         try {
             timeline.add(compo, startTime, duration);
             ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition created"));
-        } catch (OverlapException e) {
+        } catch (OverlapException | IllegalArgumentException e) {
             ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
         }
 
@@ -910,7 +910,7 @@ public class EditorSubcommand {
 
         try {
             cinematic.moveComposition(pairtc.getRight(), pairtc.getLeft(), newtimeline, newtime);
-        } catch (OverlapException e) {
+        } catch (OverlapException | IllegalArgumentException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
             return 1;
         }
