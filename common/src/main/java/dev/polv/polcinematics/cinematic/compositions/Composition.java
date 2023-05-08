@@ -1,7 +1,6 @@
 package dev.polv.polcinematics.cinematic.compositions;
 
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.helpers.CompositionInfo;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.values.constants.CompositionConstants;
 import dev.polv.polcinematics.cinematic.compositions.values.constants.Constant;
@@ -80,14 +79,12 @@ public abstract class Composition {
         this.subtype = this.type.hasSubtypes() ? EnumUtils.findSubtype(this.type, json.get("subtype").getAsString()) : null;
     }
 
-    protected CompositionConstants readConstants(JsonObject json) {
-        this.constants = CompositionConstants.fromJson(json.get("constants").getAsJsonObject());
-        return CompositionConstants.fromJson(json.get("constants").getAsJsonObject());
+    protected void readConstants(JsonObject json) {
+        this.constants = CompositionConstants.fromJson(json.get("constants").getAsJsonArray());
     }
 
-    protected CompositionTimeVariables readTimeVariables(JsonObject json) {
-        this.timeVariables = CompositionTimeVariables.fromJson(json.get("timevariables").getAsJsonObject());
-        return CompositionTimeVariables.fromJson(json.get("timevariables").getAsJsonObject());
+    protected void readTimeVariables(JsonObject json) {
+        this.timeVariables = CompositionTimeVariables.fromJson(json.get("timevariables").getAsJsonArray());
     }
 
     protected void configure(JsonObject json) {
@@ -178,20 +175,6 @@ public abstract class Composition {
     public static Composition fromJson(JsonObject json) throws CompositionException {
         ECompositionType type = ECompositionType.getById(json.get("type").getAsInt());
         Class<? extends Composition> clazz = type.getClazz();
-        /*var compositionClass = type.getClazz();
-        Method m = compositionClass.getMethod("fromJson", JsonObject.class);
-        Composition compo = (Composition) m.invoke(null, json);*/
-
-        /*switch (type) {
-            case CAMERA_COMPOSITION -> {
-                ECameraType subtype = ECameraType.fromName(json.get("subtype").getAsString());
-                clazz = subtype.getClazz();
-            }
-            case OVERLAY_COMPOSITION -> {
-                EOverlayType subtype = EOverlayType.fromName(json.get("subtype").getAsString());
-                clazz = subtype.getClazz();
-            }
-        }*/
 
         if (type.hasSubtypes()) {
             ICompositionType subtype = EnumUtils.findSubtype(type, json.get("subtype").getAsString());
@@ -281,10 +264,5 @@ public abstract class Composition {
      * Called when the composition is no longer shown
      */
     public void onCompositionEnd() {}
-
-    /**
-     * Called when requesting info about the composition
-     */
-    public void onInfoRequest(CompositionInfo info) {}
 
 }

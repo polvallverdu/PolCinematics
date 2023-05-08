@@ -5,10 +5,6 @@ import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposit
 
 public class CameraTimeline extends Timeline {
 
-    public CameraTimeline() {
-        super();
-    }
-
     public CameraComposition getCameraComposition(long time) {
         return (CameraComposition) this.getComposition(time);
     }

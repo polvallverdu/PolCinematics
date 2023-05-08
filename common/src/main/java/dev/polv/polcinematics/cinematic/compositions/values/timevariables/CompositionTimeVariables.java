@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class CompositionTimeVariables {
 
@@ -31,7 +32,7 @@ public class CompositionTimeVariables {
     }
 
     public TimeVariable createTimeVariable(String name, String description, EValueType type, Object defaultValue) {
-        TimeVariable timeVariable = new TimeVariable(UUID.randomUUID(), name, description, type, List.of(new Keyframe(0, new Value(defaultValue, type))));
+        TimeVariable timeVariable = new TimeVariable(UUID.randomUUID(), name, description, type, Stream.of(new Keyframe(0, new Value(defaultValue, type))).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
         timeVariables.put(name, timeVariable);
         return timeVariable;
     }
@@ -40,19 +41,17 @@ public class CompositionTimeVariables {
         return new ArrayList<>(timeVariables.keySet());
     }
 
-    public JsonObject toJson() {
+    public JsonArray toJson() {
         JsonArray jsonArray = new JsonArray();
 
         for (TimeVariable timeVariable : timeVariables.values()) {
             jsonArray.add(timeVariable.toJson());
         }
 
-        return jsonArray.getAsJsonObject();
+        return jsonArray;
     }
 
-    public static CompositionTimeVariables fromJson(JsonObject json) {
-        JsonArray jsonArray = json.getAsJsonArray();
-
+    public static CompositionTimeVariables fromJson(JsonArray jsonArray) {
         HashMap<String, TimeVariable> timevariables = new HashMap<>();
 
         for (int i = 0; i < jsonArray.size(); i++) {

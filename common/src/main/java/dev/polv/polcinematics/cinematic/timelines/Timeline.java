@@ -87,8 +87,8 @@ public class Timeline {
         }
     }
 
-    public void remove(WrappedComposition composition) {
-        compositions.remove(composition);
+    public boolean remove(WrappedComposition composition) {
+        return compositions.remove(composition);
     }
 
     public void changeDuration(UUID compositionUUID, long newDuration) throws IllegalArgumentException, OverlapException {

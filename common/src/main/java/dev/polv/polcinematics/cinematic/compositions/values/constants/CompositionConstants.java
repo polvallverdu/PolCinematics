@@ -41,19 +41,17 @@ public class CompositionConstants {
         return constant;
     }
 
-    public JsonObject toJson() {
+    public JsonArray toJson() {
         JsonArray jsonArray = new JsonArray();
 
         for (Constant constant : constantValues.values()) {
             jsonArray.add(constant.toJson());
         }
 
-        return jsonArray.getAsJsonObject();
+        return jsonArray;
     }
 
-    public static CompositionConstants fromJson(JsonObject json) {
-        JsonArray jsonArray = json.getAsJsonArray();
-
+    public static CompositionConstants fromJson(JsonArray jsonArray) {
         HashMap<String, Constant> constants = new HashMap<>();
 
         for (int i = 0; i < jsonArray.size(); i++) {

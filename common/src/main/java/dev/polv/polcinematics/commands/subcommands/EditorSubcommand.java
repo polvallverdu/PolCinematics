@@ -515,7 +515,11 @@ public class EditorSubcommand {
         WrappedComposition composition = pairtc.getRight();
 
         if (runDelete(player.getUuid(), String.valueOf(composition.hashCode()))) {
-            timeline.remove(composition);
+            if (timeline.remove(composition)) {
+                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition deleted"));
+            } else {
+                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cInvalid Composition"));
+            }
             System.gc();
             return 1;
         }
@@ -668,7 +672,7 @@ public class EditorSubcommand {
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete composition " + wc.getUuid()))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete composition " + timeline.getUuid() + " " + wc.getUuid()))
             );
 
             player.sendMessage(

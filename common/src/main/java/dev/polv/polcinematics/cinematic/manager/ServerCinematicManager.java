@@ -206,6 +206,8 @@ public class ServerCinematicManager {
                 GsonUtils.jsonToFile(cinematicJson, cinematicFile);
             } catch (IOException e) {
                 throw new RuntimeException("Failed to save cinematic");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.LOADED);
