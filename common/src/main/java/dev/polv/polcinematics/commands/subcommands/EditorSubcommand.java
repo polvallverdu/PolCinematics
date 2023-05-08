@@ -64,7 +64,6 @@ public class EditorSubcommand {
 
     private static final String BOTTOM_LINE = "§8§l=====================================";
 
-
     private static final CommandCooldownHash DELETE_COOLDOWN = new CommandCooldownHash(Duration.ofSeconds(15));
 
     private static LiteralArgumentBuilder<ServerCommandSource> l(String name) {
@@ -708,7 +707,7 @@ public class EditorSubcommand {
 
             player.sendMessage(
                     Text
-                            .literal("§7-  §f" + timeline)
+                            .literal("§7-  §f" + (cinematic.getCameraTimeline().getUuid().equals(timeline.getUuid()) ? "Camera" : timelines.indexOf(timeline)))
                             .append(info)
                             .append(delete)
             );
