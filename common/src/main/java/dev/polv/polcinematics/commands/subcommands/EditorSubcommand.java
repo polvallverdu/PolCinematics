@@ -487,8 +487,17 @@ public class EditorSubcommand {
         Cinematic cinematic = pairct.getLeft();
         Timeline timeline = pairct.getRight();
 
+        if (cinematic.getCameraTimeline().getUuid().equals(timeline.getUuid())) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't delete the camera timeline"));
+            return 1;
+        }
+
         if (runDelete(player.getUuid(), String.valueOf(timeline.hashCode()))) {
-            cinematic.removeTimeline(timeline);
+            if (cinematic.removeTimeline(timeline)) {
+                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline deleted"));
+            } else {
+                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cInvalid Timeline"));
+            }
             System.gc();
             return 1;
         }
