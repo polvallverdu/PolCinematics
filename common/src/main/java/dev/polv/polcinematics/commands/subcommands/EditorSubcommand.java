@@ -257,7 +257,7 @@ public class EditorSubcommand {
                                             )
                                     )
                     )
-                    .executes(EditorSubcommand::duration_composition_get)
+                    .executes(EditorSubcommand::duration_cinematic_get)
         );
 
         editorBuilder.then(
