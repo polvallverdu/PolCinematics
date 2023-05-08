@@ -61,9 +61,10 @@ public class Cinematic {
      * Removes a timeline from the cinematic
      *
      * @param timeline The timeline to remove
+     * @return {@code true} if the timeline was removed, {@code false} otherwise
      */
-    public void removeTimeline(Timeline timeline) {
-        this.timelines.remove(timeline);
+    public boolean removeTimeline(Timeline timeline) {
+        return this.timelines.remove(timeline);
     }
 
     public boolean canMove(Timeline timeline, int positions, boolean isUp) {
@@ -134,7 +135,7 @@ public class Cinematic {
      * @return The {@link Timeline} with the given {@link UUID}
      */
     public @Nullable Timeline getTimeline(UUID timelineUUID) {
-        for (Timeline timeline : this.timelines) {
+        for (Timeline timeline : this.getTimelines()) {
             if (timeline.getUuid().equals(timelineUUID)) {
                 return timeline;
             }
@@ -155,7 +156,7 @@ public class Cinematic {
         try {
             int index = Integer.parseInt(query);
             return this.getTimeline(index - 1);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException | IndexOutOfBoundsException e) {
             try {
                 UUID uuid = UUID.fromString(query);
                 return this.getTimeline(uuid);
