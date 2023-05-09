@@ -102,6 +102,7 @@ final public class ManagerSubcommand {
         }
 
         ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCreated cinematic §6" + cinematic.getName()));
+        PolCinematics.CINEMATICS_MANAGER.loadCache();
 
         if (ctx.getSource().isExecutedByPlayer()) {
             ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
@@ -164,6 +165,7 @@ final public class ManagerSubcommand {
         ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Saving cinematic..."));
         PolCinematics.CINEMATICS_MANAGER.saveCinematic(cinematic, () -> {
             ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSaved cinematic §6" + cinematic.getName()));
+            PolCinematics.CINEMATICS_MANAGER.loadCache();
         });
         return 1;
     }

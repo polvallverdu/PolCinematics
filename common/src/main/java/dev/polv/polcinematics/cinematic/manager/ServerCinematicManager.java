@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class ServerCinematicManager {
@@ -43,6 +46,7 @@ public class ServerCinematicManager {
 
     private final ConcurrentHashMap<UUID, Cinematic> selectedCinematics;
     private final List<UUID> broadcastedCinematics;
+    private final Semaphore fileCinematicsLoadLock = new Semaphore(1);
 
     public ServerCinematicManager() {
         Path cinematicsPath = Platform.getConfigFolder().resolve("polcinematics/cinematics/v" + PolCinematics.MOD_VERSION);
@@ -82,7 +86,8 @@ public class ServerCinematicManager {
         new ServerPacketHandler();
     }
 
-    private void loadCache() {
+    public void loadCache() {
+        if (!fileCinematicsLoadLock.tryAcquire()) return;
         List<FileCinematic> fileCinematics = new ArrayList<>();
 
         if (cinematicFolder.exists()) {
@@ -100,6 +105,7 @@ public class ServerCinematicManager {
         }
 
         this.fileCinematicsCache = fileCinematics;
+        this.fileCinematicsLoadLock.release();
     }
 
     /**
