@@ -1,10 +1,7 @@
 package dev.polv.polcinematics.commands.subcommands;
 
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.LongArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.*;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -16,8 +13,8 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.ICompositionType;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.values.constants.Constant;
 import dev.polv.polcinematics.cinematic.compositions.values.timevariables.CompositionTimeVariables;
@@ -32,9 +29,7 @@ import dev.polv.polcinematics.exception.DeleteKeyframeException;
 import dev.polv.polcinematics.exception.InvalidCommandValueException;
 import dev.polv.polcinematics.exception.InvalidValueException;
 import dev.polv.polcinematics.exception.OverlapException;
-import dev.polv.polcinematics.utils.ChatUtils;
-import dev.polv.polcinematics.utils.ColorUtils;
-import dev.polv.polcinematics.utils.CommandUtils;
+import dev.polv.polcinematics.utils.*;
 import dev.polv.polcinematics.utils.math.Easing;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.Vec3ArgumentType;
@@ -91,6 +86,18 @@ public class EditorSubcommand {
                 ).then(
                         arg("vec3Value", Vec3ArgumentType.vec3())
                                 .suggests(suggestionProvider)
+                                .then(
+                                        arg("pitch", FloatArgumentType.floatArg())
+                                                .then(
+                                                        arg("yaw", FloatArgumentType.floatArg())
+                                                                .then(
+                                                                        arg("roll", FloatArgumentType.floatArg())
+                                                                                .executes(executor)
+                                                                )
+                                                                .executes(executor)
+                                                )
+                                                .executes(executor)
+                                )
                                 .executes(executor)
                 )
                 .executes(executor);
@@ -113,6 +120,18 @@ public class EditorSubcommand {
                 ).then(
                         arg("vec3Value", Vec3ArgumentType.vec3())
                                 .suggests(suggestionProvider)
+                                .then(
+                                        arg("pitch", FloatArgumentType.floatArg())
+                                                .then(
+                                                        arg("yaw", FloatArgumentType.floatArg())
+                                                                .then(
+                                                                        arg("roll", FloatArgumentType.floatArg())
+                                                                                .executes(executor)
+                                                                )
+                                                                .executes(executor)
+                                                )
+                                                .executes(executor)
+                                )
                                 .executes(executor)
                 )
                 .executes(executor);
@@ -779,14 +798,33 @@ public class EditorSubcommand {
         return 1;
     }
 
+    private static void trysetting(Composition compo, String key, Object value) {
+        try {
+            Constant constt = compo.getConstant(key);
+            constt.setValue(value);
+        } catch (Exception ignore) {}
+    }
+
     private static int constant_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
+        var paircom = CommandUtils.getComposition(ctx);
         var pairkp = CommandUtils.getConstant(ctx);
+        boolean isPos = CameraUtils.containsPositionArgument(paircom.getRight().getComposition()) && pairkp.getLeft().equalsIgnoreCase("POSITION");
 
         try {
-            Object value = getValue(ctx, pairkp.getRight().getType());
-            pairkp.getRight().setValue(value);
+            Object value = isPos ? getValueCameraFrame(ctx) : getValue(ctx, pairkp.getRight().getType());
+            if (isPos) {
+                CameraFrame cam = (CameraFrame) value;
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.X_KEY, cam.getX());
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.Y_KEY, cam.getY());
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.Z_KEY, cam.getZ());
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.PITCH_KEY, (double) cam.getPitch());
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.YAW_KEY, (double) cam.getYaw());
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.ROLL_KEY, (double) cam.getRoll());
+            } else {
+                pairkp.getRight().setValue(value);
+            }
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§f" + pairkp.getLeft() + " §7has been set to §f" + value + "§7."));
         } catch (InvalidValueException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
@@ -806,12 +844,24 @@ public class EditorSubcommand {
         return 1;
     }
 
+    private static void trysetting(Composition compo, String key, Object value, long time) {
+        try {
+            TimeVariable tv = compo.getTimeVariable(key);
+            tv.setKeyframe(time, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static int timevariable_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
+        var paircom = CommandUtils.getComposition(ctx);
         var pairkattr = CommandUtils.getTimeVariable(ctx);
         long time = LongArgumentType.getLong(ctx, "time");
         Easing easing = Easing.EASE_INOUT_QUAD;
+
+        boolean isPos = CameraUtils.containsPositionArgument(paircom.getRight().getComposition()) && pairkattr.getLeft().equalsIgnoreCase("POSITION");
 
         try {
             String easingName = StringArgumentType.getString(ctx, "easing");
@@ -824,8 +874,19 @@ public class EditorSubcommand {
         } catch (Exception ignore) {}
 
         try {
-            Object value = getValue(ctx, pairkattr.getRight().getType());
-            pairkattr.getRight().setKeyframe(time, value, easing);
+            Object value = isPos ? getValueCameraFrame(ctx) : getValue(ctx, pairkattr.getRight().getType());
+            if (isPos) {
+                CameraFrame cam = (CameraFrame) value;
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.X_KEY, cam.getX(), time);
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.Y_KEY, cam.getY(), time);
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.Z_KEY, cam.getZ(), time);
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.PITCH_KEY, (double) cam.getPitch(), time);
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.YAW_KEY, (double) cam.getYaw(), time);
+                trysetting(paircom.getRight().getComposition(), DeclarationUtils.ROLL_KEY, (double) cam.getRoll(), time);
+            } else {
+                pairkattr.getRight().setKeyframe(time, value, easing);
+            }
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§f" + pairkattr.getLeft() + " §7has been set to §f" + value + "§7."));
         } catch (InvalidValueException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
             return 1;
@@ -955,6 +1016,45 @@ public class EditorSubcommand {
 
     /////// OTHER FUNCTIONS ///////
 
+    private static CameraFrame getValueCameraFrame(CommandContext<ServerCommandSource> ctx) throws InvalidValueException, CommandSyntaxException {
+        ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+        try {
+            float roll = Float.parseFloat(StringArgumentType.getString(ctx, "stringValue"));
+            return new CameraFrame(player.getX(), player.getY(), player.getZ(), player.getPitch(), player.getYaw(), roll);
+        } catch (NumberFormatException e) {
+            throw new InvalidValueException("Invalid roll value");
+        } catch (Exception ignore) {}
+
+        try {
+            Vec3d pos = Vec3ArgumentType.getVec3(ctx, "vec3Value");
+            Float pitch = null;
+            Float yaw = null;
+            Float roll = 0f;
+
+            try {
+                pitch = FloatArgumentType.getFloat(ctx, "pitch");
+                yaw = FloatArgumentType.getFloat(ctx, "yaw");
+                roll = FloatArgumentType.getFloat(ctx, "roll");
+            } catch (Exception ignore) {}
+
+            if (pitch == null) {
+                pitch = player.getPitch();
+            }
+
+            if (yaw == null) {
+                yaw = player.getYaw();
+            }
+
+            return new CameraFrame(pos.x, pos.y, pos.z, pitch, yaw, roll);
+        } catch (IllegalArgumentException e) {
+            if (!e.getMessage().contains("No such argument")) {
+                throw new InvalidValueException("Invalid position");
+            }
+        }
+
+        return new CameraFrame(player.getX(), player.getY(), player.getZ(), player.getPitch(), player.getYaw(), 0f);
+    }
+
     private static Object getValue(CommandContext<ServerCommandSource> ctx, EValueType valueType) throws InvalidValueException {
         /*
         stringValue
@@ -965,45 +1065,6 @@ public class EditorSubcommand {
 
         try {
             switch (valueType) {
-                case CAMERAPOS -> {
-                    try {
-                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "vec3Value");
-                        return new CameraPos(vec3d.x, vec3d.y, vec3d.z);
-                    } catch (IllegalArgumentException e) {
-                        throw new InvalidValueException("Invalid position");
-                    }
-                }
-                case CAMERAROT -> {
-                    try {
-                        Vec3d vec3d = Vec3ArgumentType.getVec3(ctx, "vec3Value");
-                        return new CameraRot((float) vec3d.x, (float) vec3d.y, (float) vec3d.z);
-                    } catch (IllegalArgumentException ignore) {}
-
-                    String value;
-                    try {
-                        value = StringArgumentType.getString(ctx, "stringValue");
-                    } catch (IllegalArgumentException e) {
-                        throw new InvalidValueException("Invalid rotation");
-                    }
-
-                    String[] values = value.split(" ");
-                    if (values.length != 3) {
-                        throw new InvalidValueException("Invalid rotation. There's only three rotations: pitch, yaw, roll");
-                    }
-
-                    float[] rotations;
-                    try {
-                        rotations = new float[]{
-                                Float.parseFloat(values[0]),
-                                Float.parseFloat(values[1]),
-                                Float.parseFloat(values[2])
-                        };
-                    } catch (NumberFormatException e) {
-                        throw new InvalidValueException("Invalid number format.");
-                    }
-
-                    return new CameraRot(rotations[0], rotations[1], rotations[2]);
-                }
                 case DOUBLE -> {
                     try {
                         return Double.parseDouble(StringArgumentType.getString(ctx, "stringValue"));

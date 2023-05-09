@@ -1,7 +1,6 @@
 package dev.polv.polcinematics.cinematic.compositions.values;
 
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 import dev.polv.polcinematics.utils.ColorUtils;
 
 public enum EValueType {
@@ -11,8 +10,6 @@ public enum EValueType {
     DOUBLE("double", 0D, Double.class, true),
     STRING("string", "", String.class, false),
     COLOR("color", ColorUtils.getColor(0, 0, 0), Integer.class, true),
-    CAMERAPOS("camerapos", new CameraPos(0D, 0D, 0D), CameraPos.class, true),
-    CAMERAROT("camerarot", new CameraRot(0f, 0f, 0f), CameraRot.class, true)
     ;
 
     private final String name;

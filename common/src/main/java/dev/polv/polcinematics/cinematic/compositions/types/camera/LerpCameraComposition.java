@@ -1,26 +1,28 @@
 package dev.polv.polcinematics.cinematic.compositions.types.camera;
 
-import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.utils.DeclarationUtils;
 
 public class LerpCameraComposition extends CameraComposition {
 
-    public static final String POSITION_KEY = "position";
-    public static final String ROTATION_KEY = "rotation";
-
     @Override
     protected void declare() {
-        this.declareConstant(POSITION_KEY, "Position", EValueType.CAMERAPOS);
-        this.declareConstant(ROTATION_KEY, "Rotation", EValueType.CAMERAROT);
+        DeclarationUtils.declareCameraTimevars(this);
     }
 
     @Override
-    public CameraPos getCameraPos(long time) {
-        return this.getTimeVariable(POSITION_KEY).getLerpCameraPos(time);
+    public CameraFrame getCameraFrame(long time) {
+        double x = (double) this.getTimeVariable(DeclarationUtils.X_KEY).getValue(time);
+        double y = (double) this.getTimeVariable(DeclarationUtils.Y_KEY).getValue(time);
+        double z = (double) this.getTimeVariable(DeclarationUtils.Z_KEY).getValue(time);
+        float pitch = (float) this.getTimeVariable(DeclarationUtils.PITCH_KEY).getValue(time);
+        float yaw = (float) this.getTimeVariable(DeclarationUtils.YAW_KEY).getValue(time);
+        float roll = (float) this.getTimeVariable(DeclarationUtils.ROLL_KEY).getValue(time);
+
+        return new CameraFrame(x, y, z, pitch, yaw, roll);
     }
 
     @Override
-    public CameraRot getCameraRot(long time) {
-        return this.getTimeVariable(ROTATION_KEY).getLerpCameraRot(time);
+    public boolean shouldInjectPositionValue() {
+        return true;
     }
-
 }

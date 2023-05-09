@@ -20,12 +20,7 @@ public class PlayerCameraComposition extends CameraComposition {
     }
 
     @Override
-    public CameraPos getCameraPos(long time) {
-        return null;
-    }
-
-    @Override
-    public CameraRot getCameraRot(long time) {
+    public CameraFrame getCameraFrame(long time) {
         return null;
     }
 

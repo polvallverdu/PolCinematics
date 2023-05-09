@@ -2,6 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.types.overlay;
 
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.utils.ColorUtils;
+import dev.polv.polcinematics.utils.DeclarationUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
@@ -12,7 +13,7 @@ public class BlackBarsOverlay extends OverlayComposition {
 
     @Override
     protected void declare() {
-        this.declareTimeVariable("COLOR", "Color for the bars", EValueType.COLOR);
+        DeclarationUtils.declareColorTimevar(this);
         this.declareTimeVariable("SIZE", "Goes from 0.0 to 1.0", EValueType.DOUBLE);
     }
 
@@ -23,7 +24,7 @@ public class BlackBarsOverlay extends OverlayComposition {
         sizeMultiplier = Math.max(0.0, Math.min(1.0, sizeMultiplier));
         int barHeight = (int) (maxHeight*0.5*sizeMultiplier);
 
-        int color = ColorUtils.getColor((Color) this.getTimeVariable("COLOR").getValue(time));
+        int color = ColorUtils.getColor((Color) this.getTimeVariable(DeclarationUtils.COLOR_KEY).getValue(time));
 
         DrawableHelper.fill(MatrixStack, 0, 0, MinecraftClient.getInstance().getWindow().getScaledWidth(), barHeight, color);
         DrawableHelper.fill(MatrixStack, 0, MinecraftClient.getInstance().getWindow().getScaledHeight(), MinecraftClient.getInstance().getWindow().getScaledWidth(), MinecraftClient.getInstance().getWindow().getScaledHeight()-barHeight, color);

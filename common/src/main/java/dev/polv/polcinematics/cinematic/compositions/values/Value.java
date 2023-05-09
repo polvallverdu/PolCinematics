@@ -2,8 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.values;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 
 import java.awt.*;
 
@@ -46,12 +45,8 @@ public class Value {
         return new Color(this.getValueAsInteger());
     }
 
-    public CameraPos getValueAsCameraPos() {
-        return (CameraPos) value;
-    }
-
-    public CameraRot getValueAsCameraRot() {
-        return (CameraRot) value;
+    public CameraFrame getValueAsCameraPos() {
+        return (CameraFrame) value;
     }
 
     public EValueType getType() {
@@ -78,8 +73,6 @@ public class Value {
             case INTEGER, COLOR -> json.add("value", new JsonPrimitive((int) value));
             case BOOLEAN -> json.add("value", new JsonPrimitive((boolean) value));
             case STRING -> json.add("value", new JsonPrimitive((String) value));
-            case CAMERAPOS -> json.add("value", ((CameraPos) value).toJson());
-            case CAMERAROT -> json.add("value", ((CameraRot) value).toJson());
             default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }
@@ -104,12 +97,6 @@ public class Value {
             }
             case STRING -> {
                 return json.get("value").getAsString();
-            }
-            case CAMERAPOS -> {
-                return CameraPos.fromJson(json.get("value").getAsJsonObject());
-            }
-            case CAMERAROT -> {
-                return CameraRot.fromJson(json.get("value").getAsJsonObject());
             }
             default -> throw new IllegalStateException("Unexpected value: " + type);
         }

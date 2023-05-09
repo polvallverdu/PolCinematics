@@ -2,8 +2,7 @@ package dev.polv.polcinematics.cinematic.compositions.values.timevariables;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.values.Value;
 import dev.polv.polcinematics.exception.DeleteKeyframeException;
@@ -289,23 +288,21 @@ public class TimeVariable {
             }
 
             return new Color(currentColorArray[0], currentColorArray[1], currentColorArray[2], currentColorArray[3]);
-        } else if (type == EValueType.CAMERAPOS) {
-            return getLerpCameraPos(time);
         }
 
         // Easing true but not supported?
         return keyframes.getLeft().getValue();
     }
 
-    public CameraPos getLerpCameraPos(long time) {
+    /*public CameraFrame getLerpCameraPos(long time) {
         Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
 
-        CameraPos currentPos = keyframes.getLeft().getValue().getValueAsCameraPos();
-        CameraPos nextPos = keyframes.getRight().getValue().getValueAsCameraPos();
+        CameraFrame currentPos = keyframes.getLeft().getValue().getValueAsCameraPos();
+        CameraFrame nextPos = keyframes.getRight().getValue().getValueAsCameraPos();
 
         double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
 
-        return new CameraPos(
+        return new CameraFrame(
                 MathUtils.lerp(currentPos.getX(), nextPos.getX(), easingMultiplier),
                 MathUtils.lerp(currentPos.getY(), nextPos.getY(), easingMultiplier),
                 MathUtils.lerp(currentPos.getZ(), nextPos.getZ(), easingMultiplier)
@@ -327,23 +324,23 @@ public class TimeVariable {
         );
     }
 
-    public CameraPos getSlerpCameraPos(long time) {
+    public CameraFrame getSlerpCameraPos(long time) {
         Pair<Keyframe, Keyframe> keyframes = getKeyframes(time);
 
-        CameraPos currentPos = keyframes.getLeft().getValue().getValueAsCameraPos();
-        CameraPos nextPos = keyframes.getRight().getValue().getValueAsCameraPos();
+        CameraFrame currentPos = keyframes.getLeft().getValue().getValueAsCameraPos();
+        CameraFrame nextPos = keyframes.getRight().getValue().getValueAsCameraPos();
 
         double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
         //Vec3d centerPoint = MathUtils.calculateCuttingPoint(currentPos.getVec3d(), currentPos.getVec2f(), nextPos.getVec3d(), nextPos.getVec2f());
 
-        Vector3d newPos = MathUtils.slerp(currentPos, nextPos, easingMultiplier); // TODO: DOESN'T WORK
+        Vector3d newPos = MathUtils.slerp(currentPos, nextPos, easingMultiplier); // DOESN'T WORK
 
-        return new CameraPos(
+        return new CameraFrame(
                 newPos.x,
                 newPos.y,
                 newPos.z
         );
-    }
+    }*/
 
     public UUID getUuid() {
         return uuid;

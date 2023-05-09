@@ -1,34 +1,22 @@
 package dev.polv.polcinematics.cinematic.compositions.types.camera;
 
-import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.utils.DeclarationUtils;
 
 public class FixedCameraComposition extends CameraComposition {
 
-    public static final String X_KEY = "X";
-    public static final String Y_KEY = "Y";
-    public static final String Z_KEY = "Z";
-    public static final String PITCH_KEY = "PITCH";
-    public static final String YAW_KEY = "YAW";
-    public static final String ROLL_KEY = "ROLL";
-
     @Override
     protected void declare() {
-        this.declareConstant(X_KEY, "Coordinate X", EValueType.DOUBLE);
-        this.declareConstant(Y_KEY, "Coordinate Y", EValueType.DOUBLE);
-        this.declareConstant(Z_KEY, "Coordinate Z", EValueType.DOUBLE);
-        this.declareConstant(PITCH_KEY, "Pitch Rotation", EValueType.DOUBLE);
-        this.declareConstant(YAW_KEY, "Yaw Rotation", EValueType.DOUBLE);
-        this.declareConstant(ROLL_KEY, "Roll Rotation", EValueType.DOUBLE);
+        DeclarationUtils.declareCameraConstants(this);
     }
 
     @Override
-    public CameraPos getCameraPos(long time) {
-        return new CameraPos(this.getX(), this.getY(), this.getZ());
+    public CameraFrame getCameraFrame(long time) {
+        return new CameraFrame(this.getX(), this.getY(), this.getZ(), this.getPitch(), this.getYaw(), this.getRoll());
     }
 
     @Override
-    public CameraRot getCameraRot(long time) {
-        return new CameraRot((float) this.getPitch(), (float) this.getYaw(), (float) this.getRoll());
+    public boolean shouldInjectPositionValue() {
+        return true;
     }
 
     private double get(String key) {
@@ -40,51 +28,51 @@ public class FixedCameraComposition extends CameraComposition {
     }
 
     public double getX() {
-        return this.get(X_KEY);
+        return this.get(DeclarationUtils.X_KEY);
     }
 
     public void setX(double x) {
-        this.set(X_KEY, x);
+        this.set(DeclarationUtils.X_KEY, x);
     }
 
     public double getY() {
-        return this.get(Y_KEY);
+        return this.get(DeclarationUtils.Y_KEY);
     }
 
     public void setY(double y) {
-        this.set(Y_KEY, y);
+        this.set(DeclarationUtils.Y_KEY, y);
     }
 
     public double getZ() {
-        return this.get(Z_KEY);
+        return this.get(DeclarationUtils.Z_KEY);
     }
 
     public void setZ(double z) {
-        this.set(Z_KEY, z);
+        this.set(DeclarationUtils.Z_KEY, z);
     }
 
-    public double getPitch() {
-        return this.get(PITCH_KEY);
+    public float getPitch() {
+        return (float) this.get(DeclarationUtils.PITCH_KEY);
     }
 
-    public void setPitch(double pitch) {
-        this.set(PITCH_KEY, pitch);
+    public void setPitch(float pitch) {
+        this.set(DeclarationUtils.PITCH_KEY, pitch);
     }
 
-    public double getYaw() {
-        return this.get(YAW_KEY);
+    public float getYaw() {
+        return (float) this.get(DeclarationUtils.YAW_KEY);
     }
 
-    public void setYaw(double yaw) {
-        this.set(YAW_KEY, yaw);
+    public void setYaw(float yaw) {
+        this.set(DeclarationUtils.YAW_KEY, yaw);
     }
 
-    public double getRoll() {
-        return this.get(ROLL_KEY);
+    public float getRoll() {
+        return (float) this.get(DeclarationUtils.ROLL_KEY);
     }
 
-    public void setRoll(double roll) {
-        this.set(ROLL_KEY, roll);
+    public void setRoll(float roll) {
+        this.set(DeclarationUtils.ROLL_KEY, roll);
     }
 
 }

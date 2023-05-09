@@ -14,6 +14,7 @@ import dev.polv.polcinematics.cinematic.compositions.values.constants.Constant;
 import dev.polv.polcinematics.cinematic.compositions.values.timevariables.TimeVariable;
 import dev.polv.polcinematics.cinematic.timelines.Timeline;
 import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
+import dev.polv.polcinematics.utils.CameraUtils;
 import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -91,11 +92,17 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         Composition composition = wrappedComposition.getComposition();
 
         if (type == SuggestionType.TIMEVARIABLE_KEYS) {
+            if (CameraUtils.containsPositionArgument(composition)) {
+                builder.suggest("POSITION");
+            }
             composition.getCompositionTimeVariables().getKeys().forEach(builder::suggest);
             return builder.buildFuture();
         }
 
         if (type == SuggestionType.CONSTANT_KEYS) {
+            if (CameraUtils.containsPositionArgument(composition)) {
+                builder.suggest("POSITION");
+            }
             composition.getCompositionConstants().getKeys().forEach(builder::suggest);
             return builder.buildFuture();
         }
@@ -108,11 +115,16 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         }
 
         if (type == SuggestionType.CONSTANT_VALUE || type == SuggestionType.TIMEVARIABLE_VALUE) {
+            boolean contant = type == SuggestionType.CONSTANT_VALUE;
+            String key = StringArgumentType.getString(ctx, contant ? "constant" : "timevariable");
             EValueType valueType = null;
 
+            if (CameraUtils.containsPositionArgument(composition) && key.equalsIgnoreCase("POSITION")) {
+                return builder.buildFuture(); // Want autocomplete for position
+            }
+
             if (type == SuggestionType.CONSTANT_VALUE) {
-                String constantValue = StringArgumentType.getString(ctx, "constant");
-                Constant val = composition.getConstant(constantValue);
+                Constant val = composition.getConstant(key);
                 if (val == null) {
                     return Suggestions.empty();
                 }
@@ -121,8 +133,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             }
 
             if (type == SuggestionType.TIMEVARIABLE_VALUE) {
-                String timeVariableKey = StringArgumentType.getString(ctx, "timevariable");
-                TimeVariable attr = composition.getTimeVariable(timeVariableKey);
+                TimeVariable attr = composition.getTimeVariable(key);
                 if (attr == null) {
                     return Suggestions.empty();
                 }
@@ -131,12 +142,6 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             }
 
             switch (valueType) {
-                case CAMERAROT, COLOR, DOUBLE, STRING, INTEGER -> {
-                    return Suggestions.empty();
-                }
-                case CAMERAPOS -> {
-                    return Vec3ArgumentType.vec3().listSuggestions(ctx, builder);
-                }
                 case BOOLEAN -> {
                     builder.suggest("true");
                     builder.suggest("false");

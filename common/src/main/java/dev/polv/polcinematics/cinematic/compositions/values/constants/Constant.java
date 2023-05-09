@@ -1,8 +1,7 @@
 package dev.polv.polcinematics.cinematic.compositions.values.constants;
 
 import com.google.gson.JsonObject;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraPos;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraRot;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.values.Value;
 
@@ -63,12 +62,8 @@ public class Constant {
         return value.getValueAsColor();
     }
 
-    public CameraPos getValueAsCameraPos() {
+    public CameraFrame getValueAsCameraPos() {
         return value.getValueAsCameraPos();
-    }
-
-    public CameraRot getValueAsCameraRot() {
-        return value.getValueAsCameraRot();
     }
 
     public void setValue(Object value) {
