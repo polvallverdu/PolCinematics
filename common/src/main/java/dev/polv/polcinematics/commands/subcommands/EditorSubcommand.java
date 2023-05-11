@@ -43,7 +43,9 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class EditorSubcommand {
 
@@ -592,7 +594,7 @@ public class EditorSubcommand {
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce constants " + timelineName + " " + composition.getName() + " " + constant.getKey() + " set "))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to edit this constant")))
                     );
-            player.sendMessage(Text.literal("§7§o(" + constant.getType().getName() + ") §r§f" + constant.getKey() + ": §7" + constant.getValue() + " ").append(editText));
+            player.sendMessage(Text.literal("§7§o(" + constant.getType().getName() + ") §r§f" + constant.getKey() + ": §7'" + constant.getValue() + "' ").append(editText).append(Text.of("\n§7  - " + constant.getDescription())));
         }
 
         player.sendMessage(Text.of("\n§b§lTime variables\n"));
@@ -611,8 +613,9 @@ public class EditorSubcommand {
 
             player.sendMessage(
                     Text
-                            .literal("§7§o(" + timeVariable.getType().getName() + ") §r§7" + key + "§7- §6" + timeVariable.getKeyframeCount() + " §fkeyframes ")
+                            .literal("§7§o(" + timeVariable.getType().getName() + ") §r§7" + key + "§7- §f" + timeVariable.getKeyframeCount() + " keyframes ")
                             .append(infotext)
+                            .append(Text.of("\n§7  - " + timeVariable.getDescription()))
             );
         }
 
@@ -632,6 +635,16 @@ public class EditorSubcommand {
 
         String key = StringArgumentType.getString(ctx, "timevariable");
         TimeVariable timeVariable = composition.getCompositionTimeVariables().getTimeVariables(key);
+
+        StringBuilder message = new StringBuilder(BOTTOM_LINE).append("\n\n");
+        message.append("§fUUID: §7").append(timeVariable.getUuid()).append("\n");
+        message.append("§fName: §7").append(timeVariable.getName()).append("\n");
+        message.append("§fDescription: §7").append(timeVariable.getDescription()).append("\n");
+        message.append("§fType: §7").append(timeVariable.getType().getName()).append("\n");
+        message.append("§fKeyframe count: §7").append(timeVariable.getKeyframeCount()).append("\n\n");
+        message.append("§b§lKeyframes").append("\n");
+
+        player.sendMessage(Text.of(message.toString()));
 
         timeVariable.getAllKeyframes().forEach(keyframe -> {
             MutableText change = Text.literal(" [MODIFY]").setStyle(
@@ -655,7 +668,7 @@ public class EditorSubcommand {
 
             player.sendMessage(
                     Text
-                            .literal("§f" + keyframe.getTime() + " §7- §6" + keyframe.getValue().getValue() + " §8- " + Easing.getName(keyframe.getEasing()))
+                            .literal("§f(" + keyframe.getTime() + ") §7- §f'" + keyframe.getValue().getValue() + "' §7- " + Easing.getName(keyframe.getEasing()))
                             .append(change)
                             .append(easing)
                             .append(delete)
@@ -672,6 +685,14 @@ public class EditorSubcommand {
         Timeline timeline = pairct.getRight();
         String timelineArg = StringArgumentType.getString(ctx, "timeline");
 
+        StringBuilder message = new StringBuilder(BOTTOM_LINE).append("\n\n");
+        message.append("§fTimeline UUID: §7").append(timeline.getUuid()).append("\n");
+        message.append("§fTimeline Type: §7").append(timeline.getClass().getSimpleName()).append("\n");
+        message.append("§fCompositions: §7").append(timeline.getWrappedCompositions().size()).append("\n");
+        message.append("§fAllowed Composition Types: §7").append(Arrays.stream(timeline.getAllowedTypes()).map(ECompositionType::getName).collect(Collectors.joining(", "))).append("\n\n");
+        message.append("§6§lCompositions: §7\n\n");
+        player.sendMessage(Text.of(message.toString()));
+
         timeline.getWrappedCompositions().forEach(wc -> {
             Composition composition = wc.getComposition();
 
@@ -680,6 +701,18 @@ public class EditorSubcommand {
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineArg + " " + wc.getUuid().toString()))
+            );
+            MutableText moveTimeline = Text.literal(" [MOVE TO TIMELINE] ").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.GOLD)
+                            .withBold(true)
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + composition.getUuid() + " timeline "))
+            );
+            MutableText moveStarttime = Text.literal(" [MOVE] ").setStyle(
+                    Style.EMPTY
+                            .withColor(Formatting.DARK_PURPLE)
+                            .withBold(true)
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + composition.getUuid() + " startTime "))
             );
             MutableText duration = Text.literal(" [DURATION] ").setStyle(
                     Style.EMPTY
@@ -696,13 +729,16 @@ public class EditorSubcommand {
 
             player.sendMessage(
                     Text
-                            .literal("§f" + wc.getStartTime() + "ms -> " + wc.getFinishTime() + "ms §7- §e" + composition.getName() + " §7- §6" + (composition.getSubtype() != null ? composition.getSubtype().getName() : composition.getType().getName()))
+                            .literal("§7§o(" + (composition.getSubtype() != null ? composition.getSubtype().getName() : composition.getType().getName()) + ") §r§f" + wc.getStartTime() + "/" + wc.getFinishTime() + "ms §7- §f" + composition.getName())
                             .append(info)
+                            .append(moveStarttime)
+                            .append(moveTimeline)
                             .append(duration)
                             .append(delete)
             );
         });
 
+        player.sendMessage(Text.of("\n" + BOTTOM_LINE));
         return 1;
     }
 
