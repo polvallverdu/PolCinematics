@@ -191,9 +191,9 @@ public abstract class Composition {
         }
 
         compo.readComposition(json);
-        compo.declare();
         compo.readConstants(json);
         compo.readTimeVariables(json);
+        compo.declare();
         compo.configure(json);
         return compo;
     }

@@ -5,7 +5,18 @@ import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 
+import java.util.List;
+import java.util.UUID;
+
 public class CameraTimeline extends Timeline {
+
+    public CameraTimeline() {
+        super();
+    }
+
+    public CameraTimeline(UUID uuid, List<WrappedComposition> compositions) {
+        super(uuid, compositions);
+    }
 
     public CameraComposition getCameraComposition(long time) {
         return (CameraComposition) this.getComposition(time);
