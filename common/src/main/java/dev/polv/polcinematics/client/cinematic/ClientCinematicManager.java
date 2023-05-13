@@ -121,6 +121,10 @@ public class ClientCinematicManager {
         return clientCinematic.isPlaying();
     }
 
+    public @Nullable ClientCinematic getLastRunningCinematic() {
+        return this.clientCinematics.stream().filter(ClientCinematic::isPlaying).findFirst().orElse(null);
+    }
+
     public long getElapsedTime(UUID cinematicUuid) {
         ClientCinematic clientCinematic = this.getClientCinematic(cinematicUuid);
         if (clientCinematic == null) return 0;
