@@ -17,6 +17,7 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
+    shadowImplementation
 }
 
 dependencies {
@@ -28,13 +29,12 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
-    shadow(implementation('org.eclipse.jetty.websocket:websocket-jetty-api:11.0.14'))
-    shadow(implementation('org.eclipse.jetty.websocket:websocket-jetty-server:11.0.14'))
-
     // FancyVideo-API for video stuff
     // modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.fancyvideo_api_commit}")
     modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo-fabric:${rootProject.fancyvideo_api}")
     modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-fabric:${rootProject.mcef_api}")
+
+    shadowImplementation(implementation("dev.polv:PolTaskManager:${rootProject.taskmanager_version}"))
 
     //////////// TESTING MODS ////////////
     modLocalRuntime "maven.modrinth:sodium:mc1.19.4-0.4.10"
@@ -54,8 +54,14 @@ processResources {
 shadowJar {
     exclude "architectury.common.json"
 
-    configurations = [project.configurations.shadowCommon]
+    // For some reason intellij and kotlin stuff is included in the shadow jar
+    exclude 'org/**'
+    exclude 'kotlin/**'
+
+    configurations = [project.configurations.shadowCommon, project.configurations.shadowImplementation]
     classifier "dev-shadow"
+
+    relocate("dev.polv.taskmanager", "dev.polv.libs.taskmanager")
 }
 
 remapJar {

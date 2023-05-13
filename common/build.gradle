@@ -10,6 +10,10 @@ loom {
     accessWidenerPath = file("src/main/resources/polcinematics.accesswidener")
 }
 
+configurations {
+    shadowImplementation.extendsFrom implementation
+}
+
 dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
@@ -17,14 +21,9 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
-    // Websocket dependencies
-    implementation 'org.eclipse.jetty.websocket:websocket-jetty-api:11.0.14'
-    implementation 'org.eclipse.jetty.websocket:websocket-jetty-server:11.0.14'
-
     // Config stuff
     //modImplementation("com.electronwill.night-config:core:3.6.5")
     //modImplementation("com.electronwill.night-config:json:3.6.5")
-    // Switch to Jackson in a future
     implementation 'com.google.code.gson:gson:2.10.1'
 
     // MediaExtractor
@@ -42,7 +41,19 @@ dependencies {
     // implementation 'org.apache.commons:commons-lang3:3.0'
 
     // PolTaskManager
-    implementation("dev.polv:PolTaskManager:v1.0")
+    implementation("dev.polv:PolTaskManager:${rootProject.taskmanager_version}")
+    shadowImplementation("dev.polv:PolTaskManager:${rootProject.taskmanager_version}")
+}
+
+shadowJar {
+    configurations = [
+            project.configurations.shadowImplementation
+    ]
+    classifier "dev-shadow"
+
+    relocate("dev.polv.taskmanager", "polcinematics.taskmanager")
+
+    minimize()
 }
 
 publishing {
@@ -59,10 +70,4 @@ publishing {
     }
 }
 
-shadowJar {
-    minimize()
-}
 
-repositories {
-    mavenCentral()
-}

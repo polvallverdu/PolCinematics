@@ -23,8 +23,7 @@
     ]
   },
   "mixins": [
-    "polcinematics.mixins.json",
-    "polcinematics-common.mixins.json"
+    "polcinematics-common-client.mixins.json"
   ],
   "depends": {
     "fabric": "*",

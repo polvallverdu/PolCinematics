@@ -14,8 +14,7 @@ loom {
         convertAccessWideners = true
         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
 
-        mixinConfig "polcinematics-common.mixins.json"
-        mixinConfig "polcinematics.mixins.json"
+        mixinConfig "polcinematics-common-client.mixins.json"
     }
 }
 
@@ -25,6 +24,7 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
+    shadowImplementation
 }
 
 dependencies {
@@ -42,6 +42,8 @@ dependencies {
     modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo-forge:${rootProject.fancyvideo_api}")
     modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-forge:${rootProject.mcef_api}")
 
+    shadowImplementation(minecraftLibraries("dev.polv:PolTaskManager:${rootProject.taskmanager_version}"))
+
     //////////// TESTING MODS ////////////
     // None yet
 }
@@ -58,8 +60,14 @@ shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
 
-    configurations = [project.configurations.shadowCommon]
+    // For some reason intellij and kotlin stuff is included in the shadow jar
+    exclude 'org/**'
+    exclude 'kotlin/**'
+
+    configurations = [project.configurations.shadowCommon, project.configurations.shadowImplementation]
     classifier "dev-shadow"
+
+    relocate("dev.polv.taskmanager", "dev.polv.libs.taskmanager")
 }
 
 remapJar {
