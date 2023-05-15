@@ -9,7 +9,7 @@ public class PlayerCameraComposition extends CameraComposition {
 
     @Override
     protected void declare() {
-        this.declareConstant(PERSPECTIVE_KEY, "1: First Person, 2: Second Person, 3: Third Person", EValueType.INTEGER);
+        this.declareConstant(PERSPECTIVE_KEY, "1: First Person, 2: Second Person, 3: Third Person", EValueType.INTEGER, 1);
     }
 
     @Override
