@@ -99,8 +99,8 @@ public class Cinematic {
      */
     public void moveComposition(WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException, IllegalArgumentException {
         newTimeline.canMoveThrows(composition, newtime);
-        oldTimeline.remove(composition);
         newTimeline.add(composition.getComposition(), newtime, composition.getDuration());
+        oldTimeline.remove(composition);
     }
 
     /**

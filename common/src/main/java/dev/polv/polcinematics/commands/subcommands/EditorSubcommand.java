@@ -606,7 +606,7 @@ public class EditorSubcommand {
                             Style.EMPTY
                                     .withBold(true)
                                     .withColor(Formatting.DARK_AQUA)
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineName + " " + composition.getName() + " timed variable " + key))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineName + " " + composition.getName() + " timevar " + key))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to see more info about this timed variable.")))
                     );
 
@@ -641,28 +641,35 @@ public class EditorSubcommand {
         message.append("§fDescription: §7").append(timeVariable.getDescription()).append("\n");
         message.append("§fType: §7").append(timeVariable.getType().getName()).append("\n");
         message.append("§fKeyframe count: §7").append(timeVariable.getKeyframeCount()).append("\n\n");
-        message.append("§b§lKeyframes").append("\n");
+        message.append("§b§lKeyframes");
 
-        player.sendMessage(Text.of(message.toString()));
+        player.sendMessage(Text.literal(message.toString()).append(
+                Text.literal(" [ADD KEYFRAME]")
+                        .setStyle(Style.EMPTY
+                                .withColor(Formatting.GREEN)
+                                .withBold(true)
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " add "))
+                        )
+        ).append(Text.of("\n")));
 
         timeVariable.getAllKeyframes().forEach(keyframe -> {
             MutableText change = Text.literal(" [MODIFY]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevariable " + timelineName + " " + composition.getUuid() + " " + timeVariable.getName() + " modify value " + keyframe.getTime() + " "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " modify value " + keyframe.getTime() + " "))
             );
             MutableText easing = Text.literal(" [EASING]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GOLD)
                             .withBold(true)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevariable " + timelineName + " " + composition.getUuid() + " " + timeVariable.getName() + " modify easing " + keyframe.getTime() + " "))
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " modify easing " + keyframe.getTime() + " "))
             );
             MutableText delete = Text.literal(" [DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevariable " + timelineName + " " + composition.getUuid() + " " + timeVariable.getName() + " delete " + keyframe.getTime()))
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " delete " + keyframe.getTime()))
             );
 
             player.sendMessage(
@@ -673,6 +680,8 @@ public class EditorSubcommand {
                             .append(delete)
             );
         });
+
+        player.sendMessage(Text.of("\n" + BOTTOM_LINE));
 
         return 1;
     }
@@ -699,19 +708,19 @@ public class EditorSubcommand {
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineArg + " " + wc.getUuid().toString()))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timeline.getUuid() + " " + wc.getUuid().toString()))
             );
             MutableText moveTimeline = Text.literal(" [MOVE TO TIMELINE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GOLD)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + composition.getUuid() + " timeline "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + " " + composition.getUuid() + " timeline "))
             );
             MutableText moveStarttime = Text.literal(" [MOVE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_PURPLE)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + composition.getUuid() + " startTime "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + " " + composition.getUuid() + " startTime "))
             );
             MutableText duration = Text.literal(" [DURATION]").setStyle(
                     Style.EMPTY
