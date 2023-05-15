@@ -149,13 +149,17 @@ public class EditorSubcommand {
                 );
     }
 
-    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_timeline_composition(ArgumentBuilder<ServerCommandSource, ?> builder) {
+    @SafeVarargs
+    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_timeline_composition(ArgumentBuilder<ServerCommandSource, ?> ...builder) {
+        var compo_arg = arg("composition", StringArgumentType.word())
+                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION));
+        for (var b : builder) {
+            compo_arg.then(b);
+        }
         return arg("timeline", StringArgumentType.word())
                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
                 .then(
-                        arg("composition", StringArgumentType.word())
-                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION))
-                                .then(builder)
+                        compo_arg
                 );
     }
 
@@ -400,25 +404,20 @@ public class EditorSubcommand {
                                 l("composition")
                                         .then(
                                                 arg_timeline_composition(
-                                                        arg("timeline", StringArgumentType.word())
-                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+                                                        l("timeline")
                                                                 .then(
-                                                                        l("timeline")
+                                                                        arg("newtimeline", StringArgumentType.word())
+                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
                                                                                 .then(
-                                                                                        arg("newtimeline", StringArgumentType.word())
-                                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
-                                                                                                .then(
-                                                                                                        arg("newtime", LongArgumentType.longArg(0))
-                                                                                                                .executes(EditorSubcommand::move_composition_timeline)
-                                                                                                )
+                                                                                        arg("newtime", LongArgumentType.longArg(0))
                                                                                                 .executes(EditorSubcommand::move_composition_timeline)
                                                                                 )
-                                                                )
+                                                                                .executes(EditorSubcommand::move_composition_timeline)
+                                                                ),
+                                                        l("startTime")
                                                                 .then(
-                                                                        l("startTime").then(
-                                                                                arg("newtime", LongArgumentType.longArg(0))
-                                                                                        .executes(EditorSubcommand::move_composition_time)
-                                                                        )
+                                                                        arg("newtime", LongArgumentType.longArg(0))
+                                                                                .executes(EditorSubcommand::move_composition_time)
                                                                 )
                                                 )
                                         )
@@ -702,25 +701,25 @@ public class EditorSubcommand {
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineArg + " " + wc.getUuid().toString()))
             );
-            MutableText moveTimeline = Text.literal(" [MOVE TO TIMELINE] ").setStyle(
+            MutableText moveTimeline = Text.literal(" [MOVE TO TIMELINE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GOLD)
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + composition.getUuid() + " timeline "))
             );
-            MutableText moveStarttime = Text.literal(" [MOVE] ").setStyle(
+            MutableText moveStarttime = Text.literal(" [MOVE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_PURPLE)
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + composition.getUuid() + " startTime "))
             );
-            MutableText duration = Text.literal(" [DURATION] ").setStyle(
+            MutableText duration = Text.literal(" [DURATION]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GREEN)
                             .withBold(true)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce duration composition " + timelineArg + " " + wc.getUuid().toString() + " "))
             );
-            MutableText delete = Text.literal("[DELETE]").setStyle(
+            MutableText delete = Text.literal(" [DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
