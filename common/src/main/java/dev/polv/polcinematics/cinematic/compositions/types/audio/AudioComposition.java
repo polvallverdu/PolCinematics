@@ -7,7 +7,7 @@ import dev.polv.polcinematics.client.players.IMediaPlayer;
 
 public class AudioComposition extends Composition {
 
-    private AudioPlayer player;
+    private IMediaPlayer player;
     public static final String AUDIO_URL_KEY = "AUDIO_URL";
     public static final String VOLUME_KEY = "VOLUME";
 
@@ -25,7 +25,7 @@ public class AudioComposition extends Composition {
     private void initPlayer() {
         if (this.player != null)
             this.player.stop();
-        this.player = (AudioPlayer) IMediaPlayer.createPlayer(AudioPlayer.class, this.getConstant(AUDIO_URL_KEY).getValueAsString());
+        this.player = IMediaPlayer.createPlayer(AudioPlayer.class, this.getConstant(AUDIO_URL_KEY).getValueAsString());
     }
 
     @Override

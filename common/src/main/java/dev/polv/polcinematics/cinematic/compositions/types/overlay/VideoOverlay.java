@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.cinematic.compositions.types.overlay;
 
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.client.players.DummyPlayer;
 import dev.polv.polcinematics.client.players.IMediaPlayer;
 import dev.polv.polcinematics.client.players.VideoPlayer;
 import dev.polv.polcinematics.utils.DeclarationUtils;
@@ -9,7 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public class VideoOverlay extends OverlayComposition {
 
-    private VideoPlayer videoPlayer;
+    private IMediaPlayer videoPlayer;
 
     public static final String VIDEO_URL_KEY = "VIDEO_URL";
 
@@ -24,6 +25,8 @@ public class VideoOverlay extends OverlayComposition {
 
     @Override
     public void tick(MatrixStack matrixStack, long time) {
+        if (this.videoPlayer instanceof DummyPlayer) return;
+
         int x = (int) this.getTimeVariable(DeclarationUtils.X_KEY).getValue(time);
         int y = (int) this.getTimeVariable(DeclarationUtils.Y_KEY).getValue(time);
         int width = (int) this.getTimeVariable(DeclarationUtils.WIDTH_KEY).getValue(time);
@@ -32,13 +35,13 @@ public class VideoOverlay extends OverlayComposition {
 
         var dimensions = RenderUtils.calculateDimensions(x, y, width, height);
 
-        this.videoPlayer.render(matrixStack, x, y, dimensions.getLeft(), dimensions.getRight(), alpha/100);
+        ((VideoPlayer) this.videoPlayer).render(matrixStack, x, y, dimensions.getLeft(), dimensions.getRight(), alpha/100);
     }
 
     private void initPlayer() {
         if (this.videoPlayer != null)
             this.videoPlayer.stop();
-        this.videoPlayer = (VideoPlayer) IMediaPlayer.createPlayer(VideoPlayer.class, this.getConstant(VIDEO_URL_KEY).getValueAsString());
+        this.videoPlayer = IMediaPlayer.createPlayer(VideoPlayer.class, this.getConstant(VIDEO_URL_KEY).getValueAsString());
     }
 
     @Override
