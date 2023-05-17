@@ -271,12 +271,17 @@ public class TimeVariable {
         }
 
         if (type == EValueType.DOUBLE || type == EValueType.INTEGER) {
-            double currentValue = keyframes.getLeft().getValue().getValueAsDouble();
-            double nextValue = keyframes.getRight().getValue().getValueAsDouble();
-
             double easingMultiplier = getEasingMultiplier(time, keyframes.getLeft(), keyframes.getRight());
 
-            return MathUtils.lerp(currentValue, nextValue, easingMultiplier);
+            if (type == EValueType.DOUBLE) {
+                double currentValue = keyframes.getLeft().getValue().getValueAsDouble();
+                double nextValue = keyframes.getRight().getValue().getValueAsDouble();
+                return MathUtils.lerp(currentValue, nextValue, easingMultiplier);
+            } else {
+                int currentValue = keyframes.getLeft().getValue().getValueAsInteger();
+                int nextValue = keyframes.getRight().getValue().getValueAsInteger();
+                return (int) MathUtils.lerp(currentValue, nextValue, easingMultiplier);
+            }
         } else if (type == EValueType.COLOR) {
             int[] currentColorArray = ColorUtils.splitColors(keyframes.getLeft().getValue().getValueAsColor());
             int[] nextColorArray = ColorUtils.splitColors(keyframes.getRight().getValue().getValueAsColor());
