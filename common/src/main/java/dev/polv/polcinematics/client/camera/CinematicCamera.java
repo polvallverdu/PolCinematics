@@ -6,6 +6,7 @@ import dev.polv.polcinematics.client.PolCinematicsClient;
 import dev.polv.polcinematics.client.cinematic.ClientCinematic;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.util.math.Vec3d;
 
@@ -22,18 +23,25 @@ public class CinematicCamera extends Camera {
     @Override
     public Vec3d getPos() {
         CameraFrame frame = getCameraFrame();
+        if (frame == null) return getPlayerCamera().getPos();
         return new Vec3d(frame.getX(), frame.getY(), frame.getZ());
     }
 
     @Override
     public float getPitch() {
         CameraFrame frame = getCameraFrame();
+        if (frame == null) return getPlayerCamera().getPitch();
         return frame.getPitch();
     }
 
     @Override
     public float getYaw() {
         CameraFrame frame = getCameraFrame();
+        if (frame == null) return getPlayerCamera().getYaw();
         return frame.getYaw();
+    }
+
+    private Camera getPlayerCamera() {
+        return MinecraftClient.getInstance().gameRenderer.getCamera();
     }
 }

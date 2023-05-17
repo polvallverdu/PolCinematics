@@ -72,7 +72,9 @@ public class GameRendererMixin {
     @ModifyVariable(method = "renderWorld", at = @At("STORE"), ordinal = 0)
     public Camera injectCinematicCamera(Camera camera) {
         ClientCinematic cin = PolCinematicsClient.getCCM().getLastRunningCinematic();
-        if (cin == null) return camera;
+        if (cin == null) {
+            return camera;
+        }
 
         return PolCinematicsClient.getCinematicCamera();
     }
