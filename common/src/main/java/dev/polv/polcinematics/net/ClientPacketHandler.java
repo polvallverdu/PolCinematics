@@ -2,6 +2,7 @@ package dev.polv.polcinematics.net;
 
 import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.networking.NetworkManager;
+import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import dev.polv.polcinematics.client.players.AudioPlayer;
 import dev.polv.polcinematics.client.players.IMediaPlayer;
@@ -31,7 +32,10 @@ public class ClientPacketHandler {
                 Packets.CINEMATIC_BROADCAST_PACKET,
                 (buf, context) -> {
                     String json = new String(buf.readByteArray(), StandardCharsets.UTF_8);
-                    PolCinematicsClient.getCCM().loadCinematic(GsonUtils.jsonFromString(json));
+
+                    PolCinematics.getTaskManager().run(cc -> {
+                        PolCinematicsClient.getCCM().loadCinematic(GsonUtils.jsonFromString(json));
+                    }).start();
                 }
         );
 
@@ -40,7 +44,9 @@ public class ClientPacketHandler {
                 Packets.CINEMATIC_UNBROADCAST_PACKET,
                 (buf, context) -> {
                     UUID cinematicUuid = buf.readUuid();
-                    PolCinematicsClient.getCCM().unloadCinematic(cinematicUuid);
+                    PolCinematics.getTaskManager().run(cc -> {
+                        PolCinematicsClient.getCCM().unloadCinematic(cinematicUuid);
+                    }).start();
                 }
         );
 
@@ -52,7 +58,9 @@ public class ClientPacketHandler {
                     boolean paused = buf.readBoolean();
                     long from = buf.readLong();
 
-                    PolCinematicsClient.getCCM().start(cinematicUuid, from, paused);
+                    PolCinematics.getTaskManager().run(cc -> {
+                        PolCinematicsClient.getCCM().start(cinematicUuid, from, paused);
+                    }).start();
                 }
         );
 
@@ -63,7 +71,9 @@ public class ClientPacketHandler {
                     UUID cinematicUuid = buf.readUuid();
                     long to = buf.readLong();
 
-                    PolCinematicsClient.getCCM().moveTo(cinematicUuid, to);
+                    PolCinematics.getTaskManager().run(cc -> {
+                        PolCinematicsClient.getCCM().moveTo(cinematicUuid, to);
+                    }).start();
                 }
         );
 
@@ -73,7 +83,9 @@ public class ClientPacketHandler {
                 (buf, context) -> {
                     UUID cinematicUuid = buf.readUuid();
 
-                    PolCinematicsClient.getCCM().pause(cinematicUuid);
+                    PolCinematics.getTaskManager().run(cc -> {
+                        PolCinematicsClient.getCCM().pause(cinematicUuid);
+                    }).start();
                 }
         );
 
@@ -83,7 +95,9 @@ public class ClientPacketHandler {
                 (buf, context) -> {
                     UUID cinematicUuid = buf.readUuid();
 
-                    PolCinematicsClient.getCCM().resume(cinematicUuid);
+                    PolCinematics.getTaskManager().run(cc -> {
+                        PolCinematicsClient.getCCM().resume(cinematicUuid);
+                    }).start();
                 }
         );
 
@@ -93,7 +107,9 @@ public class ClientPacketHandler {
                 (buf, context) -> {
                     UUID cinematicUuid = buf.readUuid();
 
-                    PolCinematicsClient.getCCM().stop(cinematicUuid);
+                    PolCinematics.getTaskManager().run(cc -> {
+                        PolCinematicsClient.getCCM().stop(cinematicUuid);
+                    }).start();
                 }
         );
 
