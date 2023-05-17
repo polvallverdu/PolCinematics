@@ -50,13 +50,13 @@ import java.util.stream.Collectors;
 public class EditorSubcommand {
 
     private static final String SUBCOMMANDS = ChatUtils.formatHelpMessage(
-            "create", "Create a new timeline or composition",
-            "delete", "Delete a timeline or composition",
-            "info", "Get information about a timeline or composition",
-            "duration", "Get or set the duration of a timeline or composition",
-            "constants", "Get or set the value of a constant of a timeline or composition",
-            "timevar", "Get or set the value of a timed variable of a timeline or composition",
-            "help", "Display this help message"
+            "/ce create", "Create a new timeline or composition",
+            "/ce delete", "Delete a timeline or composition",
+            "/ce info", "Get information about a timeline or composition",
+            "/ce duration", "Get or set the duration of a timeline or composition",
+            "/ce constants", "Get or set the value of a constant of a timeline or composition",
+            "/ce timevar", "Get or set the value of a timed variable of a timeline or composition",
+            "/ce help", "Display this help message"
     );
 
     private static final String BOTTOM_LINE = "§8§l=====================================";
@@ -448,6 +448,11 @@ public class EditorSubcommand {
                             return 1;
                         })
         );
+
+        editorBuilder.executes(ctx -> {
+            ctx.getSource().sendMessage(Text.of(SUBCOMMANDS));
+            return 1;
+        });
 
         return editorBuilder.build();
     }
