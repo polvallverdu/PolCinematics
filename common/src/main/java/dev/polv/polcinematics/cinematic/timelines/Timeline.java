@@ -73,7 +73,14 @@ public class Timeline {
 
     public void add(@NotNull Composition composition, long startTime, long duration) throws IllegalArgumentException, OverlapException {
         // check if composition.getType() is in this.getAllowedTypes()
-        if (Arrays.binarySearch(this.getAllowedTypes(), composition.getType()) < 0) {
+        boolean allowed = false;
+        for (ECompositionType type : this.getAllowedTypes()) {
+            if (type == composition.getType()) {
+                allowed = true;
+                break;
+            }
+        }
+        if (!allowed) {
             throw new IllegalArgumentException("Composition type " + composition.getType() + " is not allowed in this timeline");
         }
 
