@@ -1,9 +1,9 @@
 package dev.polv.polcinematics.utils.math;
 
-import com.jogamp.opengl.math.Quaternion;
-import dev.polv.polcinematics.cinematic.compositions.camera.CameraPos;
+import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import org.joml.Vector3d;
 
 public class MathUtils {
 
@@ -62,13 +62,23 @@ public class MathUtils {
         return new Vec3d(x, y, z);
     }
 
-    public static Vec3d slerp(CameraPos pre, CameraPos post, double t) {
-        Quaternion preQuat = new Quaternion((float) pre.getPitch(), (float) pre.getYaw(), (float) pre.getRoll(), 1);
-        Quaternion postQuat = new Quaternion((float) post.getPitch(), (float) post.getYaw(), (float) post.getRoll(), 1);
-        Quaternion result = new Quaternion();
-        result.setSlerp(preQuat, postQuat, (float) t);
+    public static Vector3d slerp(CameraFrame pre, CameraFrame post, double t) {
+        /*Vector3d p0 = pre.getVector3d();
+        Vector3d p1 = post.getVector3d();
 
-        return new Vec3d(result.getX(), result.getY(), result.getZ());
+        // Define the start and end rotations as quaternions
+        Quaterniond startRotation = pre.getQuaterniond();
+        Quaterniond endRotation = post.getQuaterniond();
+
+        // Perform slerp between the two quaternions based on the value of t
+        Quaterniond slerpRotation = new Quaterniond();
+        slerpRotation.slerp(startRotation, t, endRotation);
+
+        // Interpolate between the two points based on the slerp rotation
+        Vector3d interpolatedPoint = p0.mul(1.0f - t, new Vector3d()).add(p1.mul(t, new Vector3d()));
+        interpolatedPoint.rotate(slerpRotation);*/
+
+        return pre.getVector3d(); // TODO: TEMP
     }
 
 }
