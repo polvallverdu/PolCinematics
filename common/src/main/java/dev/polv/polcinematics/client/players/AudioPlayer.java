@@ -1,9 +1,9 @@
 package dev.polv.polcinematics.client.players;
 
 import dev.polv.polcinematics.PolCinematics;
-import nick1st.fancyvideo.api.DynamicResourceLocation;
-import nick1st.fancyvideo.api.MediaPlayerHandler;
-import nick1st.fancyvideo.api.mediaPlayer.AudioMediaPlayer;
+import dev.polv.vlcvideo.api.DynamicResourceLocation;
+import dev.polv.vlcvideo.api.MediaPlayerHandler;
+import dev.polv.vlcvideo.api.mediaPlayer.AudioMediaPlayer;
 
 public class AudioPlayer implements IMediaPlayer {
 

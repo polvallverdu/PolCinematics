@@ -29,7 +29,7 @@ dependencies {
     // MediaExtractor
     // shadow(implementation("com.github.polvallverdu:MediaExtractor-PolCinematics:${rootProject.mediaextractor_commit}"))
     // shadow(implementation("dev.polv:MediaExtractor:0.3.2"))
-    modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo:${rootProject.fancyvideo_api}")
+    modApi("com.github.polvallverdu.VLCVideo-API-PolCinematics:vlcvideoapi:${rootProject.vlcvideo_api}")
     implementation("uk.co.caprica:vlcj:${rootProject.vlcj_version}") // vlcJ
 
     // Embedded Chromium (jcef)

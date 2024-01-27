@@ -30,8 +30,8 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     // FancyVideo-API for video stuff
-    // modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.fancyvideo_api_commit}")
-    modApi("com.github.polvallverdu.FancyVideo-API-PolCinematics:fancyvideo-fabric:${rootProject.fancyvideo_api}")
+    // modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.vlcvideo_api_commit}")
+    modApi("com.github.polvallverdu.VLCVideo-API-PolCinematics:vlcvideoapi-fabric:${rootProject.vlcvideo_api}")
     modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-fabric:${rootProject.mcef_api}")
 
     shadowImplementation(implementation("dev.polv:PolTaskManager:${rootProject.taskmanager_version}"))

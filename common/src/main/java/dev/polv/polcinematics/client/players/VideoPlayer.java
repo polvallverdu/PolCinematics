@@ -9,9 +9,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import nick1st.fancyvideo.api.DynamicResourceLocation;
-import nick1st.fancyvideo.api.MediaPlayerHandler;
-import nick1st.fancyvideo.api.mediaPlayer.SimpleMediaPlayer;
+import dev.polv.vlcvideo.api.DynamicResourceLocation;
+import dev.polv.vlcvideo.api.MediaPlayerHandler;
+import dev.polv.vlcvideo.api.mediaPlayer.SimpleMediaPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
