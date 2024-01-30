@@ -75,6 +75,27 @@ public class PlayerSubcommand {
         );
 
         controlArgumentBuilder.then(
+                CommandUtils.l("playfirst")
+                        .then(
+                                CommandUtils.l("all")
+                                        .then(
+                                                CommandUtils.arg_cinematic()
+                                                        .executes(PlayerSubcommand::first)
+                                        )
+                        )
+                        .then(
+                                CommandUtils.l("group")
+                                        .then(
+                                                CommandUtils.arg_group()
+                                                        .then(
+                                                                CommandUtils.arg_cinematic()
+                                                                        .executes(PlayerSubcommand::first)
+                                                        )
+                                        )
+                        )
+        );
+
+        controlArgumentBuilder.then(
                 CommandUtils.l("stop")
                         .then(
                                 CommandUtils.arg_cinematic()
@@ -110,6 +131,27 @@ public class PlayerSubcommand {
         );
 
         return controlArgumentBuilder.build();
+    }
+
+    private static int first(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        PlayerGroup group = null;
+        try {
+            group = PolCinematics.getGroupManager().getGroup(ctx.getArgument("group", String.class));
+            if (group == null) {
+                ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cGroup not found"));
+                return 1;
+            }
+        } catch (Exception ignore) {}
+
+        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        List<ServerPlayerEntity> players = ctx.getSource().getServer().getPlayerManager().getPlayerList();
+        if (group != null) {
+            players = group.getPlayers(ctx.getSource());
+        }
+
+        Packets.sendCinematicPlay(players, cinematic.getUuid(), true, 0);
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Playing cinematic §f" + cinematic.getName() + " §7on first frame"));
+        return 1;
     }
 
     private static int play(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {

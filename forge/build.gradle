@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 architectury {
@@ -40,7 +40,8 @@ dependencies {
     shadow(implementation("org.bytedeco:ffmpeg-platform:5.1.2-1.5.8"))*/
 
     modApi("com.github.polvallverdu.VLCVideo-API-PolCinematics:vlcvideoapi-forge:${rootProject.vlcvideo_api}")
-    modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-forge:${rootProject.mcef_api}")
+    // TODO: Fix wathever error with mappings.
+//    modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-forge:${rootProject.mcef_api}")
 
     shadowImplementation(minecraftLibraries("dev.polv:PolTaskManager:${rootProject.taskmanager_version}"))
 
@@ -65,7 +66,7 @@ shadowJar {
     exclude 'kotlin/**'
 
     configurations = [project.configurations.shadowCommon, project.configurations.shadowImplementation]
-    classifier "dev-shadow"
+    archiveClassifier.set("dev-shadow")
 
     relocate("dev.polv.taskmanager", "dev.polv.libs.taskmanager")
 }
@@ -73,11 +74,11 @@ shadowJar {
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier.set(null)
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier.set("dev")
 }
 
 sourcesJar {

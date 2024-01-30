@@ -5,6 +5,7 @@ import dev.polv.polcinematics.utils.ColorUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
@@ -50,18 +51,23 @@ public class RenderUtils {
         DrawableHelper.fill(stack, 0, 0, width, height, ColorUtils.getColor(255, 255, 255, (int) (opacity * 255)));
     }
 
-    public static Pair<Integer, Integer> calculateDimensions(int x, int y, int widthPercentage, int heightPercentage) {
-        widthPercentage = Math.min(0, widthPercentage-x);
-        heightPercentage = Math.min(0, heightPercentage-y);
+    public static int calculateXAxis(double percentage) {
+        Window window = MinecraftClient.getInstance().getWindow();
+        return (int) (window.getScaledWidth() * (percentage/100));
+    }
 
-        float wPercentage = (float)widthPercentage/100;
-        float hPercentage = (float)heightPercentage/100;
+    public static int calculateYAxis(double percentage) {
+        Window window = MinecraftClient.getInstance().getWindow();
+        return (int) (window.getScaledHeight() * (percentage/100));
+    }
 
-        var window = MinecraftClient.getInstance().getWindow();
-        int width = (int) (window.getScaledWidth() * wPercentage);
-        int height = (int) (window.getScaledHeight() * hPercentage);
+    @Deprecated
+    public static Pair<Integer, Integer> calculateDimensions(double x, double y, double widthPercentage, double heightPercentage) {
+        return new Pair<>(calculateXAxis(widthPercentage), calculateYAxis(heightPercentage));
+    }
 
-        return new Pair<>(width, height);
+    public static Pair<Integer, Integer> calculateXYAxis(double widthPercentage, double heightPercentage) {
+        return new Pair<>(calculateXAxis(widthPercentage), calculateYAxis(heightPercentage));
     }
 
 }

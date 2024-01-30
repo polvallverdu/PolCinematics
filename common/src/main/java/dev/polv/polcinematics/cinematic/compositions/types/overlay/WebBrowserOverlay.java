@@ -15,7 +15,7 @@ public class WebBrowserOverlay extends OverlayComposition {
 
     @Override
     protected void declare() {
-        this.declareConstant(URL_KEY, "The url of the video", EValueType.STRING);
+        this.declareConstant(URL_KEY, "The url of the website", EValueType.STRING);
         this.declareConstant(CUSTOMCSS_KEY, "Custom CSS to apply to the webpage", EValueType.STRING);
 
         DeclarationUtils.declareScreenTimevars(this);
@@ -23,14 +23,14 @@ public class WebBrowserOverlay extends OverlayComposition {
 
     @Override
     public void tick(MatrixStack matrixStack, long time) {
-        int x = (int) this.getTimeVariable(DeclarationUtils.X_KEY).getValue(time);
-        int y = (int) this.getTimeVariable(DeclarationUtils.Y_KEY).getValue(time);
-        int width = (int) this.getTimeVariable(DeclarationUtils.WIDTH_KEY).getValue(time);
-        int height = (int) this.getTimeVariable(DeclarationUtils.HEIGHT_KEY).getValue(time);
+        double x = (double) this.getTimeVariable(DeclarationUtils.X_KEY).getValue(time);
+        double y = (double) this.getTimeVariable(DeclarationUtils.Y_KEY).getValue(time);
+        double width = (double) this.getTimeVariable(DeclarationUtils.WIDTH_KEY).getValue(time);
+        double height = (double) this.getTimeVariable(DeclarationUtils.HEIGHT_KEY).getValue(time);
 
         var dimensions = RenderUtils.calculateDimensions(x, y, width, height);
 
-        this.browserView.render(matrixStack, x, y, dimensions.getLeft(), dimensions.getRight());
+        this.browserView.render(matrixStack, RenderUtils.calculateXAxis(x), RenderUtils.calculateYAxis(y), dimensions.getLeft(), dimensions.getRight());
     }
 
     public String getUrl() {

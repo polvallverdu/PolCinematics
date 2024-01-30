@@ -3,10 +3,12 @@ package dev.polv.polcinematics.client.players;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.utils.render.RenderUtils;
+import dev.polv.vlcvideo.api.mediaPlayer.OptimizedMediaPlayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import dev.polv.vlcvideo.api.DynamicResourceLocation;
@@ -20,7 +22,7 @@ import java.awt.*;
 public class VideoPlayer implements IMediaPlayer {
 
     private String mediaPath;
-    private SimpleMediaPlayer player;
+    private OptimizedMediaPlayer player;
 
     private DynamicResourceLocation playerResourceLocation;
     private Identifier lastFrame;
@@ -35,8 +37,8 @@ public class VideoPlayer implements IMediaPlayer {
     public void changeMediaPath(String newPath) {
         this.mediaPath = newPath;
         this.playerResourceLocation = new DynamicResourceLocation(PolCinematics.MOD_ID, "video/" + this.mediaPath.hashCode());
-        MediaPlayerHandler.getInstance().registerPlayerOnFreeResLoc(this.playerResourceLocation, SimpleMediaPlayer.class);
-        this.player = (SimpleMediaPlayer) MediaPlayerHandler.getInstance().getMediaPlayer(this.playerResourceLocation);
+        MediaPlayerHandler.getInstance().registerPlayerOnFreeResLoc(this.playerResourceLocation, OptimizedMediaPlayer.class);
+        this.player = (OptimizedMediaPlayer) MediaPlayerHandler.getInstance().getMediaPlayer(this.playerResourceLocation);
         this.player.api().media().prepare(this.mediaPath);
         this.player.api().audio().setVolume(this.getVolume());
     }
@@ -66,7 +68,7 @@ public class VideoPlayer implements IMediaPlayer {
         return null;
     }
 
-    public SimpleMediaPlayer getPlayer() {
+    public OptimizedMediaPlayer getPlayer() {
         return this.player;
     }
 
@@ -134,24 +136,19 @@ public class VideoPlayer implements IMediaPlayer {
     public void render(MatrixStack matrix, int x, int y, int width, int height, float alpha) {
         if (!this.isPlaying() || this.player == null) return;
 
-        this.lastFrame = this.player.renderToResourceLocation();
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+        RenderSystem.setShaderTexture(0, this.player.getRenderer().getTextureID());
+        Tessellator t = Tessellator.getInstance();
+        BufferBuilder buffer = t.getBuffer();
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        buffer.vertex(x, height + y, 0).texture(0.0f, 1.0f).color(255, 255, 255, 255).next();
+        buffer.vertex(width + x, height + y, 0).texture(1.0f, 1.0f).color(255, 255, 255, 255).next();
+        buffer.vertex(width + x, y, 0).texture(1.0f, 0.0f).color(255, 255, 255, 255).next();
+        buffer.vertex(x, y, 0).texture(0.0f, 0.0f).color(255, 255, 255, 255).next();
+        t.draw();
 
-        // Get the video dimension
-        Dimension d = this.getVideoDimension();
-        if (d == null) return;
-        int videoWidth = d.width;
-        int videoHeight = d.height;
-
-        // Get minecraft window dimension
-        int windowWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
-        int windowHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
-
-        //RenderUtils.renderBlackScreen(matrix, 1);
-        RenderUtils.bindTexture(this.lastFrame);
-        RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-        DrawableHelper.drawTexture(matrix, x, y, 0, 0, 0, width, height, width, height);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
+        RenderSystem.setShaderTexture(0, 0);
+        RenderSystem.enableDepthTest();
     }
 }

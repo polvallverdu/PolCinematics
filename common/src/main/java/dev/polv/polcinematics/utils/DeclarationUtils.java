@@ -36,18 +36,18 @@ public class DeclarationUtils {
     }
 
     public static void declareScreenTimevars(Composition composition) {
-        composition.declareTimeVariable(X_KEY, "Goes from 0% to 100%", EValueType.INTEGER);
-        composition.declareTimeVariable(Y_KEY, "Goes from 0% to 100%", EValueType.INTEGER);
-        composition.declareTimeVariable(WIDTH_KEY, "Goes from 0% to 100%", EValueType.INTEGER, 50);
-        composition.declareTimeVariable(HEIGHT_KEY, "Goes from 0% to 100%", EValueType.INTEGER, 50);
+        composition.declareTimeVariable(X_KEY, "Goes from 0% to 100%", EValueType.DOUBLE);
+        composition.declareTimeVariable(Y_KEY, "Goes from 0% to 100%", EValueType.DOUBLE);
+        composition.declareTimeVariable(WIDTH_KEY, "Goes from 0% to 100%", EValueType.DOUBLE, 50D);
+        composition.declareTimeVariable(HEIGHT_KEY, "Goes from 0% to 100%", EValueType.DOUBLE, 50D);
     }
 
     public static void declareAlphaTimevar(Composition composition) {
-        composition.declareTimeVariable(ALPHA_KEY, "Goes from 0% to 100%", EValueType.INTEGER, 100);
+        composition.declareTimeVariable(ALPHA_KEY, "Goes from 0% to 100%", EValueType.DOUBLE, 100D);
     }
 
     public static void declareVolumeTimevar(Composition composition) {
-        composition.declareTimeVariable(VOLUME_KEY, "Goes from 0% to 100%", EValueType.INTEGER, 100);
+        composition.declareTimeVariable(VOLUME_KEY, "Goes from 0% to 100%", EValueType.DOUBLE, 100D);
     }
 
     public static void declareColorTimevar(Composition composition) {

@@ -7,7 +7,7 @@ import dev.polv.polcinematics.exception.MissingModuleException;
 public interface IMediaPlayer {
 
     static IMediaPlayer createPlayer(Class<? extends IMediaPlayer> mediaPlayer, String mediaPath) {
-        if (!Platform.isModLoaded("fancyvideo_api")) {
+        if (!Platform.isModLoaded("vlcvideoapi")) {
             new MissingModuleException(EClientModules.MEDIA_PLAYER).printStackTrace();
             return new DummyPlayer();
         }

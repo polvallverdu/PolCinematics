@@ -1,22 +1,23 @@
 package dev.polv.polcinematics.client.players;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.cinemamod.mcef.MCEF;
+import com.cinemamod.mcef.MCEFBrowser;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.architectury.platform.Platform;
 import dev.polv.polcinematics.client.EClientModules;
 import dev.polv.polcinematics.exception.MissingModuleException;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.montoyo.mcef.api.API;
-import net.montoyo.mcef.api.IBrowser;
-import net.montoyo.mcef.api.MCEFApi;
 
 @Environment(EnvType.CLIENT)
 public class BrowserView {
 
-    private IBrowser browser;
+    private MCEFBrowser browser;
     private int oldWidth, oldHeight;
+    private boolean destroy = false;
 
     private String url;
     private String customCSS = "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }";
@@ -36,15 +37,17 @@ public class BrowserView {
             throw MISSING_MODULE_EXCEPTION;
         }
 
-        API api = MCEFApi.getAPI();
-        if (api == null) {
-            throw MISSING_MODULE_EXCEPTION;
-        }
+//        API api = MCEFApi.getAPI();
+//        if (api == null) {
+//            throw MISSING_MODULE_EXCEPTION;
+//        }
 
-        this.browser = api.createBrowser(this.url, true);
+        this.browser = MCEF.createBrowser(this.url, true);
 
         oldWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
         oldHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
+
+        this.resize();
     }
 
     private void resize() {
@@ -63,16 +66,18 @@ public class BrowserView {
     }
 
     private void injectCustomCSS() {
-        this.browser.runJS(String.format("""
+        this.browser.executeJavaScript(String.format("""
                 (() => {
                     let stylecustom = "%s";
                     const style = document.createElement('style');
                     style.textContent = stylecustom;
                     document.head.append(style);
-                })();""", this.customCSS), "");
+                })();""", this.customCSS), "", 0);
     }
 
     public void render(MatrixStack matrixStack, int x, int y, int width, int height) {
+        if (width == 0 || height == 0) return;
+
         if (oldWidth != width || oldHeight != height) {
             this.oldWidth = width;
             this.oldHeight = height;
@@ -80,18 +85,28 @@ public class BrowserView {
         }
 
         if (browser != null) {
-            GlStateManager._disableDepthTest();
-            GlStateManager._disableBlend();
+            RenderSystem.disableDepthTest();
+            RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+            RenderSystem.setShaderTexture(0, browser.getRenderer().getTextureID());
+            Tessellator t = Tessellator.getInstance();
+            BufferBuilder buffer = t.getBuffer();
+            buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+            buffer.vertex(x, height + y, 0).texture(0.0f, 1.0f).color(255, 255, 255, 255).next();
+            buffer.vertex(width + x, height + y, 0).texture(1.0f, 1.0f).color(255, 255, 255, 255).next();
+            buffer.vertex(width + x, y, 0).texture(1.0f, 0.0f).color(255, 255, 255, 255).next();
+            buffer.vertex(x, y, 0).texture(0.0f, 0.0f).color(255, 255, 255, 255).next();
+            t.draw();
 
-            browser.draw(matrixStack, x, y, width, height);
-
-            GlStateManager._enableDepthTest();
+            RenderSystem.setShaderTexture(0, 0);
+            RenderSystem.enableDepthTest();
         }
     }
 
     public void stop() {
         if (browser != null) {
-            browser.close();
+            MCEFBrowser finalBrowser = browser;
+            MinecraftClient.getInstance().executeSync(finalBrowser::close);
+            browser = null;
         }
     }
 

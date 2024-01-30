@@ -27,15 +27,16 @@ public class VideoOverlay extends OverlayComposition {
     public void tick(MatrixStack matrixStack, long time) {
         if (this.videoPlayer instanceof DummyPlayer) return;
 
-        int x = (int) this.getTimeVariable(DeclarationUtils.X_KEY).getValue(time);
-        int y = (int) this.getTimeVariable(DeclarationUtils.Y_KEY).getValue(time);
-        int width = (int) this.getTimeVariable(DeclarationUtils.WIDTH_KEY).getValue(time);
-        int height = (int) this.getTimeVariable(DeclarationUtils.HEIGHT_KEY).getValue(time);
+        double x = (double) this.getTimeVariable(DeclarationUtils.X_KEY).getValue(time);
+        double y = (double) this.getTimeVariable(DeclarationUtils.Y_KEY).getValue(time);
+        double width = (double) this.getTimeVariable(DeclarationUtils.WIDTH_KEY).getValue(time);
+        double height = (double) this.getTimeVariable(DeclarationUtils.HEIGHT_KEY).getValue(time);
         float alpha = (float) (int) this.getTimeVariable(DeclarationUtils.ALPHA_KEY).getValue(time);
 
-        var dimensions = RenderUtils.calculateDimensions(x, y, width, height);
+        var position = RenderUtils.calculateXYAxis(x, y);
+        var dimensions = RenderUtils.calculateXYAxis(width, height);
 
-        ((VideoPlayer) this.videoPlayer).render(matrixStack, x, y, dimensions.getLeft(), dimensions.getRight(), alpha/100);
+        ((VideoPlayer) this.videoPlayer).render(matrixStack, position.getLeft(), position.getRight(), dimensions.getLeft(), dimensions.getRight(), alpha/100);
     }
 
     private void initPlayer() {
@@ -81,11 +82,11 @@ public class VideoOverlay extends OverlayComposition {
 
     @Override
     public void onCompositionTick(long time) {
-        int volume = (int) this.getTimeVariable(DeclarationUtils.VOLUME_KEY).getValue(time);
+        double volume = (double) this.getTimeVariable(DeclarationUtils.VOLUME_KEY).getValue(time);
         volume = Math.min(100, Math.max(0, volume));
         float transVolume = (float) volume / 100;
         transVolume = transVolume * transVolume;
         if (this.videoPlayer.getVolumeFloat() != transVolume)
-            this.videoPlayer.setVolume(volume);
+            this.videoPlayer.setVolume(transVolume);
     }
 }

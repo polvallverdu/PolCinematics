@@ -24,6 +24,11 @@ public class CameraTimeline extends Timeline {
 
     public CameraFrame getCameraFrame(long time) {
         WrappedComposition cameraComposition = this.getWrappedComposition(time);
+
+        if (cameraComposition == null) {
+            return null;
+        }
+
         return ((CameraComposition) cameraComposition.getComposition()).getCameraFrame(time - cameraComposition.getStartTime());
     }
 
