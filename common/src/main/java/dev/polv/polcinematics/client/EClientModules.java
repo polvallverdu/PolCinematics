@@ -2,7 +2,7 @@ package dev.polv.polcinematics.client;
 
 public enum EClientModules {
 
-    MEDIA_PLAYER("fancyvideo-api", "https://github.com/polvallverdu/FancyVideo-API-PolCinematics"),
+//    MEDIA_PLAYER("fancyvideo-api", "https://github.com/polvallverdu/FancyVideo-API-PolCinematics"),
     BROWSER("mcef", "https://github.com/polvallverdu/mcef-PolCinematics"),
     ;
 

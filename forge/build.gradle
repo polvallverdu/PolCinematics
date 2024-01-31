@@ -40,7 +40,6 @@ dependencies {
     shadow(implementation("org.bytedeco:ffmpeg-platform:5.1.2-1.5.8"))*/
 
     modApi("com.github.polvallverdu.VLCVideo-API-PolCinematics:vlcvideoapi-forge:${rootProject.vlcvideo_api}")
-    // TODO: Fix wathever error with mappings.
 //    modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-forge:${rootProject.mcef_api}")
 
     shadowImplementation(minecraftLibraries("dev.polv:PolTaskManager:${rootProject.taskmanager_version}"))

@@ -110,4 +110,10 @@ public class BrowserView {
         }
     }
 
+    public void runJS(String js) {
+        if (browser != null) {
+            browser.executeJavaScript(js, "", 0);
+        }
+    }
+
 }

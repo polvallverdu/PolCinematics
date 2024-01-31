@@ -50,14 +50,12 @@ public class PolCinematicsCommand {
         // Building nodes
         LiteralCommandNode<ServerCommandSource> playerNode = PlayerSubcommand.build();
         LiteralCommandNode<ServerCommandSource> groupNode = GroupSubcommand.build();
-        LiteralCommandNode<ServerCommandSource> mediaPlayerNode = MediaPlayerSubcommand.build();
         LiteralCommandNode<ServerCommandSource> managerNode = ManagerSubcommand.build();
         LiteralCommandNode<ServerCommandSource> editorNode = EditorSubcommand.build();
 
         // Registering subcommands to /polcinematics
         mainBuilder.then(playerNode); // /polcinematics player
         mainBuilder.then(groupNode); // /polcinematics groups
-        mainBuilder.then(mediaPlayerNode); // /polcinematics mediaplayer
         mainBuilder.then(managerNode); // /polcinematics manager
         mainBuilder.then(editorNode); // /polcinematics editor
 
@@ -68,7 +66,6 @@ public class PolCinematicsCommand {
         LiteralArgumentBuilder<ServerCommandSource>[] aliases = new LiteralArgumentBuilder[]{
                 BridagierUtils.goodRedirect("cp", playerNode),
                 BridagierUtils.goodRedirect("cg", groupNode),
-                BridagierUtils.goodRedirect("cmp", mediaPlayerNode),
                 BridagierUtils.goodRedirect("cm", managerNode),
                 BridagierUtils.goodRedirect("ce", editorNode),
         };
