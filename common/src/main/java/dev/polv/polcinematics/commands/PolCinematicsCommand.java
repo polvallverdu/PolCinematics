@@ -52,12 +52,14 @@ public class PolCinematicsCommand {
         LiteralCommandNode<ServerCommandSource> groupNode = GroupSubcommand.build();
         LiteralCommandNode<ServerCommandSource> managerNode = ManagerSubcommand.build();
         LiteralCommandNode<ServerCommandSource> editorNode = EditorSubcommand.build();
+        LiteralCommandNode<ServerCommandSource> screensNode = ScreenSubcommand.build();
 
         // Registering subcommands to /polcinematics
         mainBuilder.then(playerNode); // /polcinematics player
         mainBuilder.then(groupNode); // /polcinematics groups
         mainBuilder.then(managerNode); // /polcinematics manager
         mainBuilder.then(editorNode); // /polcinematics editor
+        mainBuilder.then(screensNode); // /polcinematics screens
 
         // Creating main command /polcinematics
         // LiteralCommandNode<ServerCommandSource> mainNode = mainBuilder.build();
@@ -68,6 +70,7 @@ public class PolCinematicsCommand {
                 BridagierUtils.goodRedirect("cg", groupNode),
                 BridagierUtils.goodRedirect("cm", managerNode),
                 BridagierUtils.goodRedirect("ce", editorNode),
+                BridagierUtils.goodRedirect("cs", screensNode),
         };
 
         // Registering main command and aliases

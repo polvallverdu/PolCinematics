@@ -10,7 +10,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
+import org.joml.Matrix4f;
 
 @Environment(EnvType.CLIENT)
 public class BrowserView {
@@ -48,6 +50,7 @@ public class BrowserView {
         oldHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
 
         this.resize();
+        this.injectCustomCSS();
     }
 
     private void resize() {
@@ -78,9 +81,13 @@ public class BrowserView {
     public void render(MatrixStack matrixStack, int x, int y, int width, int height) {
         if (width == 0 || height == 0) return;
 
-        if (oldWidth != width || oldHeight != height) {
-            this.oldWidth = width;
-            this.oldHeight = height;
+        Window window = MinecraftClient.getInstance().getWindow();
+        int realWidth = window.getWidth() * (width / window.getScaledHeight() );
+        int realHeight = window.getWidth() * (height / window.getScaledHeight() );
+
+        if (oldWidth != realWidth || oldHeight != realHeight) {
+            this.oldWidth = realWidth;
+            this.oldHeight = realHeight;
             this.resize();
         }
 
@@ -100,6 +107,39 @@ public class BrowserView {
             RenderSystem.setShaderTexture(0, 0);
             RenderSystem.enableDepthTest();
         }
+    }
+
+    public void renderWorld(Matrix4f matrix4f, int x, int y, int width, int height) {
+        if (width == 0 || height == 0) return;
+
+        int realWidth = width*100;
+        int realHeight = height*100;
+
+        if (oldWidth != realWidth || oldHeight != realHeight) {
+            this.oldWidth = realWidth;
+            this.oldHeight = realHeight;
+            this.resize();
+        }
+
+        if (browser == null) {
+            return;
+        }
+        RenderSystem.disableBlend();
+        RenderSystem.enableCull();
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
+        RenderSystem.setShaderTexture(0, browser.getRenderer().getTextureID());
+        Tessellator t = Tessellator.getInstance();
+        BufferBuilder buffer = t.getBuffer();
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        buffer.vertex(matrix4f, width +x, height + y, 0).texture(1.0f, 0.0f).color(255, 255, 255, 255).next();
+        buffer.vertex(matrix4f,  x, height + y, 0).texture(0.0f, 0.0f).color(255, 255, 255, 255).next();
+        buffer.vertex(matrix4f,  x, y, 0).texture(0.0f, 1.0f).color(255, 255, 255, 255).next();
+        buffer.vertex(matrix4f, width +x, y, 0).texture(1.0f, 1.0f).color(255, 255, 255, 255).next();
+        t.draw();
+
+        RenderSystem.setShaderTexture(0, 0);
+        RenderSystem.enableBlend();
     }
 
     public void stop() {
