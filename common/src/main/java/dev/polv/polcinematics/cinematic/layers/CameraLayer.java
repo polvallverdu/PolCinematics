@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.cinematic.timelines;
+package dev.polv.polcinematics.cinematic.layers;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
@@ -8,13 +8,13 @@ import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 import java.util.List;
 import java.util.UUID;
 
-public class CameraTimeline extends Timeline {
+public class CameraLayer extends Layer {
 
-    public CameraTimeline() {
+    public CameraLayer() {
         super();
     }
 
-    public CameraTimeline(UUID uuid, List<WrappedComposition> compositions) {
+    public CameraLayer(UUID uuid, List<WrappedComposition> compositions) {
         super(uuid, compositions);
     }
 

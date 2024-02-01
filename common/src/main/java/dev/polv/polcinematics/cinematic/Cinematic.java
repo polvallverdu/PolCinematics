@@ -6,9 +6,9 @@ import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.ECameraType;
 import dev.polv.polcinematics.cinematic.compositions.types.overlay.OverlayComposition;
-import dev.polv.polcinematics.cinematic.timelines.CameraTimeline;
-import dev.polv.polcinematics.cinematic.timelines.Timeline;
-import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
+import dev.polv.polcinematics.cinematic.layers.CameraLayer;
+import dev.polv.polcinematics.cinematic.layers.Layer;
+import dev.polv.polcinematics.cinematic.layers.WrappedComposition;
 import dev.polv.polcinematics.exception.OverlapException;
 import dev.polv.polcinematics.utils.BasicCompositionData;
 import net.minecraft.client.util.math.MatrixStack;
@@ -26,81 +26,81 @@ public class Cinematic {
     private String name;
     private long duration;
 
-    private final CameraTimeline cameraTimeline;
-    private final List<Timeline> timelines;
+    private final CameraLayer cameraLayer;
+    private final List<Layer> layers;
 
-    protected Cinematic(UUID uuid, String name, long duration, CameraTimeline cameraTimeline, List<Timeline> timelines) {
+    protected Cinematic(UUID uuid, String name, long duration, CameraLayer cameraLayer, List<Layer> layers) {
         this.uuid = uuid;
         this.name = name;
         this.duration = duration;
-        this.cameraTimeline = cameraTimeline;
-        this.timelines = timelines;
+        this.cameraLayer = cameraLayer;
+        this.layers = layers;
     }
 
     /**
-     * Adds a new timeline to the cinematic
+     * Adds a new layer to the cinematic
      *
-     * @return The created {@link Timeline}
+     * @return The created {@link Layer}
      */
-    public Timeline addTimeline() {
-        Timeline timeline = new Timeline();
-        this.timelines.add(timeline);
-        return timeline;
+    public Layer addLayer() {
+        Layer layer = new Layer();
+        this.layers.add(layer);
+        return layer;
     }
 
     /**
-     * Removes a timeline from the cinematic by its index
+     * Removes a layer from the cinematic by its index
      *
-     * @param index The index of the timeline to remove
+     * @param index The index of the layer to remove
      */
-    public void removeTimeline(int index) {
-        this.timelines.remove(index);
+    public void removeLayer(int index) {
+        this.layers.remove(index);
     }
 
     /**
-     * Removes a timeline from the cinematic
+     * Removes a layer from the cinematic
      *
-     * @param timeline The timeline to remove
-     * @return {@code true} if the timeline was removed, {@code false} otherwise
+     * @param layer The layer to remove
+     * @return {@code true} if the layer was removed, {@code false} otherwise
      */
-    public boolean removeTimeline(Timeline timeline) {
-        return this.timelines.remove(timeline);
+    public boolean removeLayer(Layer layer) {
+        return this.layers.remove(layer);
     }
 
-    public boolean canMove(Timeline timeline, int positions, boolean isUp) {
-        int index = this.timelines.indexOf(timeline);
+    public boolean canMove(Layer layer, int positions, boolean isUp) {
+        int index = this.layers.indexOf(layer);
         if (isUp) {
             index -= positions;
         } else {
             index += positions;
         }
-        return index >= 0 && index < this.timelines.size();
+        return index >= 0 && index < this.layers.size();
     }
 
-    public void moveTimeline(Timeline timeline, int positions, boolean isUp) {
-        int index = this.timelines.indexOf(timeline);
+    public void moveLayer(Layer layer, int positions, boolean isUp) {
+        int index = this.layers.indexOf(layer);
         if (isUp) {
             index -= positions;
         } else {
             index += positions;
         }
-        this.timelines.remove(timeline);
-        this.timelines.add(index, timeline);
+        this.layers.remove(layer);
+        this.layers.add(index, layer);
     }
 
     /**
-     * Moves a composition from one timeline to another, and changes its start time
+     * Moves a composition from one layer to another, and changes its start time
      *
      * @param composition The {@link WrappedComposition} to move
-     * @param oldTimeline The {@link Timeline} the composition is currently in
-     * @param newTimeline The {@link Timeline} to move the composition to
+     * @param oldLayer The {@link Layer} the composition is currently in
+     * @param newLayer The {@link Layer} to move the composition to
      * @param newtime The new start time of the composition
-     * @throws OverlapException If the composition overlaps with another composition in the new timeline
+     * @throws OverlapException If the composition overlaps with another composition in the new layer
      */
-    public void moveComposition(WrappedComposition composition, Timeline oldTimeline, Timeline newTimeline, long newtime) throws OverlapException, IllegalArgumentException {
-        newTimeline.canMoveThrows(composition, newtime);
-        newTimeline.add(composition.getComposition(), newtime, composition.getDuration());
-        oldTimeline.remove(composition);
+    public void moveComposition(WrappedComposition composition, Layer oldLayer, Layer newLayer, long newtime) throws OverlapException, IllegalArgumentException {
+        newLayer.canMoveThrows(composition, newtime);
+        newLayer.add(composition.getComposition(), newtime, composition.getDuration());
+        oldLayer.remove(composition);
     }
 
     /**
@@ -118,48 +118,48 @@ public class Cinematic {
     }
 
     /**
-     * @return {@link CameraTimeline}
+     * @return {@link CameraLayer}
      */
-    public CameraTimeline getCameraTimeline() {
-        return cameraTimeline;
+    public CameraLayer getCameraLayer() {
+        return cameraLayer;
     }
 
     /**
-     * @return The {@link Timeline} at the given index
+     * @return The {@link Layer} at the given index
      */
-    public Timeline getTimeline(int index) {
-        return this.timelines.get(index);
+    public Layer getLayer(int index) {
+        return this.layers.get(index);
     }
 
     /**
-     * @return The {@link Timeline} with the given {@link UUID}
+     * @return The {@link Layer} with the given {@link UUID}
      */
-    public @Nullable Timeline getTimeline(UUID timelineUUID) {
-        for (Timeline timeline : this.getTimelines()) {
-            if (timeline.getUuid().equals(timelineUUID)) {
-                return timeline;
+    public @Nullable Layer getLayer(UUID layerUUID) {
+        for (Layer layer : this.getLayers()) {
+            if (layer.getUuid().equals(layerUUID)) {
+                return layer;
             }
         }
         return null;
     }
 
     /**
-     * Resolve a {@link Timeline} by its index or {@link UUID}
+     * Resolve a {@link Layer} by its index or {@link UUID}
      *
-     * @param query The index (or "camera") or {@link UUID} of the timeline (index starts at 1)
-     * @return The {@link Timeline} at the given index (starts at 1)
+     * @param query The index (or "camera") or {@link UUID} of the layer (index starts at 1)
+     * @return The {@link Layer} at the given index (starts at 1)
      */
-    public @Nullable Timeline resolveTimeline(String query) {
+    public @Nullable Layer resolveLayer(String query) {
         if (query.equalsIgnoreCase("camera")) {
-            return this.cameraTimeline;
+            return this.cameraLayer;
         }
         try {
             int index = Integer.parseInt(query);
-            return this.getTimeline(index - 1);
+            return this.getLayer(index - 1);
         } catch (NumberFormatException | IndexOutOfBoundsException e) {
             try {
                 UUID uuid = UUID.fromString(query);
-                return this.getTimeline(uuid);
+                return this.getLayer(uuid);
             } catch (IllegalArgumentException ignored) {
             }
         }
@@ -168,65 +168,65 @@ public class Cinematic {
     }
 
     /**
-     * @return The amount of timelines in the cinematic
+     * @return The amount of layers in the cinematic
      */
-    public int getTimelineCount() {
-        return this.timelines.size();
+    public int getLayerCount() {
+        return this.layers.size();
     }
 
     /**
-     * Get the {@link Timeline} and {@link Composition} by the given composition UUID
+     * Get the {@link Layer} and {@link Composition} by the given composition UUID
      *
      * @param compositionUUID The {@link UUID} of a composition
-     * @return A {@link Pair} containing the {@link Timeline} and the {@link Composition}, or null if the composition was not found.
+     * @return A {@link Pair} containing the {@link Layer} and the {@link Composition}, or null if the composition was not found.
      */
-    public Pair<Timeline, Composition> getTimelineAndComposition(UUID compositionUUID) {
-        WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionUUID);
+    public Pair<Layer, Composition> getLayerAndComposition(UUID compositionUUID) {
+        WrappedComposition c = this.cameraLayer.findWrappedComposition(compositionUUID);
         if (c != null) {
-            return new Pair<>(this.cameraTimeline, c.getComposition());
+            return new Pair<>(this.cameraLayer, c.getComposition());
         }
 
-        for (Timeline timeline : this.timelines) {
-            c = timeline.findWrappedComposition(compositionUUID);
+        for (Layer layer : this.layers) {
+            c = layer.findWrappedComposition(compositionUUID);
             if (c != null) {
-                return new Pair<>(timeline, c.getComposition());
+                return new Pair<>(layer, c.getComposition());
             }
         }
         return null;
     }
 
-    public ArrayList<Timeline> getTimelines() {
-        ArrayList<Timeline> timelines = new ArrayList<>(this.timelines);
-        timelines.add(0, this.cameraTimeline);
-        return timelines;
+    public ArrayList<Layer> getLayers() {
+        ArrayList<Layer> layers = new ArrayList<>(this.layers);
+        layers.add(0, this.cameraLayer);
+        return layers;
     }
 
     /**
-     * Get the {@link Timeline} and {@link WrappedComposition} by the given composition UUID
+     * Get the {@link Layer} and {@link WrappedComposition} by the given composition UUID
      *
      * @param compositionQuery The name or {@link UUID} of a composition
-     * @return A {@link Pair} containing the {@link Timeline} and the {@link WrappedComposition}, or null if the composition was not found.
+     * @return A {@link Pair} containing the {@link Layer} and the {@link WrappedComposition}, or null if the composition was not found.
      */
-    public Pair<Timeline, WrappedComposition> getTimelineAndWrappedComposition(String compositionQuery) {
-        WrappedComposition c = this.cameraTimeline.findWrappedComposition(compositionQuery);
+    public Pair<Layer, WrappedComposition> getLayerAndWrappedComposition(String compositionQuery) {
+        WrappedComposition c = this.cameraLayer.findWrappedComposition(compositionQuery);
         if (c != null) {
-            return new Pair<>(this.cameraTimeline, c);
+            return new Pair<>(this.cameraLayer, c);
         }
 
-        for (Timeline timeline : this.timelines) {
-            c = timeline.findWrappedComposition(compositionQuery);
+        for (Layer layer : this.layers) {
+            c = layer.findWrappedComposition(compositionQuery);
             if (c != null) {
-                return new Pair<>(timeline, c);
+                return new Pair<>(layer, c);
             }
         }
         return null;
     }
 
     public void tickOverlay(MatrixStack MatrixStack, long time) {
-        for (int i = this.timelines.size() - 1; i >= 0; i--) {  // loop reverse
-            Timeline timeline = this.timelines.get(i);
+        for (int i = this.layers.size() - 1; i >= 0; i--) {  // loop reverse
+            Layer layer = this.layers.get(i);
 
-            Composition compo = timeline.getComposition(time);
+            Composition compo = layer.getComposition(time);
             if (!(compo instanceof OverlayComposition)) continue;
 
             ((OverlayComposition) compo).tick(MatrixStack, time);
@@ -234,58 +234,58 @@ public class Cinematic {
     }
 
     public void onCinematicLoad() {
-        this.cameraTimeline.onCinematicLoad();
-        for (Timeline timeline : this.timelines) {
-            timeline.onCinematicLoad();
+        this.cameraLayer.onCinematicLoad();
+        for (Layer layer : this.layers) {
+            layer.onCinematicLoad();
         }
     }
 
     public void onCinematicUnload() {
-        this.cameraTimeline.onCinematicUnload();
-        for (Timeline timeline : this.timelines) {
-            timeline.onCinematicUnload();
+        this.cameraLayer.onCinematicUnload();
+        for (Layer layer : this.layers) {
+            layer.onCinematicUnload();
         }
     }
 
     public void onStart() {
-        this.cameraTimeline.onStart();
-        for (Timeline timeline : this.timelines) {
-            timeline.onStart();
+        this.cameraLayer.onStart();
+        for (Layer layer : this.layers) {
+            layer.onStart();
         }
     }
 
     public void onPause(long time) {
-        this.cameraTimeline.onPause(time);
-        for (Timeline timeline : this.timelines) {
-            timeline.onPause(time);
+        this.cameraLayer.onPause(time);
+        for (Layer layer : this.layers) {
+            layer.onPause(time);
         }
     }
 
     public void onResume(long time) {
-        this.cameraTimeline.onResume(time);
-        for (Timeline timeline : this.timelines) {
-            timeline.onResume(time);
+        this.cameraLayer.onResume(time);
+        for (Layer layer : this.layers) {
+            layer.onResume(time);
         }
     }
 
     public void onStop(long time) {
-        this.cameraTimeline.onStop(time);
-        for (Timeline timeline : this.timelines) {
-            timeline.onStop(time);
+        this.cameraLayer.onStop(time);
+        for (Layer layer : this.layers) {
+            layer.onStop(time);
         }
     }
 
     public void onTimeChange(long oldTime, long time) {
-        this.cameraTimeline.onTimeChange(oldTime, time);
-        for (Timeline timeline : this.timelines) {
-            timeline.onTimeChange(oldTime, time);
+        this.cameraLayer.onTimeChange(oldTime, time);
+        for (Layer layer : this.layers) {
+            layer.onTimeChange(oldTime, time);
         }
     }
 
     public void onTick(long lastTick, long time) {
-        this.cameraTimeline.onTick(lastTick, time);
-        for (Timeline timeline : this.timelines) {
-            timeline.onTick(lastTick, time);
+        this.cameraLayer.onTick(lastTick, time);
+        for (Layer layer : this.layers) {
+            layer.onTick(lastTick, time);
         }
     }
     
@@ -296,13 +296,13 @@ public class Cinematic {
         json.addProperty("name", this.name);
         json.addProperty("duration", this.duration);
 
-        json.add("cameraTimeline", this.cameraTimeline.toJson());
+        json.add("cameraLayer", this.cameraLayer.toJson());
 
-        JsonArray overlayTimelineJson = new JsonArray();
-        for (Timeline timeline : this.timelines) {
-            overlayTimelineJson.add(timeline.toJson());
+        JsonArray overlayLayerJson = new JsonArray();
+        for (Layer layer : this.layers) {
+            overlayLayerJson.add(layer.toJson());
         }
-        json.add("overlayTimeline", overlayTimelineJson);
+        json.add("overlayLayers", overlayLayerJson);
 
         return json;
     }
@@ -310,21 +310,21 @@ public class Cinematic {
     public static Cinematic fromJson(JsonObject json) {
         BasicCompositionData data = BasicCompositionData.fromJson(json);
 
-        CameraTimeline cameraTimeline = (CameraTimeline) Timeline.fromJson(json.get("cameraTimeline").getAsJsonObject(), CameraTimeline.class);
-        List<Timeline> overlayTimeline = new ArrayList<>();
-        JsonArray overlayTimelineJson = json.get("overlayTimeline").getAsJsonArray();
-        for (int i = 0; i < overlayTimelineJson.size(); i++) {
-            overlayTimeline.add(Timeline.fromJson(overlayTimelineJson.get(i).getAsJsonObject()));
+        CameraLayer cameraLayer = (CameraLayer) Layer.fromJson(json.get("cameraLayer").getAsJsonObject(), CameraLayer.class);
+        List<Layer> overlayLayer = new ArrayList<>();
+        JsonArray overlayLayerJson = json.get("overlayLayers").getAsJsonArray();
+        for (int i = 0; i < overlayLayerJson.size(); i++) {
+            overlayLayer.add(Layer.fromJson(overlayLayerJson.get(i).getAsJsonObject()));
         }
 
-        return new Cinematic(data.uuid(), data.name(), data.duration(), cameraTimeline, overlayTimeline);
+        return new Cinematic(data.uuid(), data.name(), data.duration(), cameraLayer, overlayLayer);
     }
 
     public static Cinematic create(String name, long duration) {
-        Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new CameraTimeline(), new ArrayList<>());
-        cinematic.addTimeline();
+        Cinematic cinematic = new Cinematic(UUID.randomUUID(), name, duration, new CameraLayer(), new ArrayList<>());
+        cinematic.addLayer();
         var playerCamCompo = CameraComposition.create("default_camera", ECameraType.PLAYER);
-        cinematic.cameraTimeline.add(playerCamCompo, 0, duration);
+        cinematic.cameraLayer.add(playerCamCompo, 0, duration);
         return cinematic;
     }
 

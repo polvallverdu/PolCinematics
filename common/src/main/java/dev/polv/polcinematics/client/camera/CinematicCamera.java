@@ -17,7 +17,7 @@ public class CinematicCamera extends Camera {
         ClientCinematic cin = PolCinematicsClient.getCCM().getLastRunningCinematic();
         // We assume that cin won't be null since this method is only called when a cinematic is running
 
-        CameraComposition comp = (CameraComposition) cin.getCinematic().getCameraTimeline().getComposition(cin.getElapsedTime());
+        CameraComposition comp = (CameraComposition) cin.getCinematic().getCameraLayer().getComposition(cin.getElapsedTime());
         if (comp == null) return null;
         return comp.getCameraFrame(cin.getElapsedTime());
     }

@@ -29,7 +29,7 @@ public class PolCinematicsCommand {
     public static final SimpleCommandExceptionType GROUP_NOT_FOUND = new SimpleCommandExceptionType(Text.of("Invalid group name"));
     public static final SimpleCommandExceptionType CINEMATIC_NOT_FOUND = new SimpleCommandExceptionType(Text.of("Cinematic not found"));
     public static final SimpleCommandExceptionType CINEMATIC_NOT_SELECTED = new SimpleCommandExceptionType(Text.of("Cinematic not selected. Select with /cm select <name>"));
-    public static final SimpleCommandExceptionType INVALID_TIMELINE = new SimpleCommandExceptionType(Text.of("Timeline not found"));
+    public static final SimpleCommandExceptionType INVALID_LAYER = new SimpleCommandExceptionType(Text.of("Layer not found"));
     public static final SimpleCommandExceptionType INVALID_COMPOSITION = new SimpleCommandExceptionType(Text.of("Compsositing not found"));
     public static final SimpleCommandExceptionType INVALID_CONSTANT = new SimpleCommandExceptionType(Text.of("Invalid constant key"));
     public static final SimpleCommandExceptionType INVALID_TIMEVARIABLE = new SimpleCommandExceptionType(Text.of("Invalid time variable key"));

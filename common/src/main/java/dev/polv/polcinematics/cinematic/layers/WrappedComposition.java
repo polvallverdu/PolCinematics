@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.cinematic.timelines;
+package dev.polv.polcinematics.cinematic.layers;
 
 import com.google.gson.JsonObject;
 import dev.polv.polcinematics.cinematic.compositions.Composition;

@@ -13,14 +13,13 @@ import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.compositions.ECompositionType;
 import dev.polv.polcinematics.cinematic.compositions.ICompositionType;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
 import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.values.constants.Constant;
 import dev.polv.polcinematics.cinematic.compositions.values.timevariables.CompositionTimeVariables;
 import dev.polv.polcinematics.cinematic.compositions.values.timevariables.TimeVariable;
-import dev.polv.polcinematics.cinematic.timelines.Timeline;
-import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
+import dev.polv.polcinematics.cinematic.layers.Layer;
+import dev.polv.polcinematics.cinematic.layers.WrappedComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.commands.helpers.CommandCooldownHash;
 import dev.polv.polcinematics.commands.suggetions.CinematicThingsSuggestion;
@@ -50,12 +49,12 @@ import java.util.stream.Collectors;
 public class EditorSubcommand {
 
     private static final String SUBCOMMANDS = ChatUtils.formatHelpMessage(
-            "/ce create", "Create a new timeline or composition",
-            "/ce delete", "Delete a timeline or composition",
-            "/ce info", "Get information about a timeline or composition",
-            "/ce duration", "Get or set the duration of a timeline or composition",
-            "/ce constants", "Get or set the value of a constant of a timeline or composition",
-            "/ce timevar", "Get or set the value of a timed variable of a timeline or composition",
+            "/ce create", "Create a new layer or composition",
+            "/ce delete", "Delete a layer or composition",
+            "/ce info", "Get information about a layer or composition",
+            "/ce duration", "Get or set the duration of a layer or composition",
+            "/ce constants", "Get or set the value of a constant of a layer or composition",
+            "/ce timevar", "Get or set the value of a timed variable of a layer or composition",
             "/ce help", "Display this help message"
     );
 
@@ -139,9 +138,9 @@ public class EditorSubcommand {
                 .executes(executor);
     }
 
-    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_timeline_composition(Command<ServerCommandSource> executor) {
-        return arg("timeline", StringArgumentType.word())
-                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_layer_composition(Command<ServerCommandSource> executor) {
+        return arg("layer", StringArgumentType.word())
+                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.LAYER))
                 .then(
                         arg("composition", StringArgumentType.word())
                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION))
@@ -150,22 +149,22 @@ public class EditorSubcommand {
     }
 
     @SafeVarargs
-    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_timeline_composition(ArgumentBuilder<ServerCommandSource, ?> ...builder) {
+    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_layer_composition(ArgumentBuilder<ServerCommandSource, ?> ...builder) {
         var compo_arg = arg("composition", StringArgumentType.word())
                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION));
         for (var b : builder) {
             compo_arg.then(b);
         }
-        return arg("timeline", StringArgumentType.word())
-                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+        return arg("layer", StringArgumentType.word())
+                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.LAYER))
                 .then(
                         compo_arg
                 );
     }
 
-    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_timeline_composition(ArgumentBuilder<ServerCommandSource, ?> builder, Command<ServerCommandSource> executor) {
-        return arg("timeline", StringArgumentType.word())
-                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+    private static RequiredArgumentBuilder<ServerCommandSource, String> arg_layer_composition(ArgumentBuilder<ServerCommandSource, ?> builder, Command<ServerCommandSource> executor) {
+        return arg("layer", StringArgumentType.word())
+                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.LAYER))
                 .then(
                         arg("composition", StringArgumentType.word())
                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION))
@@ -177,23 +176,22 @@ public class EditorSubcommand {
     public static LiteralCommandNode<ServerCommandSource> build() {
         var editorBuilder = l("editor");
 
-        //editorBuilder.then(TimelineSubcommands.build());
         editorBuilder.then(
                 l("create")
                         .then(
-                                l("timeline").executes((ctx) -> {
+                                l("layer").executes((ctx) -> {
                                     Cinematic cinematic = CommandUtils.getCinematic(ctx);
 
-                                    Timeline timeline = cinematic.addTimeline();
+                                    Layer layer = cinematic.addLayer();
 
-                                    ctx.getSource().sendMessage(Text.literal(PolCinematicsCommand.PREFIX + "Timeline " + cinematic.getTimelineCount() + " created"));
+                                    ctx.getSource().sendMessage(Text.literal(PolCinematicsCommand.PREFIX + "Layer " + cinematic.getLayerCount() + " created"));
                                     return 1;
                                 })
                         )
                         .then(
                                 l("composition").then(
-                                        arg("timeline", StringArgumentType.word())
-                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+                                        arg("layer", StringArgumentType.word())
+                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.LAYER))
                                                 .then(
                                                         arg("composition_name", StringArgumentType.word())
                                                                 .then(
@@ -210,17 +208,17 @@ public class EditorSubcommand {
         editorBuilder.then(
                 l("delete")
                         .then(
-                                l("timeline")
+                                l("layer")
                                         .then(
-                                                arg("timeline", StringArgumentType.word())
-                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
-                                                        .executes(EditorSubcommand::delete_timeline)
+                                                arg("layer", StringArgumentType.word())
+                                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.LAYER))
+                                                        .executes(EditorSubcommand::delete_layer)
                                         )
                         )
                         .then(
                                 l("composition")
                                         .then(
-                                                arg_timeline_composition(EditorSubcommand::delete_composition)
+                                                arg_layer_composition(EditorSubcommand::delete_composition)
                                         )
                         )
         );
@@ -228,8 +226,8 @@ public class EditorSubcommand {
         editorBuilder.then(
                 l("info")
                         .then(
-                                arg("timeline", StringArgumentType.word())
-                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+                                arg("layer", StringArgumentType.word())
+                                        .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.LAYER))
                                         .then(
                                                 arg("composition", StringArgumentType.word())
                                                         .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.COMPOSITION))
@@ -251,7 +249,7 @@ public class EditorSubcommand {
                                                         )
                                                         .executes(EditorSubcommand::info_composition_specific)
                                         )
-                                        .executes(EditorSubcommand::info_timeline_specific)
+                                        .executes(EditorSubcommand::info_layer_specific)
                 )
                 .executes(EditorSubcommand::info_cinematic)
         );
@@ -275,7 +273,7 @@ public class EditorSubcommand {
                     .then(
                             l("composition")
                                     .then(
-                                            arg_timeline_composition(
+                                            arg_layer_composition(
                                                     arg("duration", LongArgumentType.longArg(1))
                                                             .executes(EditorSubcommand::duration_composition_set),
                                                     EditorSubcommand::duration_composition_get
@@ -288,7 +286,7 @@ public class EditorSubcommand {
         editorBuilder.then(
                 l("constants")
                         .then(
-                                arg_timeline_composition(
+                                arg_layer_composition(
                                         arg("constant", StringArgumentType.word())
                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.CONSTANT_KEYS))
                                                 .then(
@@ -327,7 +325,7 @@ public class EditorSubcommand {
         editorBuilder.then(
                 l("timevar")
                         .then(
-                                arg_timeline_composition(
+                                arg_layer_composition(
                                         arg("timevariable", StringArgumentType.word())
                                                 .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMEVARIABLE_KEYS))
                                                 .then(
@@ -403,16 +401,16 @@ public class EditorSubcommand {
                         .then(
                                 l("composition")
                                         .then(
-                                                arg_timeline_composition(
-                                                        l("timeline")
+                                                arg_layer_composition(
+                                                        l("layer")
                                                                 .then(
-                                                                        arg("newtimeline", StringArgumentType.word())
-                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.TIMELINE))
+                                                                        arg("newlayer", StringArgumentType.word())
+                                                                                .suggests(new CinematicThingsSuggestion(CinematicThingsSuggestion.SuggestionType.LAYER))
                                                                                 .then(
                                                                                         arg("newtime", LongArgumentType.longArg(0))
-                                                                                                .executes(EditorSubcommand::move_composition_timeline)
+                                                                                                .executes(EditorSubcommand::move_composition_layer)
                                                                                 )
-                                                                                .executes(EditorSubcommand::move_composition_timeline)
+                                                                                .executes(EditorSubcommand::move_composition_layer)
                                                                 ),
                                                         l("startTime")
                                                                 .then(
@@ -423,19 +421,19 @@ public class EditorSubcommand {
                                         )
                         )
                         .then(
-                                l("timeline")
+                                l("layer")
                                         .then(
                                                 l("up")
                                                         .then(
                                                                 arg("positions", IntegerArgumentType.integer(1))
-                                                                        .executes((ctx) -> EditorSubcommand.move_timeline(ctx, true))
+                                                                        .executes((ctx) -> EditorSubcommand.move_layer(ctx, true))
                                                         )
                                         )
                                         .then(
                                                 l("down")
                                                         .then(
                                                                 arg("positions", IntegerArgumentType.integer(1))
-                                                                        .executes((ctx) -> EditorSubcommand.move_timeline(ctx, false))
+                                                                        .executes((ctx) -> EditorSubcommand.move_layer(ctx, false))
                                                         )
                                         )
                         )
@@ -485,9 +483,9 @@ public class EditorSubcommand {
     /////// RUN COMMANDS FUNCTIONS ///////
 
     private static int create_composition(CommandContext<ServerCommandSource> ctx, ICompositionType subtype) throws CommandSyntaxException {
-        var pairtc = CommandUtils.getTimeline(ctx);
+        var pairtc = CommandUtils.getLayer(ctx);
         Cinematic cinematic = pairtc.getLeft();
-        Timeline timeline = pairtc.getRight();
+        Layer layer = pairtc.getRight();
 
         String compositionName = StringArgumentType.getString(ctx, "composition_name");
         long startTime = LongArgumentType.getLong(ctx, "composition_starttime");
@@ -496,7 +494,7 @@ public class EditorSubcommand {
         Composition compo = Composition.create(compositionName, subtype);
 
         try {
-            timeline.add(compo, startTime, duration);
+            layer.add(compo, startTime, duration);
             ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition created"));
         } catch (OverlapException | IllegalArgumentException e) {
             ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
@@ -505,30 +503,30 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int delete_timeline(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int delete_layer(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        var pairct = CommandUtils.getTimeline(ctx);
+        var pairct = CommandUtils.getLayer(ctx);
         Cinematic cinematic = pairct.getLeft();
-        Timeline timeline = pairct.getRight();
+        Layer layer = pairct.getRight();
 
-        if (cinematic.getCameraTimeline().getUuid().equals(timeline.getUuid())) {
-            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't delete the camera timeline"));
+        if (cinematic.getCameraLayer().getUuid().equals(layer.getUuid())) {
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't delete the camera layer"));
             return 1;
         }
 
-        if (runDelete(player.getUuid(), String.valueOf(timeline.hashCode()))) {
-            if (cinematic.removeTimeline(timeline)) {
-                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline deleted"));
+        if (runDelete(player.getUuid(), String.valueOf(layer.hashCode()))) {
+            if (cinematic.removeLayer(layer)) {
+                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLayer deleted"));
             } else {
-                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cInvalid Timeline"));
+                player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cInvalid Layer"));
             }
             System.gc();
             return 1;
         }
 
-        ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§cRe-enter the command to confirm that you want to delete the timeline."));
-        DELETE_COOLDOWN.setOnCooldown(player.getUuid(), String.valueOf(timeline.hashCode()));
+        ctx.getSource().sendError(Text.of(PolCinematicsCommand.PREFIX + "§cRe-enter the command to confirm that you want to delete the layer."));
+        DELETE_COOLDOWN.setOnCooldown(player.getUuid(), String.valueOf(layer.hashCode()));
         return 1;
     }
 
@@ -536,11 +534,11 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairtc = CommandUtils.getComposition(ctx);
-        Timeline timeline = pairtc.getLeft();
+        Layer layer = pairtc.getLeft();
         WrappedComposition composition = pairtc.getRight();
 
         if (runDelete(player.getUuid(), String.valueOf(composition.hashCode()))) {
-            if (timeline.remove(composition)) {
+            if (layer.remove(composition)) {
                 player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aComposition deleted"));
             } else {
                 player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cInvalid Composition"));
@@ -558,8 +556,8 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairtc = CommandUtils.getComposition(ctx);
-        Timeline timeline = pairtc.getLeft();
-        String timelineName = StringArgumentType.getString(ctx, "timeline");
+        Layer layer = pairtc.getLeft();
+        String layerName = StringArgumentType.getString(ctx, "layer");
         WrappedComposition wrappedComposition = pairtc.getRight();
         Composition composition = wrappedComposition.getComposition();
 
@@ -595,7 +593,7 @@ public class EditorSubcommand {
                             Style.EMPTY
                                     .withBold(true)
                                     .withColor(Formatting.DARK_AQUA)
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce constants " + timelineName + " " + composition.getName() + " " + constant.getKey() + " set "))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce constants " + layerName + " " + composition.getName() + " " + constant.getKey() + " set "))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to edit this constant")))
                     );
             player.sendMessage(Text.literal("§7§o(" + constant.getType().getName() + ") §r§f" + constant.getKey() + ": §7'" + constant.getValue() + "' ").append(editText).append(Text.of("\n§7  - " + constant.getDescription())));
@@ -611,7 +609,7 @@ public class EditorSubcommand {
                             Style.EMPTY
                                     .withBold(true)
                                     .withColor(Formatting.DARK_AQUA)
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timelineName + " " + composition.getName() + " timevar " + key))
+                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + layerName + " " + composition.getName() + " timevar " + key))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("§7Click to see more info about this timed variable.")))
                     );
 
@@ -631,11 +629,11 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairtc = CommandUtils.getComposition(ctx);
-        Timeline timeline = pairtc.getLeft();
+        Layer layer = pairtc.getLeft();
         WrappedComposition wrappedComposition = pairtc.getRight();
         Composition composition = wrappedComposition.getComposition();
 
-        String timelineName = StringArgumentType.getString(ctx, "timeline");
+//        String layerName = StringArgumentType.getString(ctx, "layer");
 
         String key = StringArgumentType.getString(ctx, "timevariable");
         TimeVariable timeVariable = composition.getCompositionTimeVariables().getTimeVariables(key);
@@ -653,7 +651,7 @@ public class EditorSubcommand {
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.GREEN)
                                 .withBold(true)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " add "))
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + layer.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " add "))
                         )
         ).append(Text.of("\n")));
 
@@ -662,19 +660,19 @@ public class EditorSubcommand {
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " modify value " + keyframe.getTime() + " "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + layer.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " modify value " + keyframe.getTime() + " "))
             );
             MutableText easing = Text.literal(" [EASING]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GOLD)
                             .withBold(true)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " modify easing " + keyframe.getTime() + " "))
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + layer.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " modify easing " + keyframe.getTime() + " "))
             );
             MutableText delete = Text.literal(" [DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + timeline.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " delete " + keyframe.getTime()))
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce timevar " + layer.getUuid() + " " + composition.getUuid() + " " + timeVariable.getName() + " delete " + keyframe.getTime()))
             );
 
             player.sendMessage(
@@ -691,53 +689,53 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int info_timeline_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int info_layer_specific(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        var pairct = CommandUtils.getTimeline(ctx);
-        Timeline timeline = pairct.getRight();
-        String timelineArg = StringArgumentType.getString(ctx, "timeline");
+        var pairct = CommandUtils.getLayer(ctx);
+        Layer layer = pairct.getRight();
+        String layerArg = StringArgumentType.getString(ctx, "layer");
 
         StringBuilder message = new StringBuilder(BOTTOM_LINE).append("\n\n");
-        message.append("§fTimeline UUID: §7").append(timeline.getUuid()).append("\n");
-        message.append("§fTimeline Type: §7").append(timeline.getClass().getSimpleName()).append("\n");
-        message.append("§fCompositions: §7").append(timeline.getWrappedCompositions().size()).append("\n");
-        message.append("§fAllowed Composition Types: §7").append(Arrays.stream(timeline.getAllowedTypes()).map(ECompositionType::getName).collect(Collectors.joining(", "))).append("\n\n");
+        message.append("§fLayer UUID: §7").append(layer.getUuid()).append("\n");
+        message.append("§fLayer Type: §7").append(layer.getClass().getSimpleName()).append("\n");
+        message.append("§fCompositions: §7").append(layer.getWrappedCompositions().size()).append("\n");
+        message.append("§fAllowed Composition Types: §7").append(Arrays.stream(layer.getAllowedTypes()).map(ECompositionType::getName).collect(Collectors.joining(", "))).append("\n\n");
         message.append("§6§lCompositions: §7\n\n");
         player.sendMessage(Text.of(message.toString()));
 
-        timeline.getWrappedCompositions().forEach(wc -> {
+        layer.getWrappedCompositions().forEach(wc -> {
             Composition composition = wc.getComposition();
 
             MutableText info = Text.literal(" [INFO]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timeline.getUuid() + " " + wc.getUuid().toString()))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + layer.getUuid() + " " + wc.getUuid().toString()))
             );
-            MutableText moveTimeline = Text.literal(" [MOVE TO TIMELINE]").setStyle(
+            MutableText moveLayer = Text.literal(" [MOVE TO LAYER]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GOLD)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + " " + composition.getUuid() + " timeline "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + layer.getUuid() + " " + composition.getUuid() + " layer "))
             );
             MutableText moveStarttime = Text.literal(" [MOVE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_PURPLE)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + timeline.getUuid() + " " + composition.getUuid() + " startTime "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce move composition " + layer.getUuid() + " " + composition.getUuid() + " startTime "))
             );
             MutableText duration = Text.literal(" [DURATION]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.GREEN)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce duration composition " + timelineArg + " " + wc.getUuid().toString() + " "))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce duration composition " + layerArg + " " + wc.getUuid().toString() + " "))
             );
             MutableText delete = Text.literal(" [DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete composition " + timeline.getUuid() + " " + wc.getUuid()))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete composition " + layer.getUuid() + " " + wc.getUuid()))
             );
 
             player.sendMessage(
@@ -745,7 +743,7 @@ public class EditorSubcommand {
                             .literal("§7§o(" + (composition.getSubtype() != null ? composition.getSubtype().getName() : composition.getType().getName()) + ") §r§f" + wc.getStartTime() + "/" + wc.getFinishTime() + "ms §7- §f" + composition.getName())
                             .append(info)
                             .append(moveStarttime)
-                            .append(moveTimeline)
+                            .append(moveLayer)
                             .append(duration)
                             .append(delete)
             );
@@ -763,7 +761,7 @@ public class EditorSubcommand {
         String cinematicName = cinematic.getName();
         UUID cinematicUUID = cinematic.getUuid();
         Duration duration = cinematic.getDuration();
-        ArrayList<Timeline> timelines = cinematic.getTimelines();
+        ArrayList<Layer> layers = cinematic.getLayers();
 
         StringBuilder message = new StringBuilder(BOTTOM_LINE);
         message.append("\n\n").append("§fName: §7").append(cinematicName).append("\n");
@@ -772,23 +770,23 @@ public class EditorSubcommand {
 
         player.sendMessage(Text.of(message.toString()));
 
-        timelines.forEach(timeline -> {
+        layers.forEach(layer -> {
             MutableText info = Text.literal(" [INFO] ").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.DARK_AQUA)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + timeline.getUuid()))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ce info " + layer.getUuid()))
             );
             MutableText delete = Text.literal("[DELETE]").setStyle(
                     Style.EMPTY
                             .withColor(Formatting.RED)
                             .withBold(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete timeline " + timeline.getUuid()))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/ce delete layer " + layer.getUuid()))
             );
 
             player.sendMessage(
                     Text
-                            .literal("§7-  §f" + (cinematic.getCameraTimeline().getUuid().equals(timeline.getUuid()) ? "Camera" : timelines.indexOf(timeline)))
+                            .literal("§7-  §f" + (cinematic.getCameraLayer().getUuid().equals(layer.getUuid()) ? "Camera" : layers.indexOf(layer)))
                             .append(info)
                             .append(delete)
             );
@@ -823,12 +821,12 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairtc = CommandUtils.getComposition(ctx);
-        Timeline timeline = pairtc.getLeft();
+        Layer layer = pairtc.getLeft();
         WrappedComposition wc = pairtc.getRight();
         long newDuration = LongArgumentType.getLong(ctx, "duration");
 
         try {
-            timeline.changeDuration(wc, newDuration);
+            layer.changeDuration(wc, newDuration);
         } catch (OverlapException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§c" + e.getMessage()));
             return 1;
@@ -1003,29 +1001,29 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int move_composition_timeline(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    private static int move_composition_layer(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         Cinematic cinematic = CommandUtils.getCinematic(ctx);
         var pairtc = CommandUtils.getComposition(ctx);
-        Timeline newtimeline = cinematic.resolveTimeline(StringArgumentType.getString(ctx, "newtimeline"));
+        Layer newLayer = cinematic.resolveLayer(StringArgumentType.getString(ctx, "newlayer"));
         long newtime = pairtc.getRight().getStartTime();
 
         try {
             newtime = LongArgumentType.getLong(ctx, "newtime");
         } catch (Exception ignore) {}
 
-        if (newtimeline == null)
-            throw PolCinematicsCommand.INVALID_TIMELINE.create();
+        if (newLayer == null)
+            throw PolCinematicsCommand.INVALID_LAYER.create();
 
         try {
-            cinematic.moveComposition(pairtc.getRight(), pairtc.getLeft(), newtimeline, newtime);
+            cinematic.moveComposition(pairtc.getRight(), pairtc.getLeft(), newLayer, newtime);
         } catch (OverlapException | IllegalArgumentException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
             return 1;
         }
 
-        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline has been moved."));
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLayer has been moved."));
         return 1;
     }
 
@@ -1033,12 +1031,12 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairtc = CommandUtils.getComposition(ctx);
-        Timeline timeline = pairtc.getLeft();
+        Layer layer = pairtc.getLeft();
         long newtime = LongArgumentType.getLong(ctx, "newtime");
 
         try {
-            timeline.move(pairtc.getRight().getUuid(), newtime);
-            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline has been moved."));
+            layer.move(pairtc.getRight().getUuid(), newtime);
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLayer has been moved."));
         } catch (OverlapException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
         }
@@ -1046,18 +1044,18 @@ public class EditorSubcommand {
         return 1;
     }
 
-    private static int move_timeline(CommandContext<ServerCommandSource> ctx, boolean isUp) throws CommandSyntaxException {
+    private static int move_layer(CommandContext<ServerCommandSource> ctx, boolean isUp) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        var pairct = CommandUtils.getTimeline(ctx);
+        var pairct = CommandUtils.getLayer(ctx);
         int positions = IntegerArgumentType.getInteger(ctx, "positions");
 
         Cinematic cinematic = pairct.getLeft();
         if (!cinematic.canMove(pairct.getRight(), positions, isUp)) {
-            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't move this timeline here."));
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't move this layer here."));
         } else {
-            cinematic.moveTimeline(pairct.getRight(), positions, isUp);
-            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aTimeline has been moved."));
+            cinematic.moveLayer(pairct.getRight(), positions, isUp);
+            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLayer has been moved."));
         }
 
         return 1;

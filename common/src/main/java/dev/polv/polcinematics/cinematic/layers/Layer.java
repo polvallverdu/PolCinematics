@@ -1,4 +1,4 @@
-package dev.polv.polcinematics.cinematic.timelines;
+package dev.polv.polcinematics.cinematic.layers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -10,22 +10,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class Timeline {
+public class Layer {
 
     private final static ECompositionType[] ALLOWED_TYPES = new ECompositionType[]{ECompositionType.AUDIO_COMPOSITION, ECompositionType.OVERLAY_COMPOSITION};
 
     private final UUID uuid;
     protected List<WrappedComposition> compositions;
 
-    public Timeline() {
+    public Layer() {
         this(UUID.randomUUID(), new ArrayList<>());
     }
 
-    public Timeline(UUID uuid, List<WrappedComposition> compositions) {
+    public Layer(UUID uuid, List<WrappedComposition> compositions) {
         this.uuid = uuid;
         this.compositions = compositions;
         this.sort();
@@ -37,9 +36,9 @@ public class Timeline {
     }
 
     public WrappedComposition getWrappedComposition(long time) {
-        for (WrappedComposition timeline : compositions) {
-            if (timeline.getStartTime() <= time && timeline.getFinishTime() >= time) {
-                return timeline;
+        for (WrappedComposition layer : compositions) {
+            if (layer.getStartTime() <= time && layer.getFinishTime() >= time) {
+                return layer;
             }
         }
         return null;
@@ -81,7 +80,7 @@ public class Timeline {
             }
         }
         if (!allowed) {
-            throw new IllegalArgumentException("Composition type " + composition.getType() + " is not allowed in this timeline");
+            throw new IllegalArgumentException("Composition type " + composition.getType() + " is not allowed in this layer");
         }
 
         WrappedComposition wc = new WrappedComposition(composition, startTime, duration);
@@ -267,12 +266,12 @@ public class Timeline {
         return json;
     }
 
-    public static Timeline fromJson(JsonObject json) {
-        return fromJson(json, Timeline.class);
+    public static Layer fromJson(JsonObject json) {
+        return fromJson(json, Layer.class);
     }
 
-    public static Timeline fromJson(JsonObject json, Class<? extends Timeline> timelineClass) {
-        UUID timelineUUID = UUID.fromString(json.get("uuid").getAsString());
+    public static Layer fromJson(JsonObject json, Class<? extends Layer> layerClass) {
+        UUID layerUUID = UUID.fromString(json.get("uuid").getAsString());
         JsonArray compositionsArray = json.getAsJsonArray("compositions");
         List<WrappedComposition> compositions = new ArrayList<>();
 
@@ -290,10 +289,10 @@ public class Timeline {
         }
 
         try {
-            Constructor<? extends Timeline> constructor = timelineClass.getConstructor(UUID.class, List.class);
-            return constructor.newInstance(timelineUUID, compositions);
+            Constructor<? extends Layer> constructor = layerClass.getConstructor(UUID.class, List.class);
+            return constructor.newInstance(layerUUID, compositions);
         } catch (Exception e) {
-            throw new RuntimeException("Could not create timeline from json", e);
+            throw new RuntimeException("Could not create layer from json", e);
         }
     }
 

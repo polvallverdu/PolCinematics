@@ -12,10 +12,9 @@ import dev.polv.polcinematics.cinematic.compositions.Composition;
 import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
 import dev.polv.polcinematics.cinematic.compositions.values.constants.Constant;
 import dev.polv.polcinematics.cinematic.compositions.values.timevariables.TimeVariable;
-import dev.polv.polcinematics.cinematic.timelines.Timeline;
-import dev.polv.polcinematics.cinematic.timelines.WrappedComposition;
+import dev.polv.polcinematics.cinematic.layers.Layer;
+import dev.polv.polcinematics.cinematic.layers.WrappedComposition;
 import dev.polv.polcinematics.utils.CameraUtils;
-import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -25,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class CinematicThingsSuggestion implements SuggestionProvider<ServerCommandSource> {
 
     public enum SuggestionType {
-        TIMELINE,
+        LAYER,
         COMPOSITION,
         CONSTANT_KEYS,
         CONSTANT_VALUE,
@@ -54,27 +53,27 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return Suggestions.empty();
         }
 
-        if (type == SuggestionType.TIMELINE) {
+        if (type == SuggestionType.LAYER) {
             builder.suggest("camera");
-            builder.suggest(cinematic.getCameraTimeline().getUuid().toString(), Text.of("Timeline: camera"));
-            for (int i = 0; i < cinematic.getTimelineCount(); i++) {
-                String timelineName = String.valueOf(i+1);
-                builder.suggest(timelineName);
-                builder.suggest(cinematic.getTimeline(i).getUuid().toString(), Text.of("Timeline: " + timelineName));
+            builder.suggest(cinematic.getCameraLayer().getUuid().toString(), Text.of("layer: camera"));
+            for (int i = 0; i < cinematic.getLayerCount(); i++) {
+                String layerName = String.valueOf(i+1);
+                builder.suggest(layerName);
+                builder.suggest(cinematic.getLayer(i).getUuid().toString(), Text.of("layer: " + layerName));
             }
 
             return builder.buildFuture();
         }
 
-        String timelinename = StringArgumentType.getString(ctx, "timeline");
-        Timeline timeline = cinematic.resolveTimeline(timelinename);
+        String layername = StringArgumentType.getString(ctx, "layer");
+        Layer layer = cinematic.resolveLayer(layername);
 
-        if (timeline == null) {
+        if (layer == null) {
             return Suggestions.empty();
         }
 
         if (type == SuggestionType.COMPOSITION) {
-            timeline.getWrappedCompositions().forEach(wc -> {
+            layer.getWrappedCompositions().forEach(wc -> {
                 builder.suggest(wc.getUuid().toString(), Text.of(wc.getComposition().getName()));
                 builder.suggest(wc.getComposition().getName());
             });
@@ -83,7 +82,7 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         }
 
         String compositionname = StringArgumentType.getString(ctx, "composition");
-        WrappedComposition wrappedComposition = timeline.findWrappedComposition(compositionname);
+        WrappedComposition wrappedComposition = layer.findWrappedComposition(compositionname);
 
         if (wrappedComposition == null) {
             return Suggestions.empty();

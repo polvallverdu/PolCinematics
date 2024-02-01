@@ -18,7 +18,7 @@ public class GameOptionsMixin {
     public void injectPerspective(CallbackInfoReturnable<Perspective> cir) {
         ClientCinematic cin = PolCinematicsClient.getCCM().getLastRunningCinematic();
         if (cin == null) return;
-        CameraComposition cameracompo = cin.getCinematic().getCameraTimeline().getCameraComposition(cin.getElapsedTime());
+        CameraComposition cameracompo = cin.getCinematic().getCameraLayer().getCameraComposition(cin.getElapsedTime());
         if (cameracompo instanceof PlayerCameraComposition) {
             switch (((PlayerCameraComposition) cameracompo).getPerspective()) {
                 case FIRST_PERSON -> cir.setReturnValue(Perspective.FIRST_PERSON);
