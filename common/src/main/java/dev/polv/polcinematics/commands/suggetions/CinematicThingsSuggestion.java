@@ -54,12 +54,12 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
         }
 
         if (type == SuggestionType.LAYER) {
-            builder.suggest("camera");
-            builder.suggest(cinematic.getCameraLayer().getUuid().toString(), Text.of("layer: camera"));
+            builder.suggest("camera", Text.of("UUID: " + cinematic.getCameraLayer().getUuid().toString()));
+//            builder.suggest(cinematic.getCameraLayer().getUuid().toString(), Text.of("layer: camera"));
             for (int i = 0; i < cinematic.getLayerCount(); i++) {
                 String layerName = String.valueOf(i+1);
-                builder.suggest(layerName);
-                builder.suggest(cinematic.getLayer(i).getUuid().toString(), Text.of("layer: " + layerName));
+                builder.suggest(layerName, Text.of("UUID: " + cinematic.getLayer(i).getUuid().toString()));
+//                builder.suggest(cinematic.getLayer(i).getUuid().toString(), Text.of("layer: " + layerName));
             }
 
             return builder.buildFuture();
@@ -74,8 +74,8 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
 
         if (type == SuggestionType.COMPOSITION) {
             layer.getWrappedCompositions().forEach(wc -> {
-                builder.suggest(wc.getUuid().toString(), Text.of(wc.getComposition().getName()));
-                builder.suggest(wc.getComposition().getName());
+//                builder.suggest(wc.getUuid().toString(), Text.of(wc.getComposition().getName()));
+                builder.suggest(wc.getComposition().getName(), Text.of("UUID: " + wc.getComposition().getUuid().toString()));
             });
 
             return builder.buildFuture();
