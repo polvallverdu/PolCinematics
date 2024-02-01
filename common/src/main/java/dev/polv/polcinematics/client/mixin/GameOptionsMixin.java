@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.client.mixin;
 
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.PlayerCameraComposition;
+import dev.polv.polcinematics.internal.compositions.types.camera.CameraComposition;
+import dev.polv.polcinematics.internal.compositions.types.camera.PlayerCameraComposition;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import dev.polv.polcinematics.client.cinematic.ClientCinematic;
 import net.minecraft.client.option.GameOptions;

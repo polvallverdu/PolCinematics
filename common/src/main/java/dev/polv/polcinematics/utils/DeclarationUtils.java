@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.utils;
 
-import dev.polv.polcinematics.cinematic.compositions.Composition;
-import dev.polv.polcinematics.cinematic.compositions.values.EValueType;
+import dev.polv.polcinematics.internal.compositions.Composition;
+import dev.polv.polcinematics.internal.compositions.values.EValueType;
 
 public class DeclarationUtils {
 

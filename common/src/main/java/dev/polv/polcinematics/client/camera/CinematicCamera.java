@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.client.camera;
 
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraComposition;
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
+import dev.polv.polcinematics.internal.compositions.types.camera.CameraComposition;
+import dev.polv.polcinematics.internal.compositions.types.camera.CameraFrame;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import dev.polv.polcinematics.client.cinematic.ClientCinematic;
 import net.fabricmc.api.EnvType;

@@ -1,6 +1,6 @@
 package dev.polv.polcinematics.utils.math;
 
-import dev.polv.polcinematics.cinematic.compositions.types.camera.CameraFrame;
+import dev.polv.polcinematics.internal.compositions.types.camera.CameraFrame;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3d;

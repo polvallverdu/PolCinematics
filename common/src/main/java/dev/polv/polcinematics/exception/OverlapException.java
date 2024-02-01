@@ -1,6 +1,6 @@
 package dev.polv.polcinematics.exception;
 
-import dev.polv.polcinematics.cinematic.layers.WrappedComposition;
+import dev.polv.polcinematics.internal.layers.WrappedComposition;
 
 public class OverlapException extends RuntimeException {
 
