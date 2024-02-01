@@ -35,6 +35,7 @@ dependencies {
 
     // Embedded Chromium (jcef)
     modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef:${rootProject.mcef_api}")
+    modApi 'maven.modrinth:fabricskyboxes:mc1.19.4-0.7.2'
 
     // Apache Commons
     // https://mvnrepository.com/artifact/org.apache.commons/commons-numbers-core

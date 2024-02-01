@@ -12,7 +12,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class BrowserView {
@@ -82,8 +86,8 @@ public class BrowserView {
         if (width == 0 || height == 0) return;
 
         Window window = MinecraftClient.getInstance().getWindow();
-        int realWidth = window.getWidth() * (width / window.getScaledHeight() );
-        int realHeight = window.getWidth() * (height / window.getScaledHeight() );
+        int realWidth = (int) (window.getWidth() * ((double) width / window.getScaledHeight()));
+        int realHeight = (int) (window.getWidth() * ((double) height / window.getScaledHeight()));
 
         if (oldWidth != realWidth || oldHeight != realHeight) {
             this.oldWidth = realWidth;
@@ -107,6 +111,43 @@ public class BrowserView {
             RenderSystem.setShaderTexture(0, 0);
             RenderSystem.enableDepthTest();
         }
+    }
+
+    public void renderSkybox(MatrixStack matrices, int x, int y, int width, int height) {
+        if (width == 0 || height == 0) return;
+
+        int realWidth = 2000;
+        int realHeight = 2000;
+
+        if (oldWidth != realWidth || oldHeight != realHeight) {
+            this.oldWidth = realWidth;
+            this.oldHeight = realHeight;
+            this.resize();
+        }
+
+        if (browser == null) {
+            return;
+        }
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+        RenderSystem.setShaderTexture(0, browser.getRenderer().getTextureID());
+//        this.blend.applyBlendFunc(this.alpha);
+        ClientWorld world = (ClientWorld) Objects.requireNonNull(MinecraftClient.getInstance().world);
+        matrices.push();
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferBuilder = tessellator.getBuffer();
+        Matrix4f matrix4f = matrices.peek().getPositionMatrix();
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        bufferBuilder.vertex(matrix4f, -100.0F, -100.0F, -100.0F).texture(0f, 0f).color(1.0F, 1.0F, 1.0F, 1f).next();
+        bufferBuilder.vertex(matrix4f, -100.0F, -100.0F, 100.0F).texture(0f, 1f).color(1.0F, 1.0F, 1.0F, 1f).next();
+        bufferBuilder.vertex(matrix4f, 100.0F, -100.0F, 100.0F).texture(1f, 1f).color(1.0F, 1.0F, 1.0F, 1f).next();
+        bufferBuilder.vertex(matrix4f, 100.0F, -100.0F, -100.0F).texture(1f, 0f).color(1.0F, 1.0F, 1.0F, 1f).next();
+        tessellator.draw();
+        matrices.pop();
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     public void renderWorld(Matrix4f matrix4f, int x, int y, int width, int height) {

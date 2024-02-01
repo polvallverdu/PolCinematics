@@ -33,6 +33,7 @@ dependencies {
     // modImplementation("com.github.polvallverdu.FancyVideo-API-PolCinematics:FancyVideo-API-fabric:${rootProject.vlcvideo_api_commit}")
 //    modApi("com.github.polvallverdu.VLCVideo-API-PolCinematics:vlcvideoapi-fabric:${rootProject.vlcvideo_api}")
     modApi("com.github.polvallverdu.MCEF-PolCinematics:mcef-fabric:${rootProject.mcef_api}")
+    modApi 'maven.modrinth:fabricskyboxes:mc1.19.4-0.7.2'
 
     shadowImplementation(implementation("dev.polv:PolTaskManager:${rootProject.taskmanager_version}"))
 
@@ -40,6 +41,12 @@ dependencies {
     modLocalRuntime "maven.modrinth:sodium:mc1.19.4-0.4.10"
     modLocalRuntime "maven.modrinth:lithium:mc1.19.4-0.11.1"
     modLocalRuntime "maven.modrinth:modmenu:6.1.0-rc.1"
+    modLocalRuntime "maven.modrinth:iris:1.6.11+1.19.4"
+    modLocalRuntime "maven.modrinth:indium:1.0.19+mc1.19.4"
+    modLocalRuntime "maven.modrinth:sodium-extra:mc1.19.4-0.4.18"
+    modLocalRuntime "maven.modrinth:reeses-sodium-options:mc1.19.4-1.5.0"
+    modLocalRuntime "maven.modrinth:starlight:1.1.1+1.19"
+    modLocalRuntime "maven.modrinth:spark:1.10.37-fabric"
 }
 
 processResources {
