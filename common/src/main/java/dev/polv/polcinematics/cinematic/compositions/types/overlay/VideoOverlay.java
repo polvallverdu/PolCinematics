@@ -11,8 +11,7 @@ public class VideoOverlay extends OverlayComposition {
 
     private BrowserView browserView;
 
-    // TODO: Temp
-    private static final String URL = "http://localhost:5500";
+    private static final String URL = "https://d7b1.c16.e2-1.dev/polcinematics/video.html";
     public static final String VIDEO_URL_KEY = "VIDEO_URL";
 
     private float volume = 1;
