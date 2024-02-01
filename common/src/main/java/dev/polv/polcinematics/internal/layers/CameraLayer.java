@@ -43,4 +43,9 @@ public class CameraLayer extends Layer {
     public ECompositionType[] getAllowedTypes() {
         return new ECompositionType[]{ECompositionType.CAMERA_COMPOSITION};
     }
+
+    @Override
+    public ELayerType getType() {
+        return ELayerType.CAMERA_LAYER;
+    }
 }

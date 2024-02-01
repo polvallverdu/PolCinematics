@@ -1,6 +1,7 @@
 package dev.polv.polcinematics.client.cinematic;
 
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.net.Packets;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -23,7 +24,7 @@ public class ClientCinematic {
         this.cinematic = cinematic;
         // this.state = EClientCinematicState.LOADING; TODO: Logic to notice that cinematic has been loaded (it's components)
         // Cinematic#load()
-        cinematic.onCinematicLoad();
+        cinematic.onTimelineLoad();
 
         this.state = EClientCinematicLoadingState.STOPPED;
         Packets.sendCinematicReady(this.cinematic.getUuid());

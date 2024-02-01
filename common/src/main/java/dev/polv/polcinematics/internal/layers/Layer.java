@@ -162,13 +162,13 @@ public class Layer {
         sort();
     }
 
-    public void onCinematicLoad() {
+    public void onTimelineLoad() {
         for (WrappedComposition wc : compositions) {
             wc.getComposition().onCinematicLoad();
         }
     }
 
-    public void onCinematicUnload() {
+    public void onTimelineUnload() {
         for (WrappedComposition wc : compositions) {
             wc.getComposition().onCinematicUnload();
         }
@@ -294,6 +294,10 @@ public class Layer {
         } catch (Exception e) {
             throw new RuntimeException("Could not create layer from json", e);
         }
+    }
+
+    public ELayerType getType() {
+        return ELayerType.LAYER;
     }
 
 }

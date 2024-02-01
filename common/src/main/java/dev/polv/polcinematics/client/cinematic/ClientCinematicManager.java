@@ -5,6 +5,7 @@ import dev.architectury.event.events.client.ClientGuiEvent;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.client.PolCinematicsClient;
 import dev.polv.polcinematics.net.ClientPacketHandler;
 import net.fabricmc.api.EnvType;
@@ -37,17 +38,17 @@ public class ClientCinematicManager {
     }
 
     public void loadCinematic(JsonObject json) {
-        Cinematic cinematic = Cinematic.fromJson(json);
-        ClientCinematic clientCinematic = new ClientCinematic(cinematic);
+        Cinematic timeline = Cinematic.fromJson(json);
+        ClientCinematic clientCinematic = new ClientCinematic(timeline);
 
         // Check if cinematic is already loaded, to update it
-        ClientCinematic loadedCinematic = this.getClientCinematic(cinematic.getUuid());
+        ClientCinematic loadedCinematic = this.getClientCinematic(timeline.getUuid());
         if (loadedCinematic != null) {
-            this.unloadCinematic(cinematic.getUuid());
+            this.unloadCinematic(timeline.getUuid());
         }
 
         this.clientCinematics.add(clientCinematic);
-        PolCinematicsClient.LOGGER.info("Loaded cinematic: " + cinematic.getName());
+        PolCinematicsClient.LOGGER.info("Loaded cinematic: " + timeline.getName());
     }
 
     public void unloadCinematic(UUID cinematicUuid) {
@@ -55,7 +56,7 @@ public class ClientCinematicManager {
         if (clientCinematic != null) {
             this.clientCinematics.remove(clientCinematic);
             clientCinematic.stop();
-            clientCinematic.getCinematic().onCinematicUnload();
+            clientCinematic.getCinematic().onTimelineUnload();
             PolCinematicsClient.LOGGER.info("Unloaded cinematic: " + clientCinematic.getCinematic().getName());
         }
     }
@@ -64,7 +65,7 @@ public class ClientCinematicManager {
         return this.clientCinematics.stream().filter(clientCinematic -> clientCinematic.getCinematic().getUuid().equals(cinematicUuid)).findFirst().orElse(null);
     }
 
-    public @Nullable Cinematic getCinematic(UUID cinematicUuid) {
+    public @Nullable Timeline getCinematic(UUID cinematicUuid) {
         ClientCinematic clientCinematic = this.getClientCinematic(cinematicUuid);
         if (clientCinematic != null) {
             return clientCinematic.getCinematic();

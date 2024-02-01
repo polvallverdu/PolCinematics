@@ -5,7 +5,7 @@ import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.platform.Platform;
 import dev.polv.polcinematics.PolCinematics;
-import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
 import dev.polv.polcinematics.exception.InvalidCinematicException;
 import dev.polv.polcinematics.exception.NameException;
@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class ServerCinematicManager {
@@ -39,12 +37,12 @@ public class ServerCinematicManager {
     }
 
     private final File cinematicFolder;
-    private final List<Cinematic> loadedCinematics;
+    private final List<Timeline> loadedTimelines;
     private final HashMap<UUID, ECinematicState> loadedCinematicState;
     private List<FileCinematic> fileCinematicsCache;
     private long lastCacheRefresh;
 
-    private final ConcurrentHashMap<UUID, Cinematic> selectedCinematics;
+    private final ConcurrentHashMap<UUID, Timeline> selectedCinematics;
     private final List<UUID> broadcastedCinematics;
     private final Semaphore fileCinematicsLoadLock = new Semaphore(1);
 
@@ -56,7 +54,7 @@ public class ServerCinematicManager {
             cinematicFolder.mkdirs();
         }
 
-        this.loadedCinematics = new ArrayList<>();
+        this.loadedTimelines = new ArrayList<>();
         this.loadedCinematicState = new HashMap<>();
         this.fileCinematicsCache = new ArrayList<>();
 
@@ -64,14 +62,14 @@ public class ServerCinematicManager {
         this.broadcastedCinematics = new ArrayList<>();
 
         LifecycleEvent.SERVER_STOPPING.register(server -> {
-            new ArrayList<>(this.loadedCinematics).forEach(this::unloadCinematic);
+            new ArrayList<>(this.loadedTimelines).forEach(this::unloadCinematic);
             this.broadcastedCinematics.clear();
         });
         PlayerEvent.PLAYER_JOIN.register(player -> {
             this.broadcastedCinematics.forEach((uuid) -> {
-                Cinematic cinematic = this.getCinematic(uuid);
-                if (cinematic != null) {
-                    Packets.broadcastCinematic(cinematic, List.of(player));
+                Timeline timeline = this.getCinematic(uuid);
+                if (timeline != null) {
+                    Packets.broadcastCinematic(timeline, List.of(player));
                 }
             });
         });
@@ -109,22 +107,22 @@ public class ServerCinematicManager {
     }
 
     /**
-     * Creates a {@link Cinematic} and adds it to the loaded cinematics.
+     * Creates a {@link Timeline} and adds it to the loaded cinematics.
      *
      * @param name Name of the cinematic
      * @param duration Duration of the cinematic in milliseconds
      * @return The created cinematic
      * @throws NameException If the name is already taken
      */
-    public Cinematic createCinematic(String name, long duration) {
+    public Timeline createCinematic(String name, long duration) {
         if (this.isNameTaken(name)) {
             throw new NameException("Cinematic name already taken");
         }
-        Cinematic cinematic = Cinematic.create(name, duration);
-        this.loadedCinematics.add(cinematic);
-        this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.LOADED);
-        this.saveCinematic(cinematic, null);
-        return cinematic;
+        Timeline timeline = Timeline.create(name, duration);
+        this.loadedTimelines.add(timeline);
+        this.loadedCinematicState.put(timeline.getUuid(), ECinematicState.LOADED);
+        this.saveCinematic(timeline, null);
+        return timeline;
     }
 
     /**
@@ -134,14 +132,14 @@ public class ServerCinematicManager {
      * @param failedCallback Callback to run when the cinematic fails to load
      * @param doneCallback Callback to run when the cinematic is loaded
      */
-    public void loadCinematic(String fileName, @Nullable Consumer<Exception> failedCallback, @Nullable Consumer<Cinematic> doneCallback) throws InvalidCinematicException {
+    public void loadCinematic(String fileName, @Nullable Consumer<Exception> failedCallback, @Nullable Consumer<Timeline> doneCallback) throws InvalidCinematicException {
         File cinematicFile = new File(cinematicFolder, fileName);
         if (!cinematicFile.exists()) {
             throw new InvalidCinematicException("Cinematic file does not exist");
         }
 
         PolCinematics.getTaskManager().runAsync((ctx) -> {
-            Cinematic loadedCinematic;
+            Timeline loadedTimeline;
             try {
                 JsonObject cinematicJson = GsonUtils.jsonFromFile(cinematicFile);
                 UUID cinematicUUID = UUID.fromString(cinematicJson.get("uuid").getAsString());
@@ -156,7 +154,7 @@ public class ServerCinematicManager {
                 }
                 this.loadedCinematicState.put(cinematicUUID, ECinematicState.LOADING);
 
-                loadedCinematic = Cinematic.fromJson(cinematicJson);
+                loadedTimeline = Timeline.fromJson(cinematicJson);
             } catch (Exception e) {
                 PolCinematics.getTaskManager().run((cc) -> {
                     if (failedCallback != null) {
@@ -167,12 +165,12 @@ public class ServerCinematicManager {
                 return;
             }
 
-            this.loadedCinematics.add(loadedCinematic);
-            this.loadedCinematicState.put(loadedCinematic.getUuid(), ECinematicState.LOADED);
+            this.loadedTimelines.add(loadedTimeline);
+            this.loadedCinematicState.put(loadedTimeline.getUuid(), ECinematicState.LOADED);
 
             PolCinematics.getTaskManager().run((cc) -> {
                 if (doneCallback != null) {
-                    doneCallback.accept(loadedCinematic);
+                    doneCallback.accept(loadedTimeline);
                 }
             }).start();
         }).start();
@@ -181,34 +179,34 @@ public class ServerCinematicManager {
     /**
      * Unload a loaded cinematic
      *
-     * @param cinematic The {@link Cinematic} to unload
+     * @param timeline The {@link Timeline} to unload
      */
-    public void unloadCinematic(Cinematic cinematic) {
-        this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.UNLOADING);
+    public void unloadCinematic(Timeline timeline) {
+        this.loadedCinematicState.put(timeline.getUuid(), ECinematicState.UNLOADING);
 
-        this.loadedCinematics.remove(cinematic);
-        Packets.unbroadcastCinematic(cinematic.getUuid(), PolCinematics.SERVER.getPlayerManager().getPlayerList());
-        this.broadcastedCinematics.remove(cinematic.getUuid());
+        this.loadedTimelines.remove(timeline);
+        Packets.unbroadcastCinematic(timeline.getUuid(), PolCinematics.SERVER.getPlayerManager().getPlayerList());
+        this.broadcastedCinematics.remove(timeline.getUuid());
 
-        this.selectedCinematics.entrySet().removeIf(entry -> entry.getValue().equals(cinematic));
-        this.loadedCinematicState.remove(cinematic.getUuid());
+        this.selectedCinematics.entrySet().removeIf(entry -> entry.getValue().equals(timeline));
+        this.loadedCinematicState.remove(timeline.getUuid());
     }
 
     /**
      * Save a loaded cinematic.
      *
-     * @param cinematic The {@link Cinematic} to save
+     * @param timeline The {@link Timeline} to save
      * @param doneCallback Callback to run when the cinematic is saved
      */
-    public void saveCinematic(Cinematic cinematic, @Nullable Runnable doneCallback) {
-        if (this.loadedCinematicState.get(cinematic.getUuid()) != ECinematicState.LOADED) return;
-        this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.SAVING);
-        File cinematicFile = new File(cinematicFolder, cinematic.getUuid().toString() + ".json");
+    public void saveCinematic(Timeline timeline, @Nullable Runnable doneCallback) {
+        if (this.loadedCinematicState.get(timeline.getUuid()) != ECinematicState.LOADED) return;
+        this.loadedCinematicState.put(timeline.getUuid(), ECinematicState.SAVING);
+        File cinematicFile = new File(cinematicFolder, timeline.getUuid().toString() + ".json");
 
         PolCinematics.getTaskManager().runAsync((ctx) -> {
             try {
                 cinematicFile.createNewFile();
-                JsonObject cinematicJson = cinematic.toJson();
+                JsonObject cinematicJson = timeline.toJson();
                 GsonUtils.jsonToFile(cinematicJson, cinematicFile);
             } catch (IOException e) {
                 throw new RuntimeException("Failed to save cinematic");
@@ -216,7 +214,7 @@ public class ServerCinematicManager {
                 e.printStackTrace();
             }
 
-            this.loadedCinematicState.put(cinematic.getUuid(), ECinematicState.LOADED);
+            this.loadedCinematicState.put(timeline.getUuid(), ECinematicState.LOADED);
 
             PolCinematics.getTaskManager().run((cc) -> {
                 if (doneCallback != null) {
@@ -230,63 +228,63 @@ public class ServerCinematicManager {
      * Save all loaded cinematics
      */
     public void saveAllCinematics() {
-        for (Cinematic cinematic : loadedCinematics) {
-            saveCinematic(cinematic, null);
+        for (Timeline timeline : loadedTimelines) {
+            saveCinematic(timeline, null);
         }
     }
 
     /**
-     * Get a loaded {@link Cinematic} by name
+     * Get a loaded {@link Timeline} by name
      *
      * @param name The name of the cinematic
      * @return The cinematic, or null if not found
      */
-    public @Nullable Cinematic getCinematic(String name) {
-        for (Cinematic cinematic : loadedCinematics) {
-            if (cinematic.getName().equalsIgnoreCase(name)) {
-                return cinematic;
+    public @Nullable Timeline getCinematic(String name) {
+        for (Timeline timeline : loadedTimelines) {
+            if (timeline.getName().equalsIgnoreCase(name)) {
+                return timeline;
             }
         }
         return null;
     }
 
     /**
-     * Get a loaded {@link Cinematic} by {@link UUID}
+     * Get a loaded {@link Timeline} by {@link UUID}
      *
      * @param uuid The {@link UUID} of the cinematic
      * @return The cinematic, or null if not found
      */
-    public @Nullable Cinematic getCinematic(UUID uuid) {
-        for (Cinematic cinematic : loadedCinematics) {
-            if (cinematic.getUuid().equals(uuid)) {
-                return cinematic;
+    public @Nullable Timeline getCinematic(UUID uuid) {
+        for (Timeline timeline : loadedTimelines) {
+            if (timeline.getUuid().equals(uuid)) {
+                return timeline;
             }
         }
         return null;
     }
 
     /**
-     * Get a loaded {@link Cinematic} by name or {@link UUID}
+     * Get a loaded {@link Timeline} by name or {@link UUID}
      *
      * @param nameOrUuid The name or {@link UUID} of the cinematic
      * @return The cinematic, or null if not found
      */
-    public @Nullable Cinematic resolveCinematic(String nameOrUuid) {
-        Cinematic cinematic = getCinematic(nameOrUuid);
-        if (cinematic == null) {
+    public @Nullable Timeline resolveCinematic(String nameOrUuid) {
+        Timeline timeline = getCinematic(nameOrUuid);
+        if (timeline == null) {
             try {
-                cinematic = getCinematic(UUID.fromString(nameOrUuid));
+                timeline = getCinematic(UUID.fromString(nameOrUuid));
             } catch (IllegalArgumentException ignored) {
             }
         }
-        return cinematic;
+        return timeline;
     }
 
     /**
-     * @return A list of all loaded {@link Cinematic}
+     * @return A list of all loaded {@link Timeline}
      */
-    public List<Cinematic> getLoadedCinematics() {
-        return new ArrayList<>(loadedCinematics);
+    public List<Timeline> getLoadedCinematics() {
+        return new ArrayList<>(loadedTimelines);
     }
 
     /**
@@ -376,23 +374,23 @@ public class ServerCinematicManager {
         return this.getFileCinematic(name) != null;
     }
 
-    public boolean isCinematicBroadcasted(Cinematic cinematic) {
-        return this.broadcastedCinematics.contains(cinematic.getUuid());
+    public boolean isCinematicBroadcasted(Timeline timeline) {
+        return this.broadcastedCinematics.contains(timeline.getUuid());
     }
 
-    public void addBroadcastedCinematic(Cinematic cinematic) {
-        this.broadcastedCinematics.add(cinematic.getUuid());
+    public void addBroadcastedCinematic(Timeline timeline) {
+        this.broadcastedCinematics.add(timeline.getUuid());
     }
 
-    public void removeBroadcastedCinematic(Cinematic cinematic) {
-        this.broadcastedCinematics.remove(cinematic.getUuid());
+    public void removeBroadcastedCinematic(Timeline timeline) {
+        this.broadcastedCinematics.remove(timeline.getUuid());
     }
 
-    public void selectCinematic(ServerPlayerEntity player, Cinematic cinematic) {
-        this.selectedCinematics.put(player.getUuid(), cinematic);
+    public void selectCinematic(ServerPlayerEntity player, Timeline timeline) {
+        this.selectedCinematics.put(player.getUuid(), timeline);
     }
 
-    public @Nullable Cinematic getSelectedCinematic(ServerPlayerEntity player) {
+    public @Nullable Timeline getSelectedCinematic(ServerPlayerEntity player) {
         return this.selectedCinematics.get(player.getUuid());
     }
 

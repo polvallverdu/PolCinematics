@@ -1,7 +1,7 @@
 package dev.polv.polcinematics.net;
 
 import dev.architectury.networking.NetworkManager;
-import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.utils.NetworkUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -37,9 +37,9 @@ public class Packets {
         return new Identifier("polcinematics", name);
     }
 
-    public static void broadcastCinematic(Cinematic cinematic, List<ServerPlayerEntity> players) {
+    public static void broadcastCinematic(Timeline timeline, List<ServerPlayerEntity> players) {
         PacketByteBuf buf = NetworkUtils.createBuffer();
-        buf.writeByteArray(cinematic.toJson().toString().getBytes());
+        buf.writeByteArray(timeline.toJson().toString().getBytes());
         NetworkManager.sendToPlayers(players, CINEMATIC_BROADCAST_PACKET, buf);
     }
 

@@ -9,7 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.internal.compositions.Composition;
 import dev.polv.polcinematics.internal.compositions.ECompositionType;
 import dev.polv.polcinematics.internal.compositions.ICompositionType;
@@ -18,6 +18,7 @@ import dev.polv.polcinematics.internal.compositions.values.EValueType;
 import dev.polv.polcinematics.internal.compositions.values.constants.Constant;
 import dev.polv.polcinematics.internal.compositions.values.timevariables.CompositionTimeVariables;
 import dev.polv.polcinematics.internal.compositions.values.timevariables.TimeVariable;
+import dev.polv.polcinematics.internal.layers.ELayerType;
 import dev.polv.polcinematics.internal.layers.Layer;
 import dev.polv.polcinematics.internal.layers.WrappedComposition;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
@@ -180,11 +181,11 @@ public class EditorSubcommand {
                 l("create")
                         .then(
                                 l("layer").executes((ctx) -> {
-                                    Cinematic cinematic = CommandUtils.getCinematic(ctx);
+                                    Timeline timeline = CommandUtils.getCinematic(ctx);
 
-                                    Layer layer = cinematic.addLayer();
+                                    Layer layer = timeline.addLayer();
 
-                                    ctx.getSource().sendMessage(Text.literal(PolCinematicsCommand.PREFIX + "Layer " + cinematic.getLayerCount() + " created"));
+                                    ctx.getSource().sendMessage(Text.literal(PolCinematicsCommand.PREFIX + "Layer " + timeline.getLayerCount() + " created"));
                                     return 1;
                                 })
                         )
@@ -484,7 +485,7 @@ public class EditorSubcommand {
 
     private static int create_composition(CommandContext<ServerCommandSource> ctx, ICompositionType subtype) throws CommandSyntaxException {
         var pairtc = CommandUtils.getLayer(ctx);
-        Cinematic cinematic = pairtc.getLeft();
+        Timeline timeline = pairtc.getLeft();
         Layer layer = pairtc.getRight();
 
         String compositionName = StringArgumentType.getString(ctx, "composition_name");
@@ -507,21 +508,16 @@ public class EditorSubcommand {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
         var pairct = CommandUtils.getLayer(ctx);
-        Cinematic cinematic = pairct.getLeft();
+        Timeline timeline = pairct.getLeft();
         Layer layer = pairct.getRight();
 
-        if (cinematic.getCameraLayer().getUuid().equals(layer.getUuid())) {
-            player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't delete the camera layer"));
-            return 1;
-        }
-
         if (runDelete(player.getUuid(), String.valueOf(layer.hashCode()))) {
-            if (cinematic.removeLayer(layer)) {
+            if (timeline.removeLayer(layer)) {
                 player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLayer deleted"));
             } else {
                 player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cInvalid Layer"));
             }
-            System.gc();
+//            System.gc();
             return 1;
         }
 
@@ -756,12 +752,12 @@ public class EditorSubcommand {
     private static int info_cinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        Cinematic cinematic = CommandUtils.getCinematic(ctx);
+        Timeline timeline = CommandUtils.getCinematic(ctx);
 
-        String cinematicName = cinematic.getName();
-        UUID cinematicUUID = cinematic.getUuid();
-        Duration duration = cinematic.getDuration();
-        ArrayList<Layer> layers = cinematic.getLayers();
+        String cinematicName = timeline.getName();
+        UUID cinematicUUID = timeline.getUuid();
+        Duration duration = timeline.getDuration();
+        ArrayList<Layer> layers = timeline.getLayers();
 
         StringBuilder message = new StringBuilder(BOTTOM_LINE);
         message.append("\n\n").append("§fName: §7").append(cinematicName).append("\n");
@@ -786,7 +782,7 @@ public class EditorSubcommand {
 
             player.sendMessage(
                     Text
-                            .literal("§7-  §f" + (cinematic.getCameraLayer().getUuid().equals(layer.getUuid()) ? "Camera" : layers.indexOf(layer)))
+                            .literal("§7-  §f" + (layer.getType() == ELayerType.CAMERA_LAYER ? "Camera" : layers.indexOf(layer)))
                             .append(info)
                             .append(delete)
             );
@@ -799,10 +795,10 @@ public class EditorSubcommand {
     private static int duration_cinematic_set(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        Cinematic cinematic = CommandUtils.getCinematic(ctx);
+        Timeline timeline = CommandUtils.getCinematic(ctx);
         
         long newDuration = LongArgumentType.getLong(ctx, "duration");
-        cinematic.setDuration(newDuration);
+        timeline.setDuration(newDuration);
         
         player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCinematic duration has been updated to §f" + newDuration + " §amilliseconds."));
         return 1;
@@ -811,9 +807,9 @@ public class EditorSubcommand {
     private static int duration_cinematic_get(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        Cinematic cinematic = CommandUtils.getCinematic(ctx);
+        Timeline timeline = CommandUtils.getCinematic(ctx);
 
-        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Cinematic duration is §f" + cinematic.getDuration().toMillis() + " §7milliseconds."));
+        player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Cinematic duration is §f" + timeline.getDuration().toMillis() + " §7milliseconds."));
         return 1;
     }
 
@@ -1004,9 +1000,9 @@ public class EditorSubcommand {
     private static int move_composition_layer(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        Cinematic cinematic = CommandUtils.getCinematic(ctx);
+        Timeline timeline = CommandUtils.getCinematic(ctx);
         var pairtc = CommandUtils.getComposition(ctx);
-        Layer newLayer = cinematic.resolveLayer(StringArgumentType.getString(ctx, "newlayer"));
+        Layer newLayer = timeline.resolveLayer(StringArgumentType.getString(ctx, "newlayer"));
         long newtime = pairtc.getRight().getStartTime();
 
         try {
@@ -1017,7 +1013,7 @@ public class EditorSubcommand {
             throw PolCinematicsCommand.INVALID_LAYER.create();
 
         try {
-            cinematic.moveComposition(pairtc.getRight(), pairtc.getLeft(), newLayer, newtime);
+            timeline.moveComposition(pairtc.getRight(), pairtc.getLeft(), newLayer, newtime);
         } catch (OverlapException | IllegalArgumentException e) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + e.getMessage()));
             return 1;
@@ -1050,11 +1046,11 @@ public class EditorSubcommand {
         var pairct = CommandUtils.getLayer(ctx);
         int positions = IntegerArgumentType.getInteger(ctx, "positions");
 
-        Cinematic cinematic = pairct.getLeft();
-        if (!cinematic.canMove(pairct.getRight(), positions, isUp)) {
+        Timeline timeline = pairct.getLeft();
+        if (!timeline.canMove(pairct.getRight(), positions, isUp)) {
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cYou can't move this layer here."));
         } else {
-            cinematic.moveLayer(pairct.getRight(), positions, isUp);
+            timeline.moveLayer(pairct.getRight(), positions, isUp);
             player.sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aLayer has been moved."));
         }
 

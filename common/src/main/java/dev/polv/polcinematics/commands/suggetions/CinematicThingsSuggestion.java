@@ -8,6 +8,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dev.polv.polcinematics.PolCinematics;
 import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.internal.compositions.Composition;
 import dev.polv.polcinematics.internal.compositions.values.EValueType;
 import dev.polv.polcinematics.internal.compositions.values.constants.Constant;
@@ -47,26 +48,29 @@ public class CinematicThingsSuggestion implements SuggestionProvider<ServerComma
             return Suggestions.empty();
         }
 
-        Cinematic cinematic = PolCinematics.CINEMATICS_MANAGER.getSelectedCinematic(player);
+        Timeline timeline = PolCinematics.CINEMATICS_MANAGER.getSelectedCinematic(player);
 
-        if (cinematic == null) {
+        if (timeline == null) {
             return Suggestions.empty();
         }
 
         if (type == SuggestionType.LAYER) {
-            builder.suggest("camera", Text.of("UUID: " + cinematic.getCameraLayer().getUuid().toString()));
-//            builder.suggest(cinematic.getCameraLayer().getUuid().toString(), Text.of("layer: camera"));
-            for (int i = 0; i < cinematic.getLayerCount(); i++) {
+            for (int i = 0; i < timeline.getLayerCount(); i++) {
                 String layerName = String.valueOf(i+1);
-                builder.suggest(layerName, Text.of("UUID: " + cinematic.getLayer(i).getUuid().toString()));
+                builder.suggest(layerName, Text.of("UUID: " + timeline.getLayer(i).getUuid().toString()));
 //                builder.suggest(cinematic.getLayer(i).getUuid().toString(), Text.of("layer: " + layerName));
+            }
+
+            if (timeline instanceof Cinematic cinematic) {
+                builder.suggest("camera", Text.of("UUID: " + cinematic.getCameraLayer().getUuid().toString()));
+//            builder.suggest(cinematic.getCameraLayer().getUuid().toString(), Text.of("layer: camera"));
             }
 
             return builder.buildFuture();
         }
 
         String layername = StringArgumentType.getString(ctx, "layer");
-        Layer layer = cinematic.resolveLayer(layername);
+        Layer layer = timeline.resolveLayer(layername);
 
         if (layer == null) {
             return Suggestions.empty();

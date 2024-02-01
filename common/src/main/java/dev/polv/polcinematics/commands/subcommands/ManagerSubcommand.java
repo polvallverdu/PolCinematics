@@ -6,7 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
-import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.cinematic.manager.FileCinematic;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.exception.AlreadyLoadedCinematicException;
@@ -80,35 +80,35 @@ final public class ManagerSubcommand {
     private static int select(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
-        if (cinematic == null) {
+        if (timeline == null) {
             throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
         }
 
-        PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, cinematic);
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
+        PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, timeline);
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + timeline.getName()));
 
         return 1;
     }
 
     private static int create(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic;
+        Timeline timeline;
         try {
-            cinematic = PolCinematics.CINEMATICS_MANAGER.createCinematic(ctx.getArgument("cinematic", String.class), 10000);
+            timeline = PolCinematics.CINEMATICS_MANAGER.createCinematic(ctx.getArgument("cinematic", String.class), 10000);
         } catch (NameException e) {
             ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic name §6" + ctx.getArgument("cinematic", String.class) + " §cis already taken"));
             return 1;
         }
 
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCreated cinematic §6" + cinematic.getName()));
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aCreated cinematic §6" + timeline.getName()));
         PolCinematics.CINEMATICS_MANAGER.loadCache();
 
         if (ctx.getSource().isExecutedByPlayer()) {
             ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
-            PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, cinematic);
+            PolCinematics.CINEMATICS_MANAGER.selectCinematic(player, timeline);
 
-            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + cinematic.getName()));
+            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSelected cinematic §6" + timeline.getName()));
         }
         return 1;
     }
@@ -144,27 +144,27 @@ final public class ManagerSubcommand {
     }
 
     private static int unload(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
-        if (cinematic == null) {
+        if (timeline == null) {
             throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
         }
         ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Saving cinematic..."));
 
-        PolCinematics.CINEMATICS_MANAGER.saveCinematic(cinematic, () -> {
-            PolCinematics.CINEMATICS_MANAGER.unloadCinematic(cinematic);
+        PolCinematics.CINEMATICS_MANAGER.saveCinematic(timeline, () -> {
+            PolCinematics.CINEMATICS_MANAGER.unloadCinematic(timeline);
 
-            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSaved and unloaded cinematic §f" + cinematic.getName()));
+            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSaved and unloaded cinematic §f" + timeline.getName()));
         });
         return 1;
     }
 
     private static int save(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx);
+        Timeline timeline = CommandUtils.getCinematic(ctx);
 
         ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Saving cinematic..."));
-        PolCinematics.CINEMATICS_MANAGER.saveCinematic(cinematic, () -> {
-            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSaved cinematic §6" + cinematic.getName()));
+        PolCinematics.CINEMATICS_MANAGER.saveCinematic(timeline, () -> {
+            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§aSaved cinematic §6" + timeline.getName()));
             PolCinematics.CINEMATICS_MANAGER.loadCache();
         });
         return 1;

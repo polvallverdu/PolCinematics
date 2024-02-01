@@ -4,18 +4,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import dev.polv.polcinematics.PolCinematics;
-import dev.polv.polcinematics.cinematic.Cinematic;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
-import dev.polv.polcinematics.groups.PlayerGroup;
-import dev.polv.polcinematics.net.Packets;
 import dev.polv.polcinematics.screen.ScreenTest;
 import dev.polv.polcinematics.utils.CommandUtils;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-
-import java.util.List;
 
 public class ScreenSubcommand {
 

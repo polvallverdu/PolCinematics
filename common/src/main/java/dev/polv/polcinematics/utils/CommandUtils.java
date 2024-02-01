@@ -9,7 +9,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.polv.polcinematics.PolCinematics;
-import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.internal.compositions.values.constants.Constant;
 import dev.polv.polcinematics.internal.compositions.values.timevariables.Keyframe;
 import dev.polv.polcinematics.internal.compositions.values.timevariables.TimeVariable;
@@ -36,20 +36,20 @@ public class CommandUtils {
                 .requires(source -> source.hasPermissionLevel(4));
     }
     
-    public static Cinematic getCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+    public static Timeline getCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         return getCinematic(ctx, true);
     }
 
-    public static Cinematic getCinematic(CommandContext<ServerCommandSource> ctx, boolean checkSelected) throws CommandSyntaxException {
-        Cinematic cinematic = null;
+    public static Timeline getCinematic(CommandContext<ServerCommandSource> ctx, boolean checkSelected) throws CommandSyntaxException {
+        Timeline timeline = null;
 
         try {
             String cinematicResolver = StringArgumentType.getString(ctx, "cinematic");
-            cinematic = PolCinematics.CINEMATICS_MANAGER.resolveCinematic(cinematicResolver);
-            if (cinematic == null) {
+            timeline = PolCinematics.CINEMATICS_MANAGER.resolveCinematic(cinematicResolver);
+            if (timeline == null) {
                 throw PolCinematicsCommand.CINEMATIC_NOT_FOUND.create();
             }
-            return cinematic;
+            return timeline;
         } catch (CommandSyntaxException e) {
             throw e;
         } catch (Exception ignore) {}
@@ -57,14 +57,14 @@ public class CommandUtils {
         if (checkSelected) {
             ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
 
-            cinematic = getSelectedCinematic(player);
+            timeline = getSelectedCinematic(player);
 
-            if (cinematic == null) {
+            if (timeline == null) {
                 throw PolCinematicsCommand.CINEMATIC_NOT_SELECTED.create();
             }
         }
 
-        return cinematic;
+        return timeline;
     }
 
     public static FileCinematic getFileCinematic(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
@@ -79,33 +79,33 @@ public class CommandUtils {
         return cinematic;
     }
 
-    private static Cinematic getSelectedCinematic(ServerPlayerEntity player) {
+    private static Timeline getSelectedCinematic(ServerPlayerEntity player) {
         UUID uuid = player.getUuid();
-        Cinematic cinematic;
-        if ((cinematic = PolCinematics.CINEMATICS_MANAGER.getSelectedCinematic(player)) != null) {
-            return cinematic;
+        Timeline timeline;
+        if ((timeline = PolCinematics.CINEMATICS_MANAGER.getSelectedCinematic(player)) != null) {
+            return timeline;
         }
         return null;
     }
 
-    public static Pair<Cinematic, Layer> getLayer(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(ctx);
+    public static Pair<Timeline, Layer> getLayer(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
+        Timeline timeline = getCinematic(ctx);
 
         String layerName = StringArgumentType.getString(ctx, "layer");
-        Layer layer = cinematic.resolveLayer(layerName);
+        Layer layer = timeline.resolveLayer(layerName);
 
         if (layer == null) {
             throw PolCinematicsCommand.INVALID_LAYER.create();
         }
 
-        return new Pair<>(cinematic, layer);
+        return new Pair<>(timeline, layer);
     }
 
     public static Pair<Layer, WrappedComposition> getComposition(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = getCinematic(ctx);
+        Timeline timeline = getCinematic(ctx);
 
         String compoQuery = StringArgumentType.getString(ctx, "composition");
-        var pair = cinematic.getLayerAndWrappedComposition(compoQuery);
+        var pair = timeline.getLayerAndWrappedComposition(compoQuery);
 
         if (pair == null)
             throw PolCinematicsCommand.INVALID_COMPOSITION.create();

@@ -5,7 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dev.polv.polcinematics.PolCinematics;
-import dev.polv.polcinematics.cinematic.Cinematic;
+import dev.polv.polcinematics.cinematic.Timeline;
 import dev.polv.polcinematics.commands.PolCinematicsCommand;
 import dev.polv.polcinematics.groups.PlayerGroup;
 import dev.polv.polcinematics.net.Packets;
@@ -143,14 +143,14 @@ public class PlayerSubcommand {
             }
         } catch (Exception ignore) {}
 
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
         List<ServerPlayerEntity> players = ctx.getSource().getServer().getPlayerManager().getPlayerList();
         if (group != null) {
             players = group.getPlayers(ctx.getSource());
         }
 
-        Packets.sendCinematicPlay(players, cinematic.getUuid(), true, 0);
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Playing cinematic §f" + cinematic.getName() + " §7on first frame"));
+        Packets.sendCinematicPlay(players, timeline.getUuid(), true, 0);
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Playing cinematic §f" + timeline.getName() + " §7on first frame"));
         return 1;
     }
 
@@ -177,7 +177,7 @@ public class PlayerSubcommand {
             }
         } catch (Exception ignore) {}
 
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
         paused = paused == null ? false : paused;
         from = from == null ? 0 : from;
@@ -187,73 +187,73 @@ public class PlayerSubcommand {
             players = group.getPlayers(ctx.getSource());
         }
 
-        Packets.sendCinematicPlay(players, cinematic.getUuid(), paused, from);
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Playing cinematic §f" + cinematic.getName() + " §7with start time §f" + from + " §7and paused §f" + paused));
+        Packets.sendCinematicPlay(players, timeline.getUuid(), paused, from);
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Playing cinematic §f" + timeline.getName() + " §7with start time §f" + from + " §7and paused §f" + paused));
         return 1;
     }
 
     private static int stop(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
-        Packets.sendCinematicStop(ctx.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid());
+        Packets.sendCinematicStop(ctx.getSource().getServer().getPlayerManager().getPlayerList(), timeline.getUuid());
 
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Stopping cinematic §f" + cinematic.getName()));
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Stopping cinematic §f" + timeline.getName()));
         return 1;
     }
 
     private static int broadcast(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
-        if (!PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(cinematic)) {
-            PolCinematics.CINEMATICS_MANAGER.addBroadcastedCinematic(cinematic);
+        if (!PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(timeline)) {
+            PolCinematics.CINEMATICS_MANAGER.addBroadcastedCinematic(timeline);
         }
 
-        Packets.broadcastCinematic(cinematic, ctx.getSource().getServer().getPlayerManager().getPlayerList());
+        Packets.broadcastCinematic(timeline, ctx.getSource().getServer().getPlayerManager().getPlayerList());
 
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Broadcasting cinematic §f" + cinematic.getName()));
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Broadcasting cinematic §f" + timeline.getName()));
         return 1;
     }
 
     private static int unbroadcast(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
-        if (!PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(cinematic)) {
-            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + cinematic.getName() + " §cis not broadcasted"));
+        if (!PolCinematics.CINEMATICS_MANAGER.isCinematicBroadcasted(timeline)) {
+            ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§cCinematic §6" + timeline.getName() + " §cis not broadcasted"));
             return 1;
         }
 
-        PolCinematics.CINEMATICS_MANAGER.removeBroadcastedCinematic(cinematic);
-        Packets.unbroadcastCinematic(cinematic.getUuid(), ctx.getSource().getServer().getPlayerManager().getPlayerList());
+        PolCinematics.CINEMATICS_MANAGER.removeBroadcastedCinematic(timeline);
+        Packets.unbroadcastCinematic(timeline.getUuid(), ctx.getSource().getServer().getPlayerManager().getPlayerList());
 
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Unbroadcasting cinematic §f" + cinematic.getName()));
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Unbroadcasting cinematic §f" + timeline.getName()));
         return 1;
     }
 
     private static int pause(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
-        Packets.sendCinematicPause(ctx.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid());
+        Packets.sendCinematicPause(ctx.getSource().getServer().getPlayerManager().getPlayerList(), timeline.getUuid());
 
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Pausing cinematic §f" + cinematic.getName()));
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Pausing cinematic §f" + timeline.getName()));
         return 1;
     }
 
     private static int resume(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
 
-        Packets.sendCinematicResume(ctx.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid());
+        Packets.sendCinematicResume(ctx.getSource().getServer().getPlayerManager().getPlayerList(), timeline.getUuid());
 
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Resuming cinematic §f" + cinematic.getName()));
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Resuming cinematic §f" + timeline.getName()));
         return 1;
     }
 
     private static int gotocmd(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
-        Cinematic cinematic = CommandUtils.getCinematic(ctx, false);
+        Timeline timeline = CommandUtils.getCinematic(ctx, false);
         long to = ctx.getArgument("to", Long.class);
 
-        Packets.sendCinematicGoto(ctx.getSource().getServer().getPlayerManager().getPlayerList(), cinematic.getUuid(), to);
+        Packets.sendCinematicGoto(ctx.getSource().getServer().getPlayerManager().getPlayerList(), timeline.getUuid(), to);
 
-        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Moving cinematic §f" + cinematic.getName() + " §7to §f" + to));
+        ctx.getSource().sendMessage(Text.of(PolCinematicsCommand.PREFIX + "§7Moving cinematic §f" + timeline.getName() + " §7to §f" + to));
         return 1;
     }
 
